@@ -1,0 +1,300 @@
+/* =============================================================================
+   Design tokens
+   -----------------------------------------------------------------------------
+   Visual language: near-white plane, large-radius white cards, hairline
+   borders doing the separating, big light-weight numerals, colour reserved
+   almost entirely for data.
+
+   The categorical palette was derived with scripts/palette-search.mjs, which
+   runs the dataviz skill's snap-to-passing procedure: real hue ramps, every
+   ordering enumerated, one step chosen per slot to maximise the minimum
+   adjacent CVD separation, and only orderings clearing every hard gate in BOTH
+   modes kept. Result, against this project's own surfaces:
+
+     light  surface #ffffff  CVD ΔE 20.3  normal-vision ΔE 31.6   ALL PASS
+     dark   surface #141416  CVD ΔE 11.0  normal-vision ΔE 21.9   ALL PASS
+
+   (For comparison the skill's own reference instance scores 9.1 / 19.6.)
+
+   Light mode WARNs sub-3:1 on cyan and amber. The relief channel is shipped:
+   every chart carries a table-view twin and direct labels. The slot ORDER is
+   the CVD-safety mechanism — re-run the search before changing it.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* --- Surfaces & ink ----------------------------------------------------- */
+  --plane: #f8f8f8; /* page plane */
+  --surface-1: #ffffff; /* cards, chart surface */
+  --surface-2: #f4f4f5; /* wells, table headers, hover */
+  --surface-3: #ececee; /* tick-meter track, inactive marks */
+  --ink-primary: #1c1c1e;
+  --ink-secondary: #5c5c61;
+  --ink-muted: #8e8e93;
+  --grid: #f0f0f1; /* hairline gridline, solid — never dashed */
+  --axis: #e2e2e4;
+  --hairline: #ebebed;
+
+  /* --- Categorical slots (fixed order IS the CVD-safety mechanism) --------- */
+  --series-1: #6366f1; /* indigo  */
+  --series-2: #ea580c; /* orange  */
+  --series-3: #06b6d4; /* cyan    */
+  --series-4: #be185d; /* pink    */
+  --series-5: #f59e0b; /* amber   */
+  --series-6: #047857; /* emerald */
+  --series-7: #7c3aed; /* violet — spare, outside the validated chain */
+  --series-8: #b91c1c; /* red    — spare, outside the validated chain */
+  --series-other: #a1a1aa; /* de-emphasis / "Other" */
+
+  /* Pale companions: the same hue at wash strength, for the emphasis form
+     (one mark in full colour, the rest recessive) and for area fills. */
+  --series-1-wash: color-mix(in oklab, var(--series-1) 14%, var(--surface-1));
+  --series-2-wash: color-mix(in oklab, var(--series-2) 14%, var(--surface-1));
+
+  /* --- Sequential ramp (indigo, light -> dark) ----------------------------- */
+  --seq-100: #e0e7ff;
+  --seq-200: #c7d2fe;
+  --seq-300: #a5b4fc;
+  --seq-400: #818cf8;
+  --seq-500: #6366f1;
+  --seq-600: #4f46e5;
+  --seq-700: #4338ca;
+
+  /* --- Diverging (indigo <-> orange, neutral gray midpoint) ---------------- */
+  --div-pos: #6366f1;
+  --div-neg: #ea580c;
+  --div-mid: #f0f0f1;
+
+  /* --- Status (fixed scale, never themed, always icon + label) ------------- */
+  --status-good: #15803d;
+  --status-warning: #b45309;
+  --status-serious: #c2410c;
+  --status-critical: #be123c;
+  --delta-good: #15803d;
+  --delta-bad: #be123c;
+
+  /* --- Elevation ---------------------------------------------------------- */
+  /* A hairline ring plus the faintest lift. The border does the separating;
+     the shadow only keeps a card from sitting flat on the plane. */
+  --shadow-border: 0 0 0 1px var(--hairline), 0 1px 2px 0 oklch(0 0 0 / 0.03);
+  --shadow-border-hover:
+    0 0 0 1px oklch(0 0 0 / 0.1), 0 2px 6px -1px oklch(0 0 0 / 0.06);
+  --shadow-pop:
+    0 0 0 1px oklch(0 0 0 / 0.06), 0 8px 24px -6px oklch(0 0 0 / 0.14),
+    0 16px 40px -12px oklch(0 0 0 / 0.1);
+
+  /* --- Tooltip: a dark pill against a light page, inverted in dark mode --- */
+  --tooltip-bg: #1c1c1e;
+  --tooltip-ink: #ffffff;
+  --tooltip-ink-dim: #a1a1aa;
+  --tooltip-rule: rgb(255 255 255 / 0.14);
+
+  /* --- Radii (concentric: outer = inner + padding) ------------------------ */
+  --r-card: 20px;
+  --r-inner: 12px;
+  --r-control: 10px;
+  --r-chip: 8px;
+
+  /* --- Motion ------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* enters, exits, UI feedback */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* on-screen movement */
+  --ease-xfade: cubic-bezier(0.2, 0, 0, 1); /* icon cross-fade */
+}
+
+.dark {
+  color-scheme: dark;
+
+  --plane: #0e0e10;
+  --surface-1: #141416;
+  --surface-2: #1c1c1f;
+  --surface-3: #26262a;
+  --ink-primary: #f4f4f5;
+  --ink-secondary: #a1a1aa;
+  --ink-muted: #71717a;
+  --grid: #222226;
+  --axis: #2e2e33;
+  --hairline: #26262a;
+
+  /* Same six hues, re-stepped for the dark surface and re-validated as a set
+     — not an automatic flip. */
+  --series-1: #6366f1;
+  --series-2: #ea580c;
+  --series-3: #0891b2;
+  --series-4: #be185d;
+  --series-5: #d97706;
+  --series-6: #047857;
+  --series-7: #8b5cf6;
+  --series-8: #dc2626;
+  --series-other: #52525b;
+
+  /* Sequential flips its anchor in dark */
+  --seq-100: #312e81;
+  --seq-200: #3730a3;
+  --seq-300: #4338ca;
+  --seq-400: #4f46e5;
+  --seq-500: #6366f1;
+  --seq-600: #818cf8;
+  --seq-700: #a5b4fc;
+
+  --div-pos: #6366f1;
+  --div-neg: #ea580c;
+  --div-mid: #26262a;
+
+  --tooltip-bg: #2a2a30;
+  --tooltip-ink: #f4f4f5;
+  --tooltip-ink-dim: #a1a1aa;
+  --tooltip-rule: rgb(255 255 255 / 0.12);
+
+  --status-good: #22c55e;
+  --status-warning: #f59e0b;
+  --status-serious: #fb923c;
+  --status-critical: #f43f5e;
+  --delta-good: #22c55e;
+  --delta-bad: #f43f5e;
+
+  /* Dark: one light ring — layered depth shadows are invisible here */
+  --shadow-border: 0 0 0 1px var(--hairline);
+  --shadow-border-hover: 0 0 0 1px oklch(1 0 0 / 0.16);
+  --shadow-pop:
+    0 0 0 1px oklch(1 0 0 / 0.1), 0 12px 32px -8px oklch(0 0 0 / 0.7);
+}
+
+/* Expose tokens to Tailwind utilities (bg-surface-1, text-ink-muted, …) */
+@theme inline {
+  --color-plane: var(--plane);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+  --color-hairline: var(--hairline);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-series-6: var(--series-6);
+  --color-series-other: var(--series-other);
+  --color-status-good: var(--status-good);
+  --color-status-warning: var(--status-warning);
+  --color-status-serious: var(--status-serious);
+  --color-status-critical: var(--status-critical);
+  --color-delta-good: var(--delta-good);
+  --color-delta-bad: var(--delta-bad);
+  --radius-card: var(--r-card);
+  --radius-inner: var(--r-inner);
+  --radius-control: var(--r-control);
+  --radius-chip: var(--r-chip);
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+  --ease-xfade: var(--ease-xfade);
+}
+
+/* =============================================================================
+   Primitives
+   ========================================================================== */
+
+/* Depth without a heavy border. Structural borders (dividers) stay borders. */
+.surface-card {
+  background-color: var(--surface-1);
+  box-shadow: var(--shadow-border);
+  transition-property: box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+
+.surface-card-interactive:hover {
+  box-shadow: var(--shadow-border-hover);
+}
+
+/* Press feedback. `static` opts out where motion would distract. */
+.press {
+  transition-property: scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+.press:active:not(:disabled) {
+  scale: 0.96;
+}
+
+/* Chart tooltips are a dark pill, not a card — they sit over data and should
+   read as an overlay rather than another surface. */
+.tooltip-card {
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-ink);
+  border-radius: var(--r-chip);
+  box-shadow: var(--shadow-pop);
+}
+
+/* Square icon button: hairline ring, ghost wash on hover. */
+.icon-btn {
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-control);
+  color: var(--ink-muted);
+  background-color: var(--surface-1);
+  box-shadow: 0 0 0 1px var(--hairline);
+  transition-property: color, background-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover {
+    color: var(--ink-primary);
+    background-color: var(--surface-2);
+  }
+}
+
+/* Staged entrance — infrequent, so sequence may communicate hierarchy.
+   ~100ms between semantic chunks. Never applied to high-frequency updates. */
+@keyframes chunk-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.chunk-in {
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(4px);
+  animation: chunk-in 400ms var(--ease-out) forwards;
+}
+.chunk-in-1 { animation-delay: 0ms; }
+.chunk-in-2 { animation-delay: 100ms; }
+.chunk-in-3 { animation-delay: 200ms; }
+.chunk-in-4 { animation-delay: 300ms; }
+.chunk-in-5 { animation-delay: 400ms; }
+
+/* Refetch keeps the frame: hold the previous render, no skeleton, no jump. */
+.is-refetching {
+  opacity: 0.55;
+  transition: opacity 150ms var(--ease-out);
+}
+
+/* Reduced motion means fewer and gentler, not zero: opacity survives,
+   movement does not. */
+@media (prefers-reduced-motion: reduce) {
+  .chunk-in {
+    transform: none;
+    filter: none;
+    animation-duration: 200ms;
+    animation-delay: 0ms !important;
+  }
+  .press:active:not(:disabled) {
+    scale: 1;
+  }
+}
+
+/* Hover states are gated — touch devices fire hover on tap. */
+@media (hover: hover) and (pointer: fine) {
+  .row-hover:hover {
+    background-color: var(--surface-2);
+    transition: background-color 100ms var(--ease-out);
+  }
+}
