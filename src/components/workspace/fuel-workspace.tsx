@@ -6,7 +6,7 @@ import { MultiLine, gutterFor } from "@/components/chart/multi-line";
 import { SmallMultiples } from "@/components/chart/small-multiples";
 import { StackedBar } from "@/components/chart/stacked-bar";
 import { HeroFigure, StatTile } from "@/components/figures/stat-tile";
-import { GRADE_OPTIONS } from "@/lib/workspace/fuel";
+import { useMeta } from "@/components/shell/meta";
 import { useFuelWorkspace } from "@/lib/hooks/use-workspace";
 import type { Filters } from "@/lib/workspace/types";
 import {
@@ -24,6 +24,11 @@ import { cn } from "@/lib/utils";
 
 export function FuelWorkspace() {
   const { filters, update, pending } = useFilters();
+  const { meta } = useMeta();
+  const gradeOptions = [
+    { value: "all", label: "All grades" },
+    ...(meta?.grades ?? []).map((g) => ({ value: g.id, label: g.name })),
+  ];
   const { data: w, loading, error } = useFuelWorkspace(filters);
 
   const gal = (n: number) => thousands(Math.round(n));
@@ -70,7 +75,7 @@ export function FuelWorkspace() {
             label: "Grade",
             value: filters.gradeId,
             onChange: (v) => update({ gradeId: v as Filters["gradeId"] }),
-            options: GRADE_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+            options: gradeOptions,
           }}
         />
       </div>
@@ -105,9 +110,13 @@ export function FuelWorkspace() {
 
           <StatTile
             label="Forecast accuracy"
-            value={percent(1 - w.accuracy.wape, 1)}
-            caption={`${w.accuracy.points} backtested days`}
-            captionRight={`bias ${signedPercent(w.accuracy.bias, 1)}`}
+            value={w.accuracy.points > 0 ? percent(1 - w.accuracy.wape, 1) : "—"}
+            caption={
+              w.accuracy.points > 0
+                ? `${w.accuracy.points} backtested days`
+                : "Not enough history to score yet"
+            }
+            captionRight={w.accuracy.points > 0 ? `bias ${signedPercent(w.accuracy.bias, 1)}` : undefined}
           />
 
           {/* Counted as "needs a drop" rather than "healthy": when every tank
@@ -248,7 +257,7 @@ export function FuelWorkspace() {
           <div className="xl:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="gal" />
           </div>
-          <AccuracyPanel accuracy={w.accuracy} />
+          <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
           <div className="xl:col-span-2">
             <AnomalyFeed incidents={w.incidents} unit="gallons" />

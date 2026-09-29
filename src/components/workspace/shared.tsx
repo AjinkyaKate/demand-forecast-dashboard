@@ -11,7 +11,8 @@ import { DriverBars } from "@/components/chart/driver-bars";
 import type { Anomaly } from "@/lib/forecast/anomalies";
 import type { DriverModel } from "@/lib/forecast/drivers";
 import { BRIDGE_ORDER_LABELS } from "@/lib/forecast/drivers";
-import type { Accuracy } from "@/lib/forecast/holt-winters";
+import type { Accuracy } from "@/lib/forecast/backtest";
+import type { ModelInfo } from "@/lib/workspace/items";
 import { dowDate, percent, shortDate, signedPercent, thousands } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -238,7 +239,59 @@ export function DriverCard({
 /* Accuracy                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export function AccuracyPanel({ accuracy }: { accuracy: Accuracy }) {
+const MODEL_NAME: Record<ModelInfo["used"], string> = {
+  driver: "Driver model",
+  "holt-winters": "Holt-Winters",
+};
+
+/** Which model forecasts this view, and the backtest that chose it. */
+function ModelChoiceNote({ model }: { model: ModelInfo }) {
+  const pct = (w: number | null) => (w == null || !Number.isFinite(w) ? "—" : percent(1 - w, 1));
+  return (
+    <div className="bg-surface-2 rounded-inner mt-4 p-3">
+      <p className="text-ink-primary text-xs font-medium">Forecast by {MODEL_NAME[model.used]}</p>
+      <p className="text-ink-muted mt-1 text-[11px] leading-relaxed">
+        {model.used === "driver"
+          ? "Learns promotion, price, holiday, weather and event effects from past sales, and applies them to the planned promos, weather forecast and events ahead."
+          : "Sales history only — the driver model didn’t score better on this backtest."}
+      </p>
+      <dl className="tabular mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Driver model</dt>
+          <dd className="text-ink-primary font-medium">{pct(model.driverWape)}</dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Holt-Winters</dt>
+          <dd className="text-ink-primary font-medium">{pct(model.hwWape)}</dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Series on driver model</dt>
+          <dd className="text-ink-primary font-medium">
+            {model.seriesOnDriver}/{model.seriesTotal}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+export function AccuracyPanel({ accuracy, model }: { accuracy: Accuracy; model?: ModelInfo }) {
+  // A store with too little history has nothing to score. Say so instead of
+  // printing a number computed from nothing.
+  if (accuracy.points === 0) {
+    return (
+      <section className="surface-card rounded-card p-5 sm:p-6">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-ink-primary text-sm font-semibold">Forecast accuracy</h3>
+          <StatusBadge tone="neutral">Not scored yet</StatusBadge>
+        </div>
+        <p className="text-ink-secondary mt-3 text-xs leading-relaxed">
+          This store doesn&apos;t have enough sales history to backtest the forecast. Scoring
+          needs about four months of daily sales. Until then, read the forecast as a best guess.
+        </p>
+      </section>
+    );
+  }
   const beatsNaive = accuracy.mase < 1;
   // Each metric's gloss lives in its `title`, not on screen — four rows of
   // explanation under four numbers doubles the panel and halves its legibility.
@@ -292,6 +345,7 @@ export function AccuracyPanel({ accuracy }: { accuracy: Accuracy }) {
           </div>
         ))}
       </dl>
+      {model ? <ModelChoiceNote model={model} /> : null}
     </section>
   );
 }

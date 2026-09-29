@@ -1,13 +1,43 @@
 # Demand Forecast — C-store & Retail
 
-Two forecasting workspaces for convenience-store and retail operators:
+Forecasting workspaces for convenience-store and retail operators:
 
 - **Item Forecasting** (`/items`) — demand for products and SKUs sold in the store
 - **Fuel Forecasting** (`/fuel`) — demand by fuel grade
+- **Model Lab** (`/lab`) — what each input (promotions, holidays, weather, events) adds to accuracy
 
 Each workspace answers the same four questions in the same order — what happened,
 what's coming, why, and what to do about it — and ends in a table an operator can
 act on today.
+
+## Data
+
+Everything the app shows is read from SQLite (`data/forecast.db`, not committed).
+
+```bash
+npm run seed       # fresh database: demo stores, SKUs, sales, promo plan, stock
+npm run migrate    # upgrade an existing database in place (keeps its data)
+npm run sync       # pull every external source (or: npm run sync -- weather)
+```
+
+| Source | What it adds | Key |
+|---|---|---|
+| Open-Meteo | Weather at each store's coordinates: history, 16-day forecast, 10-year normals | none |
+| Nager.Date | US national and state public holidays | none |
+| PredictHQ | Events within 10 km of each store, past and next 90 days | `PREDICTHQ_API_TOKEN` |
+
+For PredictHQ, create an access token in the PredictHQ control center, put it in
+`.env.local` (git-ignored), restart `npm run dev`, then run `npm run sync -- events`
+or press Sync in the data-sources panel:
+
+```bash
+PREDICTHQ_API_TOKEN=your-token
+```
+
+Sales, promotions, inventory and tank levels are demo data; store coordinates
+are demo locations in central New Jersey.
+
+## Commands
 
 ```bash
 npm run dev        # http://localhost:3000
@@ -25,7 +55,17 @@ npm run palette    # re-derive + re-validate the categorical palette
 Nothing here is a faked chart line. Every figure is computed, and the model is
 honest about where it is weak.
 
-**Forecast model** — Holt-Winters exponential smoothing with a damped trend and
+**Forecast model** — every SKU, fuel grade and store total is forecast by
+whichever of two models scores better on its own rolling-origin backtest:
+
+- *Driver model* (`src/lib/forecast/driver-forecast.ts`): a ridge regression of
+  `log1p(demand)` on calendar shape, the promo plan, price, public holidays, the
+  store's weather and events. Effects are learned from history and applied to the
+  known future — planned promotions, the weather forecast, upcoming holidays and
+  events — plus a decaying correction for level shifts the inputs don't explain.
+- *Holt-Winters*, the fallback, described below.
+
+**Holt-Winters** — exponential smoothing with a damped trend and
 weekly seasonality, fitted on `log1p(y)`. Log space because C-store demand is
 count data with multiplicative seasonality: a Saturday is +40% of whatever the
 level is, not +40 units. It also guarantees a non-negative forecast and produces

@@ -8,7 +8,8 @@
  * an anomaly with no matching event is a genuine "we don't know why yet".
  */
 
-import { eventsOn, type OpsEvent } from "../data/generate";
+import type { OpsEvent } from "../data/types";
+import { eventsOn } from "./events";
 import type { HWFit } from "./holt-winters";
 
 export type Anomaly = {
@@ -57,6 +58,8 @@ export type DetectOptions = {
   warmup?: number;
   /** Only consider the trailing N observations. */
   lookback?: number;
+  /** The event log to name likely causes from. */
+  events?: OpsEvent[];
 };
 
 export function detectAnomalies(
@@ -98,7 +101,7 @@ export function detectAnomalies(
       delta: actual - expected,
       severity:
         Math.abs(z) >= 5 ? "critical" : Math.abs(z) >= 4 ? "serious" : "warning",
-      ...eventsOn(dates[i]),
+      ...eventsOn(dates[i], opts.events ?? []),
     });
   }
 

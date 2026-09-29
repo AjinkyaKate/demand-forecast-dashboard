@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { STORES } from "@/lib/data/catalog";
+import { useMeta } from "@/components/shell/meta";
 import {
   DEFAULT_FILTERS,
   HORIZON_PRESETS,
@@ -42,8 +42,18 @@ type Ctx = {
 const FiltersContext = createContext<Ctx | null>(null);
 
 export function FiltersProvider({ children }: { children: ReactNode }) {
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [chosen, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [pending, startTransition] = useTransition();
+  const { meta } = useMeta();
+
+  // The store list comes from the database; until a store is chosen (or if
+  // the chosen one disappears) the first store in it is the default.
+  const stores = meta?.stores;
+  const filters = useMemo<Filters>(() => {
+    if (!stores?.length) return chosen;
+    const known = stores.some((s) => s.id === chosen.storeId);
+    return known ? chosen : { ...chosen, storeId: stores[0].id };
+  }, [chosen, stores]);
 
   const value = useMemo<Ctx>(
     () => ({
@@ -68,7 +78,7 @@ export function useFilters(): Ctx {
 
 /* -------------------------------------------------------------------------- */
 
-function Field({
+export function Field({
   label,
   value,
   onChange,
@@ -120,6 +130,7 @@ export function FilterBar({
   scope?: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] };
 }) {
   const { filters, update } = useFilters();
+  const { meta } = useMeta();
 
   return (
     // Container radius 10px with 6px padding → inner controls at 6px stay
@@ -136,7 +147,7 @@ export function FilterBar({
         label="Store"
         value={filters.storeId}
         onChange={(v) => update({ storeId: v as Filters["storeId"] })}
-        options={STORES.map((s) => ({ value: s.id, label: s.name }))}
+        options={(meta?.stores ?? []).map((s) => ({ value: s.id, label: s.name }))}
         widthClass="w-[248px]"
       />
       {scope ? (

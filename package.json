@@ -12,7 +12,9 @@
     "interact": "node scripts/interact.mjs",
     "seed": "tsx scripts/seed.ts",
     "typecheck": "tsc --noEmit",
-    "palette": "node scripts/palette-search.mjs"
+    "palette": "node scripts/palette-search.mjs",
+    "sync": "tsx scripts/sync.ts",
+    "migrate": "tsx scripts/migrate.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

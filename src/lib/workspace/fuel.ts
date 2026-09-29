@@ -5,28 +5,33 @@
  * responds to street price, and the constraint is tank capacity rather than
  * shelf space. So the plan here is a delivery schedule — when the tank runs
  * dry, when to drop, and how many gallons will fit.
+ *
+ * Each grade is forecast from its history and its known future — the street
+ * price, the store's weather forecast, holidays, logged fuel events and events
+ * near the store (driver-forecast.ts).
  */
 
+import type { FuelGrade, FuelGradeId, FuelSeries, OpsEvent, StoreId } from "../data/types";
 import {
-  AS_OF,
-  FUEL_BY_ID,
-  FUEL_GRADES,
-  type FuelGrade,
-  type FuelGradeId,
-  type StoreId,
-} from "../data/catalog";
-import {
-  forecastOriginIndex,
+  getAsOf,
   getCalendar,
+  getEvents,
+  getFuelGrades,
   getFuelSeries,
-  type FuelSeries,
-} from "../data/generate";
+  getLocalEventDays,
+  getTankLevels,
+  memo,
+} from "../db/repository";
 import { addDays } from "../format";
-import { hashSeed, mulberry32 } from "../rng";
-import { forecast, type Accuracy, type ForecastPoint } from "../forecast/holt-winters";
+import type { Accuracy } from "../forecast/backtest";
+import type { FeatureRow } from "../forecast/design";
+import { forecastSeries, type ModelChoice } from "../forecast/driver-forecast";
+import type { ForecastPoint } from "../forecast/holt-winters";
 import { detectAnomalies, groupAnomalies, type Anomaly } from "../forecast/anomalies";
-import { fitDrivers, type DriverModel } from "../forecast/drivers";
-import type { ChartRow } from "./items";
+import { eventApplies } from "../forecast/events";
+import { fitDriversDetailed, type DriverModel } from "../forecast/drivers";
+import { factorsFor } from "./factors";
+import { localFeatures, type ChartRow, type ModelInfo } from "./items";
 import type { Filters } from "./types";
 
 const MAX_HORIZON = 30;
@@ -41,33 +46,51 @@ export type GradeFit = {
   series: FuelSeries;
   points: ForecastPoint[];
   accuracy: Accuracy;
+  model: ModelChoice;
+  /** Latest tank gauge reading (tank_levels). */
   currentGallons: number;
 };
 
-const fitCache = new Map<StoreId, GradeFit[]>();
+/** Log multiplier of the logged fuel events in force each day. */
+function fuelEventDays(cal: { date: string }[], events: OpsEvent[]) {
+  return cal.map((d) =>
+    events
+      .filter((ev) => d.date >= ev.start && d.date <= ev.end && eventApplies(ev, "fuel", null))
+      .map((ev) => ({ ev, log: Math.log(ev.effect) })),
+  );
+}
 
 export function getGradeFits(storeId: StoreId): GradeFit[] {
-  const hit = fitCache.get(storeId);
-  if (hit) return hit;
-
-  const series = getFuelSeries(storeId);
-  const out: GradeFit[] = [];
-  for (const s of series) {
-    const grade = FUEL_BY_ID.get(s.gradeId);
-    if (!grade) continue;
-    const r = forecast(s.gallons, MAX_HORIZON);
-    const rand = mulberry32(hashSeed(`tank:${s.gradeId}:${storeId}`));
-    const usable = grade.tankGallons * (1 - grade.reserveFraction);
-    out.push({
-      grade,
-      series: s,
-      points: r.points,
-      accuracy: r.accuracy,
-      currentGallons: Math.round((grade.tankGallons * grade.reserveFraction + usable * (0.18 + rand() * 0.74)) / 50) * 50,
-    });
-  }
-  fitCache.set(storeId, out);
-  return out;
+  return memo(`gradefits:${storeId}`, () => {
+    const cal = getCalendar(storeId, "fuel");
+    const local = getLocalEventDays(storeId, cal);
+    const dayEvents = fuelEventDays(cal, getEvents());
+    const gradeById = new Map(getFuelGrades().map((g) => [g.id, g]));
+    const tanks = getTankLevels(storeId);
+    const out: GradeFit[] = [];
+    for (const s of getFuelSeries(storeId)) {
+      const grade = gradeById.get(s.gradeId);
+      if (!grade) continue;
+      // Fuel has no promo calendar; price does that job.
+      const feats: FeatureRow[] = cal.map((_, i) => ({
+        promo: 0,
+        discount: 0,
+        logPriceIndex: Math.log(s.priceIndex[i]),
+        eventLog: dayEvents[i].reduce((a, e) => a + e.log, 0),
+        ...localFeatures(local[i]),
+      }));
+      const r = forecastSeries(cal, feats, s.gallons, MAX_HORIZON);
+      out.push({
+        grade,
+        series: s,
+        points: r.points,
+        accuracy: r.accuracy,
+        model: r.model,
+        currentGallons: tanks.get(grade.id) ?? 0,
+      });
+    }
+    return out;
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -99,7 +122,7 @@ export type TankPlanRow = {
   currentPrice: number;
 };
 
-function planFor(fit: GradeFit, horizon: number, origin: number): TankPlanRow {
+function planFor(fit: GradeFit, horizon: number, origin: number, asOf: string): TankPlanRow {
   const { grade, points, currentGallons } = fit;
   const capacity = grade.tankGallons;
   const reserve = capacity * grade.reserveFraction;
@@ -119,9 +142,9 @@ function planFor(fit: GradeFit, horizon: number, origin: number): TankPlanRow {
   }
 
   const reachesReserve = daysToReserve < points.length;
-  const dryDate = reachesReserve ? addDays(AS_OF, Math.floor(daysToReserve)) : null;
+  const dryDate = reachesReserve ? addDays(asOf, Math.floor(daysToReserve)) : null;
   const deliverDays = Math.max(0, Math.floor(daysToReserve) - SAFETY_DAYS);
-  const deliverBy = reachesReserve ? addDays(AS_OF, deliverDays) : null;
+  const deliverBy = reachesReserve ? addDays(asOf, deliverDays) : null;
 
   // Level at the delivery date determines how much will actually fit.
   let levelAtDelivery = currentGallons;
@@ -177,6 +200,7 @@ export type FuelWorkspace = {
   priorTotal: number;
   deltaVsPrior: number;
   accuracy: Accuracy;
+  model: ModelInfo;
   chartRows: ChartRow[];
   sparkline: number[];
   drivers: DriverModel;
@@ -192,38 +216,74 @@ export type FuelWorkspace = {
   counts: { orderNow: number; schedule: number };
 };
 
-/** Categorical slots 1-4 in fixed order — never reassigned by rank or filter. */
-const GRADE_COLOR: Record<FuelGradeId, string> = {
-  reg: "var(--series-1)",
-  mid: "var(--series-2)",
-  prem: "var(--series-3)",
-  diesel: "var(--series-4)",
-};
+/** Categorical slots in the grades' fixed table order — never reassigned by
+ *  rank or filter, so a grade keeps its colour when others are filtered out. */
+function gradeColor(id: FuelGradeId): string {
+  const i = getFuelGrades().findIndex((g) => g.id === id);
+  return `var(--series-${Math.min(8, Math.max(0, i) + 1)})`;
+}
 
 export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
-  const cal = getCalendar();
-  const origin = forecastOriginIndex();
+  const cal = getCalendar(filters.storeId, "fuel");
   const fits = getGradeFits(filters.storeId);
+  const events = getEvents();
+  const asOf = getAsOf();
   const horizon = filters.horizon;
 
   const inScope =
     filters.gradeId === "all" ? fits : fits.filter((f) => f.grade.id === filters.gradeId);
 
   const histLen = fits[0]?.series.gallons.length ?? 0;
+  const origin = histLen;
 
   const actual = new Array<number>(histLen).fill(0);
   for (const f of inScope) {
     for (let i = 0; i < histLen; i++) actual[i] += f.series.gallons[i];
   }
 
-  const aggregate = forecast(actual, horizon);
-
-  const anomalies = detectAnomalies(
-    fits[0]?.series.dates ?? [],
-    actual,
-    aggregate.fit,
-    { threshold: 3 },
+  // Volume-weighted price index across the scoped grades, the logged fuel
+  // events and events near the store.
+  const weights = inScope.map((f) =>
+    Math.max(1e-6, f.series.gallons.slice(-90).reduce((a, b) => a + b, 0)),
   );
+  const wSum = weights.reduce((a, b) => a + b, 0);
+  const dayEvents = fuelEventDays(cal, events);
+  const local = getLocalEventDays(filters.storeId, cal);
+  const feats: FeatureRow[] = cal.map((_, i) => {
+    let logPrice = 0;
+    for (let k = 0; k < inScope.length; k++) {
+      logPrice += Math.log(inScope[k].series.priceIndex[i]) * (weights[k] / wSum);
+    }
+    return {
+      promo: 0,
+      discount: 0,
+      logPriceIndex: logPrice,
+      eventLog: dayEvents[i].reduce((a, e) => a + e.log, 0),
+      ...localFeatures(local[i]),
+    };
+  });
+
+  const aggregate = forecastSeries(cal, feats, actual, horizon);
+
+  const anomalies = detectAnomalies(cal.slice(0, histLen).map((d) => d.date), actual, aggregate.hwFit, {
+    threshold: 3,
+    events,
+  });
+
+  const driverFit = fitDriversDetailed(cal, feats, actual, origin, origin + horizon - 1);
+  const source = aggregate.driver ?? driverFit;
+  const mode = aggregate.driver ? "model" : "explanation";
+  const factors = (i: number, value: number) =>
+    factorsFor({
+      day: cal[i],
+      value,
+      effects: source.effectsAt(i),
+      logged: dayEvents[i],
+      eventCoef: source.eventCoef,
+      local: local[i] ?? null,
+      correction: i >= origin && aggregate.driver ? aggregate.driver.correction(i - origin + 1) : 0,
+      mode,
+    });
   const anomalyByDate = new Map(anomalies.map((a) => [a.date, a]));
 
   const from = Math.max(0, histLen - filters.horizon);
@@ -243,6 +303,7 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
             cause: a.causes[0]?.label ?? a.context[0]?.label ?? null,
           }
         : null,
+      factors: factors(i, actual[i]),
     });
   }
   if (chartRows.length) {
@@ -253,31 +314,18 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
     last.lo95 = last.actual;
     last.hi95 = last.actual;
   }
-  for (let h = 0; h < horizon; h++) {
+  for (let h = 0; h < horizon && origin + h < cal.length; h++) {
     const p = aggregate.points[h];
     chartRows.push({
       date: cal[origin + h].date,
       actual: null,
       mean: p.mean, lo80: p.lo80, hi80: p.hi80, lo95: p.lo95, hi95: p.hi95,
       anomaly: null,
+      factors: factors(origin + h, p.mean),
     });
   }
 
-  // Volume-weighted price index across the scoped grades.
-  const weights = inScope.map((f) =>
-    Math.max(1e-6, f.series.gallons.slice(-90).reduce((a, b) => a + b, 0)),
-  );
-  const wSum = weights.reduce((a, b) => a + b, 0);
-  const feats = cal.map((_, i) => {
-    let logPrice = 0;
-    for (let k = 0; k < inScope.length; k++) {
-      logPrice += Math.log(inScope[k].series.priceIndex[i]) * (weights[k] / wSum);
-    }
-    // Fuel has no promo calendar — the columns are constant and the driver
-    // model drops them, so "Promotions" correctly reports no effect.
-    return { promo: 0, discount: 0, logPriceIndex: logPrice };
-  });
-  const drivers = fitDrivers(cal, feats, actual, origin, origin + horizon - 1);
+  const drivers = driverFit.model;
 
   // Per-grade panels span the same window the filter selects, so the grade
   // chart and the headline chart always show the same stretch of time.
@@ -286,7 +334,7 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
   const gradeSeries: GradeSeriesRow[] = fits.map((f) => ({
     id: f.grade.id,
     label: f.grade.short,
-    color: GRADE_COLOR[f.grade.id],
+    color: gradeColor(f.grade.id),
     values: f.series.gallons.slice(winFrom, histLen),
   }));
 
@@ -294,7 +342,7 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
     id: f.grade.id,
     label: f.grade.short,
     value: f.points.slice(0, horizon).reduce((a, p) => a + p.mean, 0),
-    color: GRADE_COLOR[f.grade.id],
+    color: gradeColor(f.grade.id),
   }));
 
   // Street price is its own chart on its own axis. Putting it on the volume
@@ -304,12 +352,12 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
   const priceSeries: GradeSeriesRow[] = fits.map((f) => ({
     id: f.grade.id,
     label: f.grade.short,
-    color: GRADE_COLOR[f.grade.id],
+    color: gradeColor(f.grade.id),
     values: f.series.price.slice(priceFrom, histLen),
   }));
 
   const plan = fits
-    .map((f) => planFor(f, horizon, origin))
+    .map((f) => planFor(f, horizon, origin, asOf))
     .sort((a, b) => a.daysToReserve - b.daysToReserve);
 
   const sparkline: number[] = [];
@@ -321,11 +369,11 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
   const horizonTotal = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.mean, 0);
 
   return {
-    asOf: AS_OF,
+    asOf,
     scopeLabel:
       filters.gradeId === "all"
         ? "All grades"
-        : (FUEL_BY_ID.get(filters.gradeId)?.name ?? "Grade"),
+        : (fits.find((f) => f.grade.id === filters.gradeId)?.grade.name ?? "Grade"),
     unit: "gallons",
     horizonTotal,
     horizonLo: aggregate.points.slice(0, horizon).reduce((a, p) => a + p.lo80, 0),
@@ -336,6 +384,13 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
       return prior > 0 ? (horizonTotal - prior) / prior : 0;
     })(),
     accuracy: aggregate.accuracy,
+    model: {
+      used: aggregate.model,
+      driverWape: aggregate.candidates.driver?.wape ?? null,
+      hwWape: aggregate.candidates.hw.wape,
+      seriesOnDriver: inScope.filter((f) => f.model === "driver").length,
+      seriesTotal: inScope.length,
+    },
     chartRows,
     sparkline,
     drivers,
@@ -355,8 +410,3 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
     },
   };
 }
-
-export const GRADE_OPTIONS = [
-  { value: "all" as const, label: "All grades" },
-  ...FUEL_GRADES.map((g) => ({ value: g.id, label: g.name })),
-];

@@ -14,6 +14,7 @@ import Database from "better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
 import { SCHEMA_SQL } from "../src/lib/db/schema";
+import { seedOps } from "./seed-ops";
 import {
   AS_OF,
   CATEGORIES,
@@ -22,7 +23,7 @@ import {
   SKUS,
   STORES,
   type StoreId,
-} from "../src/lib/data/catalog";
+} from "./seed-catalog";
 import { addDays, dayOfWeek, parseISO, toISO } from "../src/lib/format";
 import { gaussian, hashSeed, mulberry32, poisson } from "../src/lib/rng";
 
@@ -291,12 +292,13 @@ function main() {
   // ----- Insert reference data -----
 
   const insertStore = db.prepare(
-    `INSERT INTO stores (id, name, format, traffic, fuel_skew, history_start) VALUES (?,?,?,?,?,?)`,
+    `INSERT INTO stores (id, name, format, traffic, fuel_skew, history_start, latitude, longitude, timezone, region)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`,
   );
   for (const s of STORES) {
     const histDays = STORE_HISTORY_DAYS[s.id];
     const startDate = addDays(AS_OF, -histDays);
-    insertStore.run(s.id, s.name, s.format, s.traffic, s.fuelSkew, startDate);
+    insertStore.run(s.id, s.name, s.format, s.traffic, s.fuelSkew, startDate, s.latitude, s.longitude, s.timezone, s.region);
   }
   console.log(`Inserted ${STORES.length} stores.`);
 
@@ -496,6 +498,11 @@ function main() {
     console.log(`  ${store.id}: ${histDays} days × ${FUEL_GRADES.length} grades = ${histDays * FUEL_GRADES.length} fuel rows`);
   }
   console.log(`Total fuel sales rows: ${totalFuelRows.toLocaleString()}`);
+
+  // ----- Promo plan, on-hand inventory, tank levels -----
+
+  const ops = seedOps(db);
+  console.log(`Inserted ${ops.promoRows} promotions, ${ops.inventoryRows} on-hand counts, ${ops.tankRows} tank readings.`);
 
   // ----- Summary -----
 

@@ -4,7 +4,7 @@ import { ChartFrame, DataTable } from "@/components/chart/chart-frame";
 import { BarChart } from "@/components/chart/bar-chart";
 import { ForecastChart } from "@/components/chart/forecast-chart";
 import { HeroFigure, StatTile } from "@/components/figures/stat-tile";
-import { CATEGORY_OPTIONS } from "@/lib/workspace/items";
+import { useMeta } from "@/components/shell/meta";
 import { useItemWorkspace } from "@/lib/hooks/use-workspace";
 import type { Filters } from "@/lib/workspace/types";
 import {
@@ -23,7 +23,12 @@ import { cn } from "@/lib/utils";
 
 export function ItemWorkspace() {
   const { filters, update, pending } = useFilters();
+  const { meta } = useMeta();
   const { data: w, loading, error } = useItemWorkspace(filters);
+  const categoryOptions = [
+    { value: "all", label: "All categories" },
+    ...(meta?.categories ?? []).map((c) => ({ value: c.id, label: c.name })),
+  ];
 
   const units = (n: number) => thousands(Math.round(n));
 
@@ -64,7 +69,7 @@ export function ItemWorkspace() {
             label: "Category",
             value: filters.categoryId,
             onChange: (v) => update({ categoryId: v as Filters["categoryId"] }),
-            options: CATEGORY_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+            options: categoryOptions,
           }}
         />
       </div>
@@ -104,9 +109,13 @@ export function ItemWorkspace() {
 
           <StatTile
             label="Forecast accuracy"
-            value={percent(1 - w.accuracy.wape, 1)}
-            caption={`${w.accuracy.points} backtested days`}
-            captionRight={`bias ${signedPercent(w.accuracy.bias, 1)}`}
+            value={w.accuracy.points > 0 ? percent(1 - w.accuracy.wape, 1) : "—"}
+            caption={
+              w.accuracy.points > 0
+                ? `${w.accuracy.points} backtested days`
+                : "Not enough history to score yet"
+            }
+            captionRight={w.accuracy.points > 0 ? `bias ${signedPercent(w.accuracy.bias, 1)}` : undefined}
           />
 
           <StatTile
@@ -181,7 +190,7 @@ export function ItemWorkspace() {
           <div className="xl:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="units" />
           </div>
-          <AccuracyPanel accuracy={w.accuracy} />
+          <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
           <div className="xl:col-span-2">
             <ChartFrame
