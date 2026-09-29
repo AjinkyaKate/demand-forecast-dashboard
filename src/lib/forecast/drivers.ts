@@ -3,7 +3,7 @@
  *
  * A ridge regression of log1p(demand) on the inputs an operator can actually
  * observe (design.ts): calendar position, weekday, promo calendar, price,
- * holidays, weather at the store, logged events and events nearby. Each
+ * holidays, weather at the store, NWS weather alerts and events nearby. Each
  * driver's reported effect is the fitted coefficient applied to that driver's
  * values over the forecast window, relative to the series' own historical
  * average.
@@ -48,12 +48,13 @@ export const DRIVER_GROUPS: DriverGroup[] = [
   { id: "holiday", label: "Holidays", hint: "Public holidays and the day before" },
   { id: "weather", label: "Weather", hint: "Temperature vs normal and rain, at the store" },
   { id: "price", label: "Price", hint: "Effective price vs its reference" },
-  { id: "events", label: "Events", hint: "Logged events and events near the store" },
+  { id: "alerts", label: "Weather alerts", hint: "NWS winter, heat and storm warnings at the store" },
+  { id: "events", label: "Local events", hint: "Crowds and school breaks near the store (PredictHQ)" },
 ];
 
 /** Fixed bridge order for the additive units decomposition. Disclosed in the UI. */
 const BRIDGE_ORDER: DriverGroupId[] = [
-  "trend", "season", "weekday", "promo", "holiday", "weather", "price", "events",
+  "trend", "season", "weekday", "promo", "holiday", "weather", "price", "alerts", "events",
 ];
 
 export type DriverEffect = {
@@ -89,13 +90,17 @@ export type DayEffects = {
   holiday: number;
   weather: number;
   price: number;
-  /** Logged operational events (events table). */
-  events: number;
-  /** Events near the store (PredictHQ): attendance and severe weather. */
+  /** NWS winter, heat and storm alerts in force at the store. */
+  alerts: number;
+  /** Crowd events near the store (PredictHQ): predicted attendance. */
   local: number;
+  /** A nearby school district on break (PredictHQ). */
+  school: number;
 };
 
-export const OFF_EFFECTS: DayEffects = { promo: 0, holiday: 0, weather: 0, price: 0, events: 0, local: 0 };
+export const OFF_EFFECTS: DayEffects = {
+  promo: 0, holiday: 0, weather: 0, price: 0, alerts: 0, local: 0, school: 0,
+};
 
 /** Per-day effects from any fit that used the shared design. */
 export function dayEffects(fit: RidgeFit, i: number): DayEffects {
@@ -105,8 +110,9 @@ export function dayEffects(fit: RidgeFit, i: number): DayEffects {
     holiday: e("holiday") + e("pre_holiday"),
     weather: e("temp_anom") + e("rain"),
     price: e("log_price"),
-    events: e("event_log"),
-    local: e("local_attendance") + e("severe_weather"),
+    alerts: e("alert_winter") + e("alert_heat") + e("alert_storm"),
+    local: e("local_attendance"),
+    school: e("school_break"),
   };
 }
 
@@ -114,8 +120,6 @@ export type DriverFit = {
   model: DriverModel;
   /** Per-day effects for any index of `cal`. */
   effectsAt: (i: number) => DayEffects;
-  /** Log-space coefficient on an event's log multiplier (1 = exactly as logged). */
-  eventCoef: number;
 };
 
 export function fitDrivers(
@@ -155,7 +159,6 @@ export function fitDriversDetailed(
       degenerate: true,
     },
     effectsAt: () => OFF_EFFECTS,
-    eventCoef: 0,
   };
 
   const cols = buildColumns(cal, feats, cal.length);
@@ -220,7 +223,6 @@ export function fitDriversDetailed(
   return {
     model: { effects, r2, baselinePerDay, expectedPerDay, degenerate: false },
     effectsAt: (i) => dayEffects(fit, i),
-    eventCoef: rawBeta(fit, "event_log"),
   };
 }
 

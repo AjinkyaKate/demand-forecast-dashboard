@@ -115,11 +115,15 @@ export type ExternalSource = {
   /** "ok" | "error" | "never" | "needs-key". */
   status: string;
   error: string | null;
+  /** Automatic refresh schedule, e.g. "every 30 min"; null when auto-sync is off. */
+  schedule: string | null;
+  nextSync: string | null;
+  running: boolean;
 };
 
 /** Sync status of every external source. Bump `nonce` to re-read it. */
 export function useExternalStatus(nonce = 0) {
-  return useWorkspaceFetch<{ sources: ExternalSource[] }>(`/api/sync/status?n=${nonce}`);
+  return useWorkspaceFetch<{ sources: ExternalSource[]; autoSync: boolean }>(`/api/sync/status?n=${nonce}`);
 }
 
 export function useModelLab(storeId: string, stream: string) {

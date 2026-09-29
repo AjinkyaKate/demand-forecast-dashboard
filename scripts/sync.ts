@@ -1,20 +1,21 @@
 /**
  * Pull every external source into SQLite: per-store weather (Open-Meteo),
- * public holidays (Nager.Date) and nearby events (PredictHQ, when
- * PREDICTHQ_API_TOKEN is set in .env.local).
+ * public holidays (Nager.Date), NWS weather alerts, and nearby events
+ * (PredictHQ, when PREDICTHQ_API_TOKEN is set in .env.local).
  *
  * Usage: npm run sync            (all sources)
- *        npm run sync -- weather  (one of: weather, holidays, events)
+ *        npm run sync -- alerts   (one of: weather, holidays, alerts, events)
  */
 
 import fs from "node:fs";
-import { syncEvents, syncHolidays, syncWeather, type SyncResult } from "../src/lib/db/ingest";
+import { syncAlerts, syncEvents, syncHolidays, syncWeather, type SyncResult } from "../src/lib/db/ingest";
 
 if (fs.existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 const jobs: Record<string, () => Promise<SyncResult>> = {
   weather: syncWeather,
   holidays: syncHolidays,
+  alerts: syncAlerts,
   events: syncEvents,
 };
 const pick = process.argv.slice(2).filter((a) => a in jobs);

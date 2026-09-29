@@ -43,7 +43,7 @@ export function dataVersion(): string {
     : "";
   const counts = db
     .prepare(
-      `SELECT ${["events", "promotions", "store_weather", "holidays", "external_events", "stores"]
+      `SELECT ${["promotions", "store_weather", "holidays", "external_events", "stores"]
         .map((t) => (hasTable(t) ? `(SELECT COUNT(*) FROM ${t})` : "0"))
         .join(" || ':' || ")} AS v`,
     )
@@ -121,24 +121,6 @@ export function getFuelGrades(): FuelGrade[] {
       )
       .all() as FuelGrade[],
   );
-}
-
-export function getEvents(): OpsEvent[] {
-  return memo("events", () => {
-    const rows = getDb()
-      .prepare(
-        `SELECT id, start_date AS start, end_date AS end, label, kind, scope, effect, note
-         FROM events ORDER BY start_date`,
-      )
-      .all() as (Omit<OpsEvent, "scope"> & { scope: string })[];
-    return rows.map((r) => ({
-      ...r,
-      scope:
-        r.scope === "all" || r.scope === "fuel" || r.scope === "inside"
-          ? r.scope
-          : r.scope.split(",").map((s) => s.trim()),
-    }));
-  });
 }
 
 /** First day after the last recorded sale — the forecast origin. */
@@ -253,53 +235,109 @@ export function getCalendar(storeId: StoreId, stream: "items" | "fuel" = "items"
 }
 
 /* -------------------------------------------------------------------------- */
-/* Events near the store                                                      */
+/* Events and alerts near the store (all from APIs)                           */
 /* -------------------------------------------------------------------------- */
 
-export function getLocalEvents(storeId: StoreId): LocalEvent[] {
+/** PredictHQ events and NWS alerts for a store, from external_events. */
+export function getLocalEvents(storeId: StoreId): (LocalEvent & { source: string })[] {
   return memo(`local:${storeId}`, () => {
     if (!hasTable("external_events")) return [];
     return getDb()
       .prepare(
-        `SELECT id, title, category, start_date AS start, end_date AS end,
+        `SELECT source, id, title, category, start_date AS start, end_date AS end,
                 attendance, rank, distance_km AS distanceKm
          FROM external_events WHERE store_id = ? ORDER BY start_date`,
       )
-      .all(storeId) as LocalEvent[];
+      .all(storeId) as (LocalEvent & { source: string })[];
   });
 }
 
 export type LocalEventDay = {
-  /** Predicted attendance near the store that day (multi-day events spread evenly). */
+  /** Predicted attendance at crowd events near the store (multi-day events spread evenly). */
   attendance: number;
-  severeWeather: boolean;
-  /** The day's biggest events, largest first — for the tooltip. */
+  /** School districts near the store that are on break. */
+  schoolBreaks: string[];
+  /** NWS alerts in force that day, by kind. */
+  alerts: { winter: boolean; heat: boolean; storm: boolean };
+  /** Names of the alerts in force, for the tooltip. */
+  alertTitles: string[];
+  /** The day's biggest nearby events, largest first — for the tooltip. */
   top: { title: string; category: string; attendance: number | null }[];
 };
 
-/** Nearby-event load per calendar day. */
+const isAlert = (e: { source: string }) => e.source === "nws";
+
+/** PredictHQ categories whose attendance is a crowd near the store. School
+ *  holidays report enrolment instead, and observances no attendance at all. */
+const CROWD = new Set(["concerts", "festivals", "sports", "performing-arts", "community", "expos", "conferences"]);
+
+/** Nearby-event load and weather alerts per calendar day. */
 export function getLocalEventDays(storeId: StoreId, cal: DayCtx[]): LocalEventDay[] {
   return memo(`localdays:${storeId}:${cal.length}:${cal[0]?.date ?? ""}`, () => {
     const events = getLocalEvents(storeId);
     return cal.map((d) => {
       const live = events.filter((e) => d.date >= e.start && d.date <= e.end);
+      const alerts = live.filter(isAlert);
+      const nearby = live.filter((e) => !isAlert(e));
+      const crowd = nearby.filter((e) => CROWD.has(e.category));
       let attendance = 0;
-      for (const e of live) {
+      for (const e of crowd) {
         if (!e.attendance) continue;
         const days = Math.max(1, Math.round((parseISO(e.end).getTime() - parseISO(e.start).getTime()) / 86400000) + 1);
         attendance += e.attendance / days;
       }
+      const has = (c: string) => alerts.some((e) => e.category === c);
       return {
         attendance,
-        severeWeather: live.some((e) => e.category === "severe-weather"),
-        top: live
-          .filter((e) => e.category !== "severe-weather")
+        alerts: {
+          winter: has("alert-winter"),
+          heat: has("alert-heat"),
+          storm: has("alert-storm") || nearby.some((e) => e.category === "severe-weather"),
+        },
+        alertTitles: [...new Set(alerts.map((e) => e.title))],
+        schoolBreaks: [
+          ...new Set(
+            nearby
+              .filter((e) => e.category === "school-holidays")
+              .map((e) => e.title.replace(/\s+-\s+.*$/, "")),
+          ),
+        ],
+        top: crowd
           .sort((a, b) => (b.attendance ?? 0) - (a.attendance ?? 0))
           .slice(0, 3)
           .map((e) => ({ title: e.title, category: e.category, attendance: e.attendance })),
       };
     });
   });
+}
+
+/** Nearby events big enough to name as a likely cause of an anomaly. */
+const NAMEABLE_ATTENDANCE = 1000;
+
+/**
+ * The store's API events as named events, for the anomaly feed's "likely
+ * cause" join: every NWS alert, and PredictHQ events of real size.
+ */
+export function getNamedEvents(storeId: StoreId): OpsEvent[] {
+  return memo(`named:${storeId}`, () =>
+    getLocalEvents(storeId)
+      .filter(
+        (e) =>
+          isAlert(e) ||
+          e.category === "severe-weather" ||
+          (CROWD.has(e.category) && (e.attendance ?? 0) >= NAMEABLE_ATTENDANCE),
+      )
+      .map((e) => ({
+        id: `${e.source}:${e.id}`,
+        start: e.start,
+        end: e.end,
+        label: e.title,
+        kind: isAlert(e) || e.category === "severe-weather" ? ("weather" as const) : ("local" as const),
+        scope: "all" as const,
+        effect: 1,
+        note: isAlert(e) ? "National Weather Service" : "PredictHQ",
+      })),
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -480,7 +518,9 @@ export type DataInventory = {
   lastSale: string | null;
   weatherDays: { observed: number; forecast: number; none: number };
   holidays: number;
-  loggedEvents: number;
+  /** NWS alerts that touched this store's history or forecast window. */
+  alerts: number;
+  /** PredictHQ events near the store. */
   localEvents: number;
   promotions: number;
 };
@@ -499,8 +539,8 @@ export function getDataInventory(storeId: StoreId, stream: "items" | "fuel"): Da
       lastSale: hist[hist.length - 1]?.date ?? null,
       weatherDays: { observed: count("observed"), forecast: count("forecast"), none: count("none") },
       holidays: cal.filter((d) => d.holidayWeight > 0).length,
-      loggedEvents: getEvents().length,
-      localEvents: getLocalEvents(storeId).length,
+      alerts: getLocalEvents(storeId).filter(isAlert).length,
+      localEvents: getLocalEvents(storeId).filter((e) => !isAlert(e) && e.category !== "observances").length,
       promotions: stream === "items" ? promotions : 0,
     };
   });

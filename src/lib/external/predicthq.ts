@@ -9,7 +9,10 @@
 
 const BASE = "https://api.predicthq.com/v1/events/";
 
-/** Categories that plausibly move c-store traffic. */
+/**
+ * Categories that plausibly move c-store traffic. Observances are left out:
+ * PredictHQ ranks them by general prominence, not by footfall.
+ */
 export const PHQ_CATEGORIES = [
   "concerts",
   "festivals",
@@ -19,7 +22,6 @@ export const PHQ_CATEGORIES = [
   "expos",
   "conferences",
   "school-holidays",
-  "observances",
   "severe-weather",
 ];
 

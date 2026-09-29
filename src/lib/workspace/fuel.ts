@@ -7,31 +7,30 @@
  * dry, when to drop, and how many gallons will fit.
  *
  * Each grade is forecast from its history and its known future — the street
- * price, the store's weather forecast, holidays, logged fuel events and events
- * near the store (driver-forecast.ts).
+ * price, the store's weather forecast, holidays, NWS weather alerts and
+ * events near the store (driver-forecast.ts).
  */
 
-import type { FuelGrade, FuelGradeId, FuelSeries, OpsEvent, StoreId } from "../data/types";
+import type { FuelGrade, FuelGradeId, FuelSeries, StoreId } from "../data/types";
 import {
   getAsOf,
   getCalendar,
-  getEvents,
   getFuelGrades,
   getFuelSeries,
   getLocalEventDays,
+  getNamedEvents,
   getTankLevels,
   memo,
 } from "../db/repository";
 import { addDays } from "../format";
 import type { Accuracy } from "../forecast/backtest";
 import type { FeatureRow } from "../forecast/design";
-import { forecastSeries, type ModelChoice } from "../forecast/driver-forecast";
+import { forecastSeries, type ModelChoice, type OptionalGroup } from "../forecast/driver-forecast";
 import type { ForecastPoint } from "../forecast/holt-winters";
 import { detectAnomalies, groupAnomalies, type Anomaly } from "../forecast/anomalies";
-import { eventApplies } from "../forecast/events";
 import { fitDriversDetailed, type DriverModel } from "../forecast/drivers";
 import { factorsFor } from "./factors";
-import { localFeatures, type ChartRow, type ModelInfo } from "./items";
+import { countInputs, localFeatures, type ChartRow, type ModelInfo } from "./items";
 import type { Filters } from "./types";
 
 const MAX_HORIZON = 30;
@@ -47,24 +46,15 @@ export type GradeFit = {
   points: ForecastPoint[];
   accuracy: Accuracy;
   model: ModelChoice;
+  inputs: Record<OptionalGroup, boolean> | null;
   /** Latest tank gauge reading (tank_levels). */
   currentGallons: number;
 };
-
-/** Log multiplier of the logged fuel events in force each day. */
-function fuelEventDays(cal: { date: string }[], events: OpsEvent[]) {
-  return cal.map((d) =>
-    events
-      .filter((ev) => d.date >= ev.start && d.date <= ev.end && eventApplies(ev, "fuel", null))
-      .map((ev) => ({ ev, log: Math.log(ev.effect) })),
-  );
-}
 
 export function getGradeFits(storeId: StoreId): GradeFit[] {
   return memo(`gradefits:${storeId}`, () => {
     const cal = getCalendar(storeId, "fuel");
     const local = getLocalEventDays(storeId, cal);
-    const dayEvents = fuelEventDays(cal, getEvents());
     const gradeById = new Map(getFuelGrades().map((g) => [g.id, g]));
     const tanks = getTankLevels(storeId);
     const out: GradeFit[] = [];
@@ -76,7 +66,6 @@ export function getGradeFits(storeId: StoreId): GradeFit[] {
         promo: 0,
         discount: 0,
         logPriceIndex: Math.log(s.priceIndex[i]),
-        eventLog: dayEvents[i].reduce((a, e) => a + e.log, 0),
         ...localFeatures(local[i]),
       }));
       const r = forecastSeries(cal, feats, s.gallons, MAX_HORIZON);
@@ -86,6 +75,7 @@ export function getGradeFits(storeId: StoreId): GradeFit[] {
         points: r.points,
         accuracy: r.accuracy,
         model: r.model,
+        inputs: r.inputs,
         currentGallons: tanks.get(grade.id) ?? 0,
       });
     }
@@ -226,7 +216,7 @@ function gradeColor(id: FuelGradeId): string {
 export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
   const cal = getCalendar(filters.storeId, "fuel");
   const fits = getGradeFits(filters.storeId);
-  const events = getEvents();
+  const events = getNamedEvents(filters.storeId);
   const asOf = getAsOf();
   const horizon = filters.horizon;
 
@@ -241,13 +231,12 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
     for (let i = 0; i < histLen; i++) actual[i] += f.series.gallons[i];
   }
 
-  // Volume-weighted price index across the scoped grades, the logged fuel
-  // events and events near the store.
+  // Volume-weighted price index across the scoped grades, plus weather
+  // alerts and events near the store.
   const weights = inScope.map((f) =>
     Math.max(1e-6, f.series.gallons.slice(-90).reduce((a, b) => a + b, 0)),
   );
   const wSum = weights.reduce((a, b) => a + b, 0);
-  const dayEvents = fuelEventDays(cal, events);
   const local = getLocalEventDays(filters.storeId, cal);
   const feats: FeatureRow[] = cal.map((_, i) => {
     let logPrice = 0;
@@ -258,7 +247,6 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
       promo: 0,
       discount: 0,
       logPriceIndex: logPrice,
-      eventLog: dayEvents[i].reduce((a, e) => a + e.log, 0),
       ...localFeatures(local[i]),
     };
   });
@@ -278,8 +266,6 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
       day: cal[i],
       value,
       effects: source.effectsAt(i),
-      logged: dayEvents[i],
-      eventCoef: source.eventCoef,
       local: local[i] ?? null,
       correction: i >= origin && aggregate.driver ? aggregate.driver.correction(i - origin + 1) : 0,
       mode,
@@ -390,6 +376,8 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
       hwWape: aggregate.candidates.hw.wape,
       seriesOnDriver: inScope.filter((f) => f.model === "driver").length,
       seriesTotal: inScope.length,
+      inputs: aggregate.model === "driver" ? aggregate.inputs : null,
+      seriesUsing: countInputs(inScope),
     },
     chartRows,
     sparkline,

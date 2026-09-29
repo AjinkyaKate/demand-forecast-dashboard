@@ -2,16 +2,22 @@
  * The production forecast.
  *
  * Driver model: a ridge regression of log1p(demand) on calendar shape, the
- * promo plan, price, public holidays, the store's weather and events
+ * promo plan, price, public holidays, the store's weather, NWS weather
+ * alerts and events nearby
  * (design.ts). Every coefficient is learned from this series' own history,
  * then applied to the forecast window's KNOWN inputs — the promotions already
- * planned, the 16-day weather forecast, upcoming holidays and events.
+ * planned, the 16-day weather forecast, active weather alerts, upcoming
+ * holidays and events.
  *
  * Recent-level correction: whatever the inputs don't explain (a competitor
  * opening, a slow drift) shows up as persistent residuals. An exponentially
  * smoothed level of those residuals is carried into the forecast and decays
  * back toward the model, so a step change is followed without being assumed
  * permanent.
+ *
+ * Input choice: weather and events come from outside APIs, so each has to
+ * earn its place — the backtest runs with and without them, and a family is
+ * kept only when it lowers this series' error (selectInputs).
  *
  * Model choice: the driver model and Holt-Winters (sales history only) are
  * scored on the identical rolling-origin backtest, and the one with the lower
@@ -21,7 +27,7 @@
 
 import type { DayCtx } from "../data/types";
 import { firstCut, scoreForecaster, type Accuracy } from "./backtest";
-import { buildColumns, fitRidge, predictLog, rawBeta, type FeatureRow, type RidgeFit } from "./design";
+import { ALL_GROUPS, buildColumns, fitRidge, predictLog, type FeatureRow, type Group, type RidgeFit } from "./design";
 import { dayEffects, type DayEffects } from "./drivers";
 import {
   backtest as hwBacktest,
@@ -40,7 +46,7 @@ const ALPHAS = [0, 0.05, 0.1, 0.2, 0.35];
 /** Lead used to choose the smoothing weight — a mid-horizon, not one step. */
 const TUNE_LEAD = 7;
 /** Fewest training days before the first backtest origin. */
-const MIN_TRAIN = 42;
+export const MIN_TRAIN = 42;
 
 export type DriverModelFit = {
   ridge: RidgeFit;
@@ -49,14 +55,15 @@ export type DriverModelFit = {
   alpha: number;
 };
 
-/** Fit the driver model on rows [0, n). */
+/** Fit the driver model on rows [0, n), using the given input groups. */
 export function fitDriverModel(
   cal: DayCtx[],
   feats: FeatureRow[],
   y: number[],
   n: number,
+  groups: Group[] = ALL_GROUPS,
 ): DriverModelFit | null {
-  const cols = buildColumns(cal, feats, cal.length);
+  const cols = buildColumns(cal, feats, cal.length, groups);
   const ridge = fitRidge(cols, y, n);
   if (!ridge) return null;
 
@@ -86,13 +93,83 @@ function forecastLog(fit: DriverModelFit, i: number, h: number): number {
   return predictLog(fit.ridge, i) + fit.level * Math.pow(PHI, h);
 }
 
-export function driverForecaster(cal: DayCtx[], feats: FeatureRow[], y: number[]) {
+export function driverForecaster(
+  cal: DayCtx[],
+  feats: FeatureRow[],
+  y: number[],
+  groups: Group[] = ALL_GROUPS,
+) {
   return (cut: number, H: number): number[] => {
-    const fit = fitDriverModel(cal, feats, y, cut);
+    const fit = fitDriverModel(cal, feats, y, cut, groups);
     const mean = y.slice(Math.max(0, cut - 28), cut).reduce((a, b) => a + b, 0) / Math.min(28, cut);
     return Array.from({ length: H }, (_, h) =>
       fit ? Math.max(0, Math.expm1(forecastLog(fit, cut + h, h + 1))) : mean,
     );
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Which inputs earn their place                                              */
+/* -------------------------------------------------------------------------- */
+
+/** Input families that come from external APIs and must prove themselves. */
+export const OPTIONAL_GROUPS = ["weather", "alerts", "events"] as const;
+export type OptionalGroup = (typeof OPTIONAL_GROUPS)[number];
+
+/** Keep an optional input only if it improves backtest error by at least this. */
+const MIN_GAIN = 0.001;
+
+export type InputSelection = {
+  groups: Group[];
+  accuracy: Accuracy;
+  /** Whether each optional input family is in the model. */
+  uses: Record<OptionalGroup, boolean>;
+};
+
+/**
+ * Forward selection over the optional input families: start from the core
+ * model, add whichever family lowers backtest error most, repeat until no
+ * family helps by at least MIN_GAIN. A family that merely adds noise — real
+ * events against sales they can't explain — stays out, and one that helps
+ * switches on by itself.
+ */
+export function selectInputs(
+  cal: DayCtx[],
+  feats: FeatureRow[],
+  y: number[],
+  opts: { m: number; horizon: number; minTrain: number },
+): InputSelection | null {
+  if (firstCut(y.length, opts) == null) return null;
+  const core = ALL_GROUPS.filter((g) => !(OPTIONAL_GROUPS as readonly string[]).includes(g));
+  const score = (extra: OptionalGroup[]) =>
+    scoreForecaster(y, driverForecaster(cal, feats, y, [...core, ...extra]), opts);
+
+  let chosen: OptionalGroup[] = [];
+  let accuracy = score(chosen);
+  if (!Number.isFinite(accuracy.wape)) return null;
+
+  for (;;) {
+    let step: { g: OptionalGroup; acc: Accuracy } | null = null;
+    for (const g of OPTIONAL_GROUPS) {
+      if (chosen.includes(g)) continue;
+      const acc = score([...chosen, g]);
+      if (Number.isFinite(acc.wape) && acc.wape < (step?.acc.wape ?? accuracy.wape - MIN_GAIN)) {
+        step = { g, acc };
+      }
+    }
+    if (!step) break;
+    chosen = [...chosen, step.g];
+    accuracy = step.acc;
+  }
+
+  return {
+    groups: [...core, ...chosen],
+    accuracy,
+    uses: {
+      weather: chosen.includes("weather"),
+      alerts: chosen.includes("alerts"),
+      events: chosen.includes("events"),
+    },
   };
 }
 
@@ -107,6 +184,8 @@ export type SeriesForecast = {
   accuracy: Accuracy;
   /** Both candidates on the same backtest, for the comparison shown in the UI. */
   candidates: { driver: Accuracy | null; hw: Accuracy };
+  /** Which optional inputs the driver model kept, when it could be tested. */
+  inputs: Record<OptionalGroup, boolean> | null;
   /** Holt-Winters fit — anomaly detection reads its one-step residuals. */
   hwFit: HWFit;
   /**
@@ -115,7 +194,6 @@ export type SeriesForecast = {
    */
   driver: {
     effectsAt: (i: number) => DayEffects;
-    eventCoef: number;
     /** Log-space recent-level correction h days ahead (1-based). */
     correction: (h: number) => number;
   } | null;
@@ -147,10 +225,10 @@ export function forecastSeries(
 
   const hwFit = fitHoltWinters(y, 7);
   const hwAcc = hwBacktest(y, opts);
-  const driverAcc =
-    firstCut(n, opts) != null ? scoreForecaster(y, driverForecaster(cal, feats, y), opts) : null;
+  const selection = selectInputs(cal, feats, y, opts);
+  const driverAcc = selection?.accuracy ?? null;
 
-  const full = driverAcc ? fitDriverModel(cal, feats, y, n) : null;
+  const full = selection ? fitDriverModel(cal, feats, y, n, selection.groups) : null;
   const useDriver =
     full != null &&
     driverAcc != null &&
@@ -181,11 +259,11 @@ export function forecastSeries(
     points,
     accuracy,
     candidates: { driver: driverAcc, hw: hwAcc },
+    inputs: selection?.uses ?? null,
     hwFit,
     driver: useDriver
       ? {
           effectsAt: (i) => dayEffects(full!.ridge, i),
-          eventCoef: rawBeta(full!.ridge, "event_log"),
           correction: (h) => full!.level * Math.pow(PHI, h),
         }
       : null,

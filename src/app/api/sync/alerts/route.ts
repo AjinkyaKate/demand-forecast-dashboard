@@ -3,8 +3,8 @@ import { runSync } from "@/lib/sync/auto";
 
 export const dynamic = "force-dynamic";
 
-/** Per-store weather from Open-Meteo: history, 16-day forecast, normals. Shares the auto-sync lock. */
+/** NWS winter, heat and severe-storm alerts at each store's location. Shares the auto-sync lock. */
 export async function POST() {
-  const r = await runSync("open-meteo-weather");
+  const r = await runSync("nws-alerts");
   return NextResponse.json(r, { status: r.ok ? 200 : 502 });
 }

@@ -17,18 +17,31 @@ Everything the app shows is read from SQLite (`data/forecast.db`, not committed)
 ```bash
 npm run seed       # fresh database: demo stores, SKUs, sales, promo plan, stock
 npm run migrate    # upgrade an existing database in place (keeps its data)
-npm run sync       # pull every external source (or: npm run sync -- weather)
+npm run sync       # pull every source now (or one: npm run sync -- alerts)
 ```
 
-| Source | What it adds | Key |
-|---|---|---|
-| Open-Meteo | Weather at each store's coordinates: history, 16-day forecast, 10-year normals | none |
-| Nager.Date | US national and state public holidays | none |
-| PredictHQ | Events within 10 km of each store, past and next 90 days | `PREDICTHQ_API_TOKEN` |
+| Source | What it adds | Key | Auto-sync |
+|---|---|---|---|
+| Open-Meteo | Weather at each store's coordinates: history, 16-day forecast, 10-year normals | none | every 3 hours |
+| Nager.Date | US national and state public holidays | none | weekly |
+| National Weather Service | Winter, heat and severe-storm warnings at each store (via the Iowa Environmental Mesonet archive) | none | every 30 min |
+| PredictHQ | Crowd events and school breaks within 10 km of each store, past and next 90 days | `PREDICTHQ_API_TOKEN` | every 12 hours |
+
+**Syncing is automatic.** While `npm run dev` or `npm start` is running, the
+server refreshes each source on the schedule above (`src/lib/sync/auto.ts`,
+started from `src/instrumentation.ts`), catches up on anything overdue at
+startup, and retries a failed source after 15 minutes. Forecasts refit on their
+own when new data lands. "Sync now" in the data-sources panel pulls one source
+immediately. Set `AUTO_SYNC=off` to disable the scheduler. On a serverless host
+there is no long-running process to hold the schedule, so trigger the
+`POST /api/sync/*` routes from a cron job instead.
+
+Each series' backtest decides whether weather, weather alerts and local events
+go into its forecast: an input is kept only where it lowers the error.
 
 For PredictHQ, create an access token in the PredictHQ control center, put it in
-`.env.local` (git-ignored), restart `npm run dev`, then run `npm run sync -- events`
-or press Sync in the data-sources panel:
+`.env.local` (git-ignored) and restart `npm run dev` — events then sync
+automatically:
 
 ```bash
 PREDICTHQ_API_TOKEN=your-token

@@ -3,19 +3,19 @@
  *
  * Every SKU is forecast from its own history and its own known future: its
  * planned promotions and price, the store's weather forecast, public
- * holidays, logged events for its category, and events near the store
+ * holidays, NWS weather alerts, and events near the store
  * (driver-forecast.ts). Per-store SKU fits are memoised because they are the
  * expensive part and don't depend on the horizon or the category filter.
  */
 
-import type { CategoryId, DayCtx, ItemSeries, OpsEvent, Sku, StoreId } from "../data/types";
+import type { CategoryId, ItemSeries, Sku, StoreId } from "../data/types";
 import {
   getAsOf,
   getCalendar,
   getCategories,
-  getEvents,
   getItemSeries,
   getLocalEventDays,
+  getNamedEvents,
   getOnHand,
   getSkus,
   memo,
@@ -23,10 +23,9 @@ import {
 } from "../db/repository";
 import type { Accuracy } from "../forecast/backtest";
 import type { FeatureRow } from "../forecast/design";
-import { forecastSeries, type ModelChoice } from "../forecast/driver-forecast";
+import { forecastSeries, type ModelChoice, type OptionalGroup } from "../forecast/driver-forecast";
 import type { ForecastPoint } from "../forecast/holt-winters";
 import { detectAnomalies, groupAnomalies, type Anomaly } from "../forecast/anomalies";
-import { eventApplies } from "../forecast/events";
 import { fitDriversDetailed, type DriverModel } from "../forecast/drivers";
 import { factorsFor, type ChartRowFactors } from "./factors";
 import type { Filters } from "./types";
@@ -41,15 +40,36 @@ export type SkuFit = {
   accuracy: Accuracy;
   /** Which model forecasts this SKU, chosen by backtest. */
   model: ModelChoice;
+  /** Optional inputs its driver model kept (null when it couldn't be tested). */
+  inputs: Record<OptionalGroup, boolean> | null;
   /** Units on hand at the latest count (inventory_on_hand). */
   onHand: number;
 };
 
-/** Nearby-event columns of a feature row. */
+/**
+ * log of a SKU's shelf price index on day i — the price with any promo
+ * discount taken back out. Discounts already enter the model through the
+ * promo columns; leaving them in the price too would count every promotion
+ * twice and blur both effects.
+ *
+ * The index is snapped to whole-percent steps. The stored price index and
+ * discount are each rounded, so dividing one by the other leaves ±0.1%
+ * noise; a series whose only "price change" is that noise would otherwise
+ * earn an enormous coefficient for it.
+ */
+export function shelfLogPrice(s: ItemSeries, i: number): number {
+  const shelf = s.priceIndex[i] / Math.max(0.01, 1 - s.discount[i]);
+  return Math.log(Math.round(shelf * 100) / 100);
+}
+
+/** The API event columns of a feature row: nearby attendance and NWS alerts. */
 export function localFeatures(d: LocalEventDay | undefined) {
   return {
     localAttendance: Math.log1p((d?.attendance ?? 0) / 1000),
-    severeWeather: d?.severeWeather ? 1 : 0,
+    schoolBreak: d?.schoolBreaks.length ? 1 : 0,
+    alertWinter: d?.alerts.winter ? 1 : 0,
+    alertHeat: d?.alerts.heat ? 1 : 0,
+    alertStorm: d?.alerts.storm ? 1 : 0,
   };
 }
 
@@ -57,7 +77,6 @@ export function getSkuFits(storeId: StoreId): SkuFit[] {
   return memo(`skufits:${storeId}`, () => {
     const cal = getCalendar(storeId, "items");
     const local = getLocalEventDays(storeId, cal);
-    const events = getEvents();
     const skuById = new Map(getSkus().map((k) => [k.id, k]));
     const onHand = getOnHand(storeId);
     const out: SkuFit[] = [];
@@ -65,21 +84,12 @@ export function getSkuFits(storeId: StoreId): SkuFit[] {
       const sku = skuById.get(s.skuId);
       if (!sku) continue;
       // This SKU's own known inputs, every day of history and the future.
-      const feats: FeatureRow[] = cal.map((d, i) => {
-        let evLog = 0;
-        for (const ev of events) {
-          if (d.date >= ev.start && d.date <= ev.end && eventApplies(ev, "inside", sku.category)) {
-            evLog += Math.log(ev.effect);
-          }
-        }
-        return {
-          promo: s.onPromo[i] ? 1 : 0,
-          discount: s.discount[i],
-          logPriceIndex: Math.log(s.priceIndex[i]),
-          eventLog: evLog,
-          ...localFeatures(local[i]),
-        };
-      });
+      const feats: FeatureRow[] = cal.map((_, i) => ({
+        promo: s.onPromo[i] ? 1 : 0,
+        discount: s.discount[i],
+        logPriceIndex: shelfLogPrice(s, i),
+        ...localFeatures(local[i]),
+      }));
       const r = forecastSeries(cal, feats, s.units, MAX_HORIZON);
       out.push({
         sku,
@@ -87,44 +97,12 @@ export function getSkuFits(storeId: StoreId): SkuFit[] {
         points: r.points,
         accuracy: r.accuracy,
         model: r.model,
+        inputs: r.inputs,
         onHand: onHand.get(sku.id) ?? 0,
       });
     }
     return out;
   });
-}
-
-/**
- * Volume-weighted event exposure of a set of SKUs, per day: the combined log
- * multiplier (the driver model's feature) and each event's own share (for the
- * tooltip rows). An event scoped to two categories moves a store total only
- * by those categories' share of volume.
- */
-export function itemEventExposure(
-  cal: DayCtx[],
-  skus: { category: CategoryId; weight: number }[],
-  events: OpsEvent[],
-) {
-  const total: number[] = new Array(cal.length).fill(0);
-  const perEvent: { ev: OpsEvent; log: number }[][] = cal.map(() => []);
-  for (let i = 0; i < cal.length; i++) {
-    const date = cal[i].date;
-    const live = events.filter((ev) => date >= ev.start && date <= ev.end);
-    if (!live.length) continue;
-    let combined = 0;
-    for (const k of skus) {
-      let m = 1;
-      for (const ev of live) if (eventApplies(ev, "inside", k.category)) m *= ev.effect;
-      combined += k.weight * m;
-    }
-    total[i] = Math.log(combined);
-    for (const ev of live) {
-      let m = 0;
-      for (const k of skus) m += k.weight * (eventApplies(ev, "inside", k.category) ? ev.effect : 1);
-      if (Math.abs(Math.log(m)) > 1e-9) perEvent[i].push({ ev, log: Math.log(m) });
-    }
-  }
-  return { total, perEvent };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -258,7 +236,21 @@ export type ModelInfo = {
   /** How many of the scoped series (SKUs / grades) use the driver model. */
   seriesOnDriver: number;
   seriesTotal: number;
+  /** Optional inputs the headline driver model kept, when it could be tested. */
+  inputs: Record<OptionalGroup, boolean> | null;
+  /** How many scoped series (SKUs / grades) kept each optional input. */
+  seriesUsing: Record<OptionalGroup, number>;
 };
+
+/** Count the scoped series whose driver model kept each optional input. */
+export function countInputs(fits: { model: ModelChoice; inputs: Record<OptionalGroup, boolean> | null }[]) {
+  const on = fits.filter((f) => f.model === "driver" && f.inputs);
+  return {
+    weather: on.filter((f) => f.inputs!.weather).length,
+    alerts: on.filter((f) => f.inputs!.alerts).length,
+    events: on.filter((f) => f.inputs!.events).length,
+  };
+}
 
 export type ItemWorkspace = {
   asOf: string;
@@ -288,7 +280,7 @@ export type ItemWorkspace = {
 export function buildItemWorkspace(filters: Filters): ItemWorkspace {
   const cal = getCalendar(filters.storeId, "items");
   const fits = getSkuFits(filters.storeId);
-  const events = getEvents();
+  const events = getNamedEvents(filters.storeId);
   const categories = getCategories();
   const horizon = filters.horizon;
 
@@ -306,17 +298,12 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
     for (let i = 0; i < histLen; i++) actual[i] += f.series.units[i];
   }
 
-  // Promo/price/event columns weighted by recent volume share.
+  // Promo and shelf-price columns weighted by recent volume share.
   const weights = inScope.map((f) => {
     const v = f.series.units.slice(-90).reduce((a, b) => a + b, 0);
     return Math.max(1e-6, v);
   });
   const wSum = weights.reduce((a, b) => a + b, 0);
-  const exposure = itemEventExposure(
-    cal,
-    inScope.map((f, k) => ({ category: f.sku.category, weight: weights[k] / wSum })),
-    events,
-  );
   const local = getLocalEventDays(filters.storeId, cal);
   const feats: FeatureRow[] = cal.map((_, i) => {
     let promo = 0;
@@ -326,9 +313,9 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
       const w = weights[k] / wSum;
       promo += (inScope[k].series.onPromo[i] ? 1 : 0) * w;
       discount += inScope[k].series.discount[i] * w;
-      logPrice += Math.log(inScope[k].series.priceIndex[i]) * w;
+      logPrice += shelfLogPrice(inScope[k].series, i) * w;
     }
-    return { promo, discount, logPriceIndex: logPrice, eventLog: exposure.total[i], ...localFeatures(local[i]) };
+    return { promo, discount, logPriceIndex: logPrice, ...localFeatures(local[i]) };
   });
 
   // The headline series gets its own fit rather than a sum of SKU bands:
@@ -351,8 +338,6 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
       day: cal[i],
       value,
       effects: source.effectsAt(i),
-      logged: exposure.perEvent[i],
-      eventCoef: source.eventCoef,
       local: local[i] ?? null,
       correction: i >= origin && aggregate.driver ? aggregate.driver.correction(i - origin + 1) : 0,
       mode,
@@ -472,6 +457,8 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
       hwWape: aggregate.candidates.hw.wape,
       seriesOnDriver: inScope.filter((f) => f.model === "driver").length,
       seriesTotal: inScope.length,
+      inputs: aggregate.model === "driver" ? aggregate.inputs : null,
+      seriesUsing: countInputs(inScope),
     },
     chartRows,
     sparkline,

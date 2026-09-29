@@ -12,20 +12,21 @@
  *   + Promotions & price
  *   + Holidays              public holidays (Nager.Date)
  *   + Weather               temperature vs the store's normal, and rain (Open-Meteo)
- *   + Events                logged events, and events near the store (PredictHQ)
+ *   + Weather alerts        NWS winter, heat and storm warnings
+ *   + Local events          crowds and school breaks near the store (PredictHQ)
  *   + Recent-level correction   = the driver model used in production
  *
  * The regression rungs share their design with the production forecast
  * (design.ts), refitted at every origin on that origin's past only. Two
  * foresight caveats, both shown in the UI: backtest weather uses the observed
- * temperature (live, the forecast uses Open-Meteo's forecast, which is worse),
- * and logged events use their logged window (a festival is known ahead; a
- * cooler failure is not). So those two rungs are upper bounds.
+ * temperature and the alerts actually issued (live, the forecast has only
+ * Open-Meteo's forecast and alerts issued so far). So those rungs are upper
+ * bounds.
  */
 
 import type { DayCtx } from "../data/types";
 import { buildColumns, fitRidge, predictLog, rawBeta, type FeatureRow, type Group } from "./design";
-import { driverForecaster } from "./driver-forecast";
+import { driverForecaster, MIN_TRAIN, selectInputs, type OptionalGroup } from "./driver-forecast";
 import { fitHoltWinters, forecastFrom, stateFor } from "./holt-winters";
 
 export type StepId =
@@ -35,6 +36,7 @@ export type StepId =
   | "promo"
   | "holiday"
   | "weather"
+  | "alerts"
   | "events"
   | "production";
 
@@ -51,11 +53,12 @@ const STEPS: StepDef[] = [
   { id: "naive", label: "Seasonal naive", adds: "Repeats last week", groups: null },
   { id: "hw", label: "Holt-Winters", adds: "Sales history only", groups: null },
   { id: "calendar", label: "Calendar", adds: "Trend, season of year, day of week", groups: BASE },
-  { id: "promo", label: "+ Promotions & price", adds: "Promo plan, discount depth, price index", groups: [...BASE, "promo", "price"] },
+  { id: "promo", label: "+ Promotions & price", adds: "Promo plan, discount depth, shelf price", groups: [...BASE, "promo", "price"] },
   { id: "holiday", label: "+ Holidays", adds: "Public holidays and the day before", groups: [...BASE, "promo", "price", "holiday"] },
   { id: "weather", label: "+ Weather", adds: "Temperature vs the store's normal, and rain", groups: [...BASE, "promo", "price", "holiday", "weather"] },
-  { id: "events", label: "+ Events", adds: "Logged events and events near the store", groups: [...BASE, "promo", "price", "holiday", "weather", "events"] },
-  { id: "production", label: "+ Recent-level correction", adds: "Follows level shifts the inputs don't explain", groups: null },
+  { id: "alerts", label: "+ Weather alerts", adds: "NWS winter, heat and storm warnings", groups: [...BASE, "promo", "price", "holiday", "weather", "alerts"] },
+  { id: "events", label: "+ Local events", adds: "Crowds and school breaks nearby (PredictHQ)", groups: [...BASE, "promo", "price", "holiday", "weather", "alerts", "events"] },
+  { id: "production", label: "Production driver model", adds: "Inputs that improve the backtest, plus a recent-level correction", groups: null },
 ];
 
 /** Per-day inputs, spanning at least the history. */
@@ -104,6 +107,8 @@ export type LabResult = {
   steps: StepResult[];
   /** The rung the live forecast uses: the lower-error of Holt-Winters and production. */
   inProduction: StepId;
+  /** Optional inputs the production model kept on this series' backtest. */
+  productionInputs: Record<OptionalGroup, boolean> | null;
   learned: Learned[];
   misses: {
     date: string;
@@ -222,9 +227,12 @@ export function runLab(inp: LabInputs, opts: LabOptions = {}): LabResult | null 
     if (s.groups) preds.set(s.id, runRegression(inp, s.groups, cuts, H));
   }
 
-  // The production driver model: every input plus the recent-level correction.
+  // The production driver model: the inputs that earned their place on this
+  // series' backtest (the same selection the live forecast makes), plus the
+  // recent-level correction.
+  const selection = selectInputs(inp.cal, inp.feats, inp.y, { m: 7, horizon: H, minTrain: MIN_TRAIN });
   {
-    const f = driverForecaster(inp.cal, inp.feats, inp.y);
+    const f = driverForecaster(inp.cal, inp.feats, inp.y, selection?.groups);
     preds.set("production", {
       predictions: cuts.flatMap((cut) => f(cut, H)),
       inputs: preds.get("events")!.inputs,
@@ -295,7 +303,7 @@ export function runLab(inp: LabInputs, opts: LabOptions = {}): LabResult | null 
       id: "price",
       label: "Price",
       value: price == null ? "not used" : fmt(Math.expm1(price * Math.log(1.01)), 2),
-      meaning: "Demand change for a 1% price increase",
+      meaning: "Demand change for a 1% price increase (items: shelf price, promos excluded)",
     });
 
     const hol = pct(b("holiday"));
@@ -313,12 +321,15 @@ export function runLab(inp: LabInputs, opts: LabOptions = {}): LabResult | null 
     const att = pct(b("local_attendance"), Math.log1p(10));
     learned.push({ id: "local", label: "Events nearby", value: fmt(att, 1), meaning: "Demand change with 10,000 people at events within 10 km (PredictHQ)" });
 
-    const ev = b("event_log");
+    const school = pct(b("school_break"));
+    learned.push({ id: "school", label: "School breaks", value: fmt(school, 1), meaning: "Demand change while a nearby school district is on break (PredictHQ)" });
+
+    const alert = (name: string) => fmt(pct(b(name)), 1);
     learned.push({
-      id: "events",
-      label: "Events",
-      value: ev == null ? "not used" : `${(ev * 100).toFixed(0)}% of logged effect`,
-      meaning: "How much of each event's logged impact shows up in sales (100% = exactly as logged)",
+      id: "alerts",
+      label: "Weather alerts",
+      value: `winter ${alert("alert_winter")} · heat ${alert("alert_heat")} · storm ${alert("alert_storm")}`,
+      meaning: "Demand change on a day with an NWS warning or advisory in force",
     });
   }
 
@@ -351,6 +362,7 @@ export function runLab(inp: LabInputs, opts: LabOptions = {}): LabResult | null 
   return {
     horizon: H,
     inProduction: Number.isFinite(prodWape) && prodWape < hwWape ? "production" : "hw",
+    productionInputs: selection?.uses ?? null,
     windows: cuts.map((cut) => ({ start: inp.cal[cut].date, end: inp.cal[cut + H - 1].date })),
     backtest: { dates: btDates, actual: btActual },
     steps,

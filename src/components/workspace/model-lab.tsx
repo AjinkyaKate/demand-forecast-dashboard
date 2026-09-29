@@ -18,8 +18,8 @@ import { compact, dowDate, percent, shortDate, signedPercent, thousands } from "
 import { useModelLab } from "@/lib/hooks/use-workspace";
 import type { LabStream, LabWorkspace } from "@/lib/workspace/lab";
 import { cn } from "@/lib/utils";
-import { Field } from "./filters";
-import { SectionHeading, StatusBadge } from "./shared";
+import { Field, FilterGroup } from "./filters";
+import { StatusBadge, WorkspaceHeader } from "./shared";
 
 /** Error change in percentage points, with the sign that reads naturally. */
 function pts(delta: number, digits = 1): string {
@@ -52,11 +52,14 @@ function Ladder({
   selected,
   onSelect,
   inProduction,
+  productionAdds,
 }: {
   steps: StepResult[];
   selected: StepId;
   onSelect: (id: StepId) => void;
   inProduction: StepId;
+  /** What the production row actually uses on this series. */
+  productionAdds: string;
 }) {
   const max = Math.max(...steps.map((s) => s.metrics.wape));
   const baselines = steps.filter((s) => s.id === "naive" || s.id === "hw");
@@ -81,7 +84,9 @@ function Ladder({
               {s.label}
               {s.id === inProduction ? <StatusBadge tone="good">In production</StatusBadge> : null}
             </span>
-            <span className="text-ink-muted block truncate text-[11px]">{s.adds}</span>
+            <span className="text-ink-muted block truncate text-[11px]">
+              {s.id === "production" ? productionAdds : s.adds}
+            </span>
           </span>
 
           <span className="flex items-center gap-3">
@@ -151,10 +156,11 @@ function DataCard({ w }: { w: LabWorkspace }) {
       note: `Open-Meteo · ${wd.forecast} forecast${wd.none ? ` · ${wd.none} without` : ""}`,
     },
     { k: "Public holidays", v: thousands(d.holidays), note: "Nager.Date, national + state" },
+    { k: "Weather alerts", v: thousands(d.alerts), note: "National Weather Service" },
     {
-      k: "Events",
-      v: thousands(d.loggedEvents + d.localEvents),
-      note: `${d.loggedEvents} logged · ${d.localEvents} nearby (PredictHQ)`,
+      k: "Events nearby",
+      v: thousands(d.localEvents),
+      note: d.localEvents ? "PredictHQ, within 10 km" : "PredictHQ — needs API key",
     },
     ...(w.stream === "items"
       ? [{ k: "Planned promotions", v: thousands(d.promotions), note: "promotions table" }]
@@ -210,37 +216,42 @@ export function ModelLab() {
   const whole = (n: number) => thousands(Math.round(n));
 
   const filters = (
-    <div className="surface-card rounded-inner flex flex-wrap items-end gap-x-3 gap-y-3 p-2 sm:gap-x-4">
+    <FilterGroup busy={loading && !!w}>
       <Field label="Store" value={storeId} onChange={setStoreId}
         options={stores.map((s) => ({ value: s.id, label: s.name }))} widthClass="w-[248px]" />
       <Field label="Demand" value={stream} onChange={(v) => setStream(v as LabStream)}
-        options={STREAM_OPTIONS} widthClass="w-[150px]" />
-    </div>
+        options={STREAM_OPTIONS} widthClass="w-[140px]" />
+    </FilterGroup>
   );
 
-  const heading = (
-    <SectionHeading
+  const header = (
+    <WorkspaceHeader
       title="Model Lab"
-      description="What each input adds to forecast accuracy, measured on the same backtest"
+      description={
+        w && lab
+          ? `${w.storeName} · ${w.stream === "items" ? "inside items" : "fuel"} · ${lab.windows.length} two-week backtests, ${shortDate(lab.windows[0].start)} – ${shortDate(lab.windows[lab.windows.length - 1].end)}`
+          : "What each input adds to forecast accuracy, measured on the same backtest"
+      }
+      filters={filters}
     />
   );
 
-  if (error) {
+  // The header and filters stay on screen in every state; only the first
+  // load, with nothing to show yet, gets a skeleton.
+  if (error && !w) {
     return (
       <div className="flex flex-col gap-4">
-        {heading}
-        {filters}
+        {header}
         <div className="surface-card rounded-card text-ink-secondary p-6 text-center">
           Couldn&apos;t load the Model Lab: {error}
         </div>
       </div>
     );
   }
-  if (loading || !w) {
+  if (!w) {
     return (
       <div className="flex flex-col gap-4">
-        {heading}
-        {filters}
+        {header}
         <div className="flex animate-pulse flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
@@ -253,9 +264,8 @@ export function ModelLab() {
   if (!lab) {
     return (
       <div className="flex flex-col gap-4">
-        {heading}
-        {filters}
-        <div className="surface-card rounded-card text-ink-secondary p-6 text-center">
+        {header}
+        <div className={cn("surface-card rounded-card text-ink-secondary p-6 text-center", loading && "is-refetching")}>
           Not enough sales history at this store to backtest honestly ({w.historyDays} days;
           the ladder needs at least {120 + 2 * 14}).
         </div>
@@ -269,9 +279,27 @@ export function ModelLab() {
   const live = byId.get(lab.inProduction)!;
   const pick = byId.get(selected) ?? full;
   const rungs = lab.steps.filter((s) => s.deltaWape != null && s.id !== "calendar" && s.id !== "production");
+  const pi = lab.productionInputs;
+  const kept = pi
+    ? [
+        "promotions",
+        "holidays",
+        ...(pi.weather ? ["weather"] : []),
+        ...(pi.alerts ? ["weather alerts"] : []),
+        ...(pi.events ? ["local events"] : []),
+      ]
+    : [];
+  const dropped = pi
+    ? [
+        ...(pi.weather ? [] : ["weather"]),
+        ...(pi.alerts ? [] : ["alerts"]),
+        ...(pi.events ? [] : ["local events"]),
+      ]
+    : [];
+  const productionAdds = pi
+    ? `Uses ${kept.join(", ")}${dropped.length ? ` · ${dropped.join(", ")} left out (didn't help here)` : ""} · level correction`
+    : "Inputs that improve the backtest, plus a recent-level correction";
   const biggest = [...rungs].sort((a, b) => (a.deltaWape ?? 0) - (b.deltaWape ?? 0))[0];
-  const first = lab.windows[0].start;
-  const last = lab.windows[lab.windows.length - 1].end;
   const unit = w.unit;
 
   const lines = [
@@ -292,19 +320,14 @@ export function ModelLab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="chunk-in chunk-in-1 flex flex-col gap-4">
-        <SectionHeading
-          title="Model Lab"
-          description={`${w.storeName} · ${stream === "items" ? "inside items" : "fuel"} · ${lab.windows.length} two-week backtests, ${shortDate(first)} – ${shortDate(last)}`}
-        />
-        {filters}
-      </div>
+      <div className="chunk-in chunk-in-1">{header}</div>
+      <div className={cn("flex flex-col gap-4", loading && "is-refetching")}>
 
       <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
           label="Forecast in use"
           value={percent(1 - live.metrics.wape, 1)}
-          caption={live.id === "hw" ? "Holt-Winters · sales history only" : "Driver model · every input + level correction"}
+          caption={live.id === "hw" ? "Holt-Winters · sales history only" : `Driver model · ${kept.length ? kept.join(", ") : "selected inputs"}`}
           captionRight={`bias ${signedPercent(live.metrics.bias, 1)}`}
         />
         <StatTile
@@ -360,13 +383,19 @@ export function ModelLab() {
                 Fuel pages. Error is WAPE (total absolute miss ÷ total actual), and accuracy is 1 − WAPE.
                 The regression rows are a ridge regression on log demand, refitted for every
                 window. Two rows get more foresight than a live forecast would have. Weather uses
-                the temperature that actually happened (live, you&apos;d have a weather forecast),
-                and events use the logged dates (a festival is known ahead, a cooler failure
-                isn&apos;t). Treat those two gains as upper bounds.
+                the temperature that actually happened, and alerts use every alert that was
+                issued (live, the forecast has Open-Meteo&apos;s forecast and only the alerts
+                issued so far). Treat those two gains as upper bounds.
               </>
             }
           >
-            <Ladder steps={lab.steps} selected={pick.id} onSelect={setSelected} inProduction={lab.inProduction} />
+            <Ladder
+              steps={lab.steps}
+              selected={pick.id}
+              onSelect={setSelected}
+              inProduction={lab.inProduction}
+              productionAdds={productionAdds}
+            />
           </ChartFrame>
         </div>
 
@@ -530,6 +559,7 @@ export function ModelLab() {
         store, upcoming holidays and events. Each series falls back to Holt-Winters when that scores
         better on its own backtest, or when there isn&apos;t enough history to test.
       </p>
+      </div>
     </div>
   );
 }

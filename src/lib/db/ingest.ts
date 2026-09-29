@@ -3,6 +3,7 @@
  *
  *   open-meteo-weather   per-store observed weather, 16-day forecast, normals
  *   nager-holidays       national + state public holidays
+ *   nws-alerts           NWS winter / heat / storm warnings at each store
  *   predicthq-events     events near each store (needs PREDICTHQ_API_TOKEN)
  *
  * Every run is idempotent (upserts) and logged in external_sync_log, which is
@@ -14,6 +15,7 @@ import { addDays } from "../format";
 import { dayOfYear, fetchForecast, fetchNormals, fetchObserved, type RawDay } from "../external/weather";
 import { fetchHolidays } from "../external/holidays";
 import { fetchEventsNear, predictHqToken, PredictHQError } from "../external/predicthq";
+import { fetchAlertsAt } from "../external/nws";
 import { getWritableDb } from "./index";
 import { ensureSchema } from "./migrate";
 
@@ -184,6 +186,58 @@ export function syncHolidays(): Promise<SyncResult> {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Weather alerts                                                             */
+/* -------------------------------------------------------------------------- */
+
+/** Alerts are issued at most a few days ahead; pull a week past today. */
+const ALERT_LOOKAHEAD_DAYS = 7;
+
+export function syncAlerts(): Promise<SyncResult> {
+  return withDb(async (db) => {
+    const source = "nws-alerts";
+    let rows = 0;
+    try {
+      const up = db.prepare(
+        `INSERT INTO external_events
+           (source, id, store_id, title, category, start_date, end_date, fetched_at)
+         VALUES ('nws', ?, ?, ?, ?, ?, ?, datetime('now'))
+         ON CONFLICT(source, id, store_id) DO UPDATE SET
+           title = excluded.title, category = excluded.category,
+           start_date = excluded.start_date, end_date = excluded.end_date,
+           fetched_at = excluded.fetched_at`,
+      );
+      const to = addDays(today(), ALERT_LOOKAHEAD_DAYS);
+      let first = null as string | null;
+      for (const s of stores(db)) {
+        if (s.latitude == null || s.longitude == null) continue;
+        const from = addDays(s.historyStart, -2);
+        first = first == null || from < first ? from : first;
+        const alerts = await fetchAlertsAt({
+          latitude: s.latitude,
+          longitude: s.longitude,
+          timezone: s.timezone,
+          from,
+          to,
+        });
+        db.transaction(() => {
+          for (const a of alerts) {
+            up.run(a.id, s.id, a.title, `alert-${a.kind}`, a.start, a.end);
+            rows++;
+          }
+        })();
+      }
+      const r: SyncResult = { source, ok: true, rows, dateFrom: first, dateTo: to };
+      logSync(db, r);
+      return r;
+    } catch (err) {
+      const r: SyncResult = { source, ok: false, rows, dateFrom: null, dateTo: null, message: String(err) };
+      logSync(db, r);
+      return r;
+    }
+  });
+}
+
+/* -------------------------------------------------------------------------- */
 /* Events                                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -226,7 +280,10 @@ export function syncEvents(): Promise<SyncResult> {
           from,
           to,
         });
+        // Replace the store's rows, so cancelled events and categories no
+        // longer fetched don't linger.
         db.transaction(() => {
+          db.prepare("DELETE FROM external_events WHERE source = 'predicthq' AND store_id = ?").run(s.id);
           for (const e of events) {
             up.run(e.id, s.id, e.title, e.category, e.start, e.end, e.attendance, e.rank, e.localRank, e.distanceKm);
             rows++;

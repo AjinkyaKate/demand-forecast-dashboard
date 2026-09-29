@@ -19,7 +19,7 @@ import {
 } from "@/lib/format";
 import { FilterBar, useFilters } from "./filters";
 import { TankPlanTable } from "./tank-plan-table";
-import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge } from "./shared";
+import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge, WorkspaceHeader } from "./shared";
 import { cn } from "@/lib/utils";
 
 export function FuelWorkspace() {
@@ -33,44 +33,32 @@ export function FuelWorkspace() {
 
   const gal = (n: number) => thousands(Math.round(n));
 
-  if (error) {
-    return <div className="surface-card rounded-card p-6 text-center text-red-500">Failed to load workspace: {error}</div>;
-  }
-  if (loading || !w) {
-    return (
-      <div className="flex flex-col gap-4 animate-pulse">
-        <div className="surface-card rounded-card h-12" />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
-        </div>
-        <div className="surface-card rounded-card h-80" />
-      </div>
-    );
-  }
+  const urgent = w ? w.plan.filter((p) => p.status === "order-now") : [];
 
-  const urgent = w.plan.filter((p) => p.status === "order-now");
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="chunk-in chunk-in-1 flex flex-col gap-4">
-        <SectionHeading
-          title="Fuel Demand Forecasting"
-          description={`${w.scopeLabel} · forecast horizon ${filters.horizon} days`}
-          aside={
-            urgent.length > 0 ? (
-              <StatusBadge tone="critical">
-                {urgent.map((p) => p.grade.short).join(", ")} at reserve within 2 days
-              </StatusBadge>
-            ) : w.counts.schedule > 0 ? (
-              <StatusBadge tone="warning">
-                {w.counts.schedule} grade{w.counts.schedule === 1 ? "" : "s"} need a drop this week
-              </StatusBadge>
-            ) : (
-              <StatusBadge tone="good">All tanks above reserve</StatusBadge>
-            )
-          }
-        />
+  const header = (
+    <WorkspaceHeader
+      title="Fuel Demand Forecasting"
+      description={
+        w ? `${w.scopeLabel} · forecast horizon ${filters.horizon} days` : `Forecast horizon ${filters.horizon} days`
+      }
+      status={
+        w ? (
+          urgent.length > 0 ? (
+            <StatusBadge tone="critical">
+              {urgent.map((p) => p.grade.short).join(", ")} at reserve within 2 days
+            </StatusBadge>
+          ) : w.counts.schedule > 0 ? (
+            <StatusBadge tone="warning">
+              {w.counts.schedule} grade{w.counts.schedule === 1 ? "" : "s"} need a drop this week
+            </StatusBadge>
+          ) : (
+            <StatusBadge tone="good">All tanks above reserve</StatusBadge>
+          )
+        ) : null
+      }
+      filters={
         <FilterBar
+          busy={loading && !!w}
           scope={{
             label: "Grade",
             value: filters.gradeId,
@@ -78,9 +66,41 @@ export function FuelWorkspace() {
             options: gradeOptions,
           }}
         />
-      </div>
+      }
+    />
+  );
 
-      <div className={cn("flex flex-col gap-4", pending && "is-refetching")}>
+  // The header and filters stay on screen in every state; only the first
+  // load, with nothing to show yet, gets a skeleton.
+  if (error && !w) {
+    return (
+      <div className="flex flex-col gap-4">
+        {header}
+        <div className="surface-card rounded-card text-ink-secondary p-6 text-center">
+          Couldn&apos;t load the forecast: {error}
+        </div>
+      </div>
+    );
+  }
+  if (!w) {
+    return (
+      <div className="flex flex-col gap-4">
+        {header}
+        <div className="flex animate-pulse flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
+          </div>
+          <div className="surface-card rounded-card h-80" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="chunk-in chunk-in-1">{header}</div>
+
+      <div className={cn("flex flex-col gap-4", (pending || loading) && "is-refetching")}>
         <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 lg:grid-cols-4">
           <div className="surface-card rounded-card p-5">
             <HeroFigure

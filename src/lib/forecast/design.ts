@@ -5,6 +5,9 @@
  * One definition used by the production forecast (driver-forecast.ts), the
  * driver attribution (drivers.ts) and the Model Lab ladder (ablation.ts), so
  * the three can never disagree about what "weather" or "events" means.
+ *
+ * `alerts` (NWS warnings) and `events` (PredictHQ crowds, school breaks) are
+ * separate groups so each can be tested on its own.
  */
 
 import type { DayCtx } from "../data/types";
@@ -17,10 +20,11 @@ export type Group =
   | "price"
   | "holiday"
   | "weather"
+  | "alerts"
   | "events";
 
 export const ALL_GROUPS: Group[] = [
-  "trend", "season", "weekday", "promo", "price", "holiday", "weather", "events",
+  "trend", "season", "weekday", "promo", "price", "holiday", "weather", "alerts", "events",
 ];
 
 /** Per-day observable inputs that aren't on the calendar row itself. */
@@ -29,14 +33,22 @@ export type FeatureRow = {
   promo: number;
   /** Volume-weighted discount depth, 0–1. */
   discount: number;
-  /** log of the price index (price vs its reference). */
+  /**
+   * log of the price index. Items: the shelf price vs the original, promo
+   * discounts excluded (they are `discount`). Fuel: street price vs its
+   * trailing 90-day average.
+   */
   logPriceIndex: number;
-  /** log of the logged-event multiplier in force (events table); 0 = none. */
-  eventLog: number;
-  /** log1p(predicted attendance / 1000) of events near the store (PredictHQ). */
+  /** log1p(predicted attendance / 1000) of crowd events near the store (PredictHQ). */
   localAttendance: number;
-  /** 1 on a day with a severe-weather event near the store (PredictHQ). */
-  severeWeather: number;
+  /** 1 while a school district near the store is on break (PredictHQ). */
+  schoolBreak: number;
+  /** 1 while an NWS winter-weather warning or advisory is in force at the store. */
+  alertWinter: number;
+  /** 1 while an NWS heat warning or advisory is in force. */
+  alertHeat: number;
+  /** 1 while an NWS severe-storm, flood or wind alert is in force (or PredictHQ severe weather). */
+  alertStorm: number;
 };
 
 export type Column = { name: string; group: Group; values: Float64Array };
@@ -74,9 +86,11 @@ export function buildColumns(
   push("pre_holiday", "holiday", (i) => (c[i].preHoliday ? 1 : 0));
   push("temp_anom", "weather", (i) => c[i].tempAnomaly);
   push("rain", "weather", (i) => Math.log1p(Math.max(0, c[i].precipMm)));
-  push("event_log", "events", (i) => feats[i].eventLog);
   push("local_attendance", "events", (i) => feats[i].localAttendance);
-  push("severe_weather", "events", (i) => feats[i].severeWeather);
+  push("school_break", "events", (i) => feats[i].schoolBreak);
+  push("alert_winter", "alerts", (i) => feats[i].alertWinter);
+  push("alert_heat", "alerts", (i) => feats[i].alertHeat);
+  push("alert_storm", "alerts", (i) => feats[i].alertStorm);
   return cols;
 }
 
@@ -122,8 +136,32 @@ export type RidgeFit = {
   n: number;
 };
 
-/** Fit on rows [0, n), standardising on that range only; dead columns dropped. */
+/**
+ * Columns whose effect has a known direction. A higher price never raises
+ * demand; when a fit says otherwise, the column is borrowing some other
+ * change that happened at the same time (a trend, a level shift), so it is
+ * dropped and the fit redone without it.
+ */
+const NON_POSITIVE = new Set(["log_price"]);
+
+/**
+ * Fit on rows [0, n), standardising on that range only. Dead columns are
+ * dropped, and so is any column whose coefficient lands on the wrong side of
+ * its known sign.
+ */
 export function fitRidge(cols: Column[], y: number[], n: number): RidgeFit | null {
+  let use = cols;
+  for (;;) {
+    const fit = fitRidgeOnce(use, y, n);
+    if (!fit) return null;
+    const wrong = fit.cols.filter((c, j) => NON_POSITIVE.has(c.name) && fit.beta[j] > 0);
+    if (!wrong.length) return fit;
+    const drop = new Set(wrong.map((c) => c.name));
+    use = use.filter((c) => !drop.has(c.name));
+  }
+}
+
+function fitRidgeOnce(cols: Column[], y: number[], n: number): RidgeFit | null {
   const stats = cols.map((c) => {
     let m = 0;
     for (let i = 0; i < n; i++) m += c.values[i];

@@ -252,9 +252,32 @@ function ModelChoiceNote({ model }: { model: ModelInfo }) {
       <p className="text-ink-primary text-xs font-medium">Forecast by {MODEL_NAME[model.used]}</p>
       <p className="text-ink-muted mt-1 text-[11px] leading-relaxed">
         {model.used === "driver"
-          ? "Learns promotion, price, holiday, weather and event effects from past sales, and applies them to the planned promos, weather forecast and events ahead."
+          ? "Learns input effects from past sales and applies them to what’s known ahead: planned promos, holidays, the weather forecast, alerts and events."
           : "Sales history only — the driver model didn’t score better on this backtest."}
       </p>
+      {model.used === "driver" && model.inputs ? (
+        <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Inputs in use">
+          {[
+            { k: "Promotions & price", on: true },
+            { k: "Holidays", on: true },
+            { k: "Weather", on: model.inputs.weather },
+            { k: "Weather alerts", on: model.inputs.alerts },
+            { k: "Local events", on: model.inputs.events },
+          ].map((x) => (
+            <li key={x.k}>
+              <StatusBadge tone={x.on ? "good" : "neutral"}>
+                {x.k}{x.on ? "" : " · left out"}
+              </StatusBadge>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {model.used === "driver" && model.inputs && !(model.inputs.weather && model.inputs.alerts && model.inputs.events) ? (
+        <p className="text-ink-muted mt-1.5 text-[11px] leading-relaxed">
+          Left out = tested on the backtest and didn&apos;t lower the error for this series. It switches
+          back on by itself once the data shows it helps.
+        </p>
+      ) : null}
       <dl className="tabular mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
         <div className="flex gap-1">
           <dt className="text-ink-muted">Driver model</dt>
@@ -268,6 +291,12 @@ function ModelChoiceNote({ model }: { model: ModelInfo }) {
           <dt className="text-ink-muted">Series on driver model</dt>
           <dd className="text-ink-primary font-medium">
             {model.seriesOnDriver}/{model.seriesTotal}
+          </dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Using weather / alerts / events</dt>
+          <dd className="text-ink-primary font-medium">
+            {model.seriesUsing.weather} / {model.seriesUsing.alerts} / {model.seriesUsing.events}
           </dd>
         </div>
       </dl>
@@ -373,5 +402,37 @@ export function SectionHeading({
       </div>
       {aside}
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page header                                                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The page's header card, full width: title, one-line summary and status on
+ * the left, the page's filters on the right. On a narrow screen the filters
+ * drop below the title.
+ */
+export function WorkspaceHeader({
+  title,
+  description,
+  status,
+  filters,
+}: {
+  title: string;
+  description?: ReactNode;
+  status?: ReactNode;
+  filters: ReactNode;
+}) {
+  return (
+    <header className="surface-card rounded-card flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+      <div className="min-w-0">
+        <h2 className="text-ink-primary text-lg font-semibold tracking-[-0.01em]">{title}</h2>
+        {description ? <p className="text-ink-muted mt-0.5 text-xs">{description}</p> : null}
+        {status ? <div className="mt-2">{status}</div> : null}
+      </div>
+      <div className="lg:shrink-0">{filters}</div>
+    </header>
   );
 }

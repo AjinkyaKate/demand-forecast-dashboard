@@ -1,15 +1,25 @@
 "use client";
 
 /**
- * External data sources: what feeds the forecast, when it last synced, and a
- * way to pull fresh data. Rows come from /api/sync/status — the panel carries
- * no list of its own.
+ * External data sources: what feeds the forecast, when it last synced, and
+ * when it syncs next. Sources refresh automatically on the server; "Sync now"
+ * pulls one immediately. Rows come from /api/sync/status — the panel carries
+ * no list of its own — and re-read every minute.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useExternalStatus, type ExternalSource } from "@/lib/hooks/use-workspace";
 import { SectionHeading, StatusBadge, type StatusTone } from "./shared";
 import { cn } from "@/lib/utils";
+
+function timeUntil(iso: string): string {
+  const mins = Math.round((new Date(iso).getTime() - Date.now()) / 60000);
+  if (mins <= 1) return "shortly";
+  if (mins < 60) return `in ${mins} min`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 48) return `in ${hrs} h`;
+  return `in ${Math.round(hrs / 24)} days`;
+}
 
 function timeSince(isoUtc: string): string {
   const ms = Date.now() - new Date(isoUtc.replace(" ", "T") + "Z").getTime();
@@ -37,15 +47,20 @@ function SourceRow({
   busy: boolean;
   onSync: (s: ExternalSource) => void;
 }) {
-  const st = STATE[s.status] ?? STATE.never;
+  const syncing = busy || s.running;
+  const st = syncing ? { tone: "neutral" as const, label: "Syncing…" } : (STATE[s.status] ?? STATE.never);
   const detail =
     s.status === "needs-key"
-      ? "Add PREDICTHQ_API_TOKEN to .env.local, restart the server, then sync."
+      ? "Add PREDICTHQ_API_TOKEN to .env.local and restart the server — it then syncs automatically."
       : s.status === "ok"
         ? `${s.rows.toLocaleString("en-US")} rows · ${s.dateFrom} → ${s.dateTo} · synced ${s.lastSync ? timeSince(s.lastSync) : ""}`
         : s.status === "error"
           ? (s.error ?? "Last sync failed")
           : s.description;
+  const schedule =
+    s.schedule && !syncing
+      ? `Auto-syncs ${s.schedule}${s.nextSync ? ` · next ${timeUntil(s.nextSync)}` : ""}`
+      : null;
 
   return (
     <li className="border-hairline flex flex-wrap items-center gap-x-4 gap-y-2 border-b py-3 last:border-0">
@@ -55,10 +70,11 @@ function SourceRow({
           <StatusBadge tone={st.tone}>{st.label}</StatusBadge>
         </p>
         <p className="text-ink-muted mt-0.5 text-xs">{detail}</p>
+        {schedule ? <p className="text-ink-muted mt-0.5 text-[11px]">{schedule}</p> : null}
       </div>
       <button
         type="button"
-        disabled={!s.configured || busy}
+        disabled={!s.configured || syncing}
         onClick={() => onSync(s)}
         className={cn(
           "press rounded-control bg-surface-2 text-ink-primary shrink-0 px-3 py-1.5 text-xs font-medium",
@@ -66,7 +82,7 @@ function SourceRow({
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
       >
-        {busy ? "Syncing…" : s.status === "ok" ? "Re-sync" : "Sync"}
+        {syncing ? "Syncing…" : "Sync now"}
       </button>
     </li>
   );
@@ -75,6 +91,13 @@ function SourceRow({
 export function ExternalFactorsPanel() {
   const [nonce, setNonce] = useState(0);
   const { data, loading } = useExternalStatus(nonce);
+
+  // Automatic syncs happen on the server; re-read the status every minute so
+  // the panel shows them landing.
+  useEffect(() => {
+    const t = setInterval(() => setNonce((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -104,7 +127,11 @@ export function ExternalFactorsPanel() {
     <section className="surface-card rounded-card flex flex-col gap-3 p-5 sm:p-6">
       <SectionHeading
         title="External data sources"
-        description="APIs whose data the forecast learns from and applies to the days ahead."
+        description={
+          data?.autoSync === false
+            ? "APIs whose data the forecast learns from. Automatic sync is off (AUTO_SYNC=off) — use Sync now."
+            : "APIs whose data the forecast learns from. Each refreshes automatically; the forecast refits on its own when new data lands."
+        }
         aside={
           sources.length ? (
             <StatusBadge tone={connected === sources.length ? "good" : "warning"}>

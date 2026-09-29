@@ -8,7 +8,7 @@
 import {
   getAsOf,
   getCalendar,
-  getEvents,
+  getNamedEvents,
   getFuelGrades,
   getFuelSeries,
   getItemSeries,
@@ -63,7 +63,7 @@ console.log(`  CHECK beats seasonal naive: MASE ${r.accuracy.mase.toFixed(2)} ${
 
 /* --- Anomalies ------------------------------------------------------------ */
 
-const an = detectAnomalies(items[0].dates, total, r.fit, { threshold: 3, events: getEvents() });
+const an = detectAnomalies(items[0].dates, total, r.fit, { threshold: 3, events: getNamedEvents(STORE) });
 const groups = groupAnomalies(an);
 console.log(`ANOMALIES: ${an.length} days in ${groups.length} incidents`);
 for (const g of groups.slice(0, 6)) {
@@ -85,9 +85,11 @@ const dr = fitDrivers(
     promo: first.onPromo[i] ? 1 : 0,
     discount: first.discount[i],
     logPriceIndex: Math.log(first.priceIndex[i]),
-    eventLog: 0,
     localAttendance: 0,
-    severeWeather: 0,
+    schoolBreak: 0,
+    alertWinter: 0,
+    alertHeat: 0,
+    alertStorm: 0,
   })),
   first.units,
   origin,

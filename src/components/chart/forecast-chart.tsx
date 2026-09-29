@@ -39,12 +39,14 @@ const SEVERITY_VAR: Record<string, string> = {
   warning: "var(--status-warning)",
 };
 
-const FACTOR_DOT: Record<Exclude<FactorRow["type"], "event">, { dot: string; badge: string; badgeBg: string }> = {
+const FACTOR_DOT: Record<FactorRow["type"], { dot: string; badge: string; badgeBg: string }> = {
   weather: { dot: "#F59E0B", badge: "#FBBF24", badgeBg: "rgba(245,158,11,0.15)" },
   promo:   { dot: "#2DD4BF", badge: "#2DD4BF", badgeBg: "rgba(45,212,191,0.15)" },
   holiday: { dot: "#22C55E", badge: "#4ADE80", badgeBg: "rgba(34,197,94,0.15)" },
   price:   { dot: "#A78BFA", badge: "#C4B5FD", badgeBg: "rgba(167,139,250,0.15)" },
+  alert:   { dot: "#EF4444", badge: "#F87171", badgeBg: "rgba(239,68,68,0.15)" },
   local:   { dot: "#3B82F6", badge: "#60A5FA", badgeBg: "rgba(59,130,246,0.15)" },
+  school:  { dot: "#A855F7", badge: "#C084FC", badgeBg: "rgba(168,85,247,0.15)" },
   level:   { dot: "#64748B", badge: "#94A3B8", badgeBg: "rgba(148,163,184,0.15)" },
 };
 
@@ -52,15 +54,6 @@ const WEATHER_SOURCE: Record<ChartRowFactors["weatherSource"], string> = {
   observed: "Open-Meteo",
   forecast: "Open-Meteo forecast",
   none: "no reading",
-};
-
-const EVENT_DOT: Record<string, { dot: string; badge: string; badgeBg: string }> = {
-  local:       { dot: "#3B82F6", badge: "#60A5FA", badgeBg: "rgba(59,130,246,0.15)" },
-  traffic:     { dot: "#3B82F6", badge: "#60A5FA", badgeBg: "rgba(59,130,246,0.15)" },
-  weather:     { dot: "#F59E0B", badge: "#FBBF24", badgeBg: "rgba(245,158,11,0.15)" },
-  competition: { dot: "#A855F7", badge: "#C084FC", badgeBg: "rgba(168,85,247,0.15)" },
-  equipment:   { dot: "#EF4444", badge: "#F87171", badgeBg: "rgba(239,68,68,0.15)" },
-  supply:      { dot: "#EF4444", badge: "#F87171", badgeBg: "rgba(239,68,68,0.15)" },
 };
 
 const PAD = { top: 10, right: 14, bottom: 34, left: 54 };
@@ -387,7 +380,7 @@ export function ForecastChart({
                   </dd>
                 </div>
                 {ff.rows.map((r) => {
-                  const c = r.type === "event" ? (EVENT_DOT[r.kind ?? "local"] ?? EVENT_DOT.local) : FACTOR_DOT[r.type];
+                  const c = FACTOR_DOT[r.type];
                   return (
                     <div key={r.id} className="flex items-baseline justify-between gap-3">
                       <dt className="flex min-w-0 items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>

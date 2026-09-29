@@ -7,19 +7,17 @@ import type { StoreId } from "../data/types";
 import {
   getCalendar,
   getDataInventory,
-  getEvents,
   getFuelSeries,
   getItemSeries,
   getLocalEventDays,
-  getSkus,
   getStore,
   memo,
   type DataInventory,
+  type LocalEventDay,
 } from "../db/repository";
 import { runLab, type LabInputs, type LabResult } from "../forecast/ablation";
 import type { FeatureRow } from "../forecast/design";
-import { eventApplies, eventLengthDays, STRUCTURAL_DAYS } from "../forecast/events";
-import { itemEventExposure, localFeatures } from "./items";
+import { localFeatures, shelfLogPrice } from "./items";
 
 export type LabStream = "items" | "fuel";
 
@@ -33,37 +31,26 @@ export type LabWorkspace = {
   data: DataInventory;
 };
 
-/** Acute events first; a months-long condition is labelled as ongoing. */
-function labelsFor(
-  date: string,
-  target: "inside" | "fuel",
-  categories: Set<string> | null,
-  nearby?: string,
-) {
-  const live = getEvents().filter(
-    (ev) =>
-      date >= ev.start &&
-      date <= ev.end &&
-      (target === "fuel"
-        ? eventApplies(ev, "fuel", null)
-        : [...(categories ?? [])].some((c) => eventApplies(ev, "inside", c))),
-  );
-  const labels = live
-    .map((ev) => ({ ev, long: eventLengthDays(ev) > STRUCTURAL_DAYS }))
-    .sort((a, b) => Number(a.long) - Number(b.long))
-    .map(({ ev, long }) => (long ? `${ev.label} (ongoing)` : ev.label));
-  if (nearby) labels.unshift(`Nearby: ${nearby}`);
+/** What was going on near the store that day, for the miss table. */
+function labelFor(d: LocalEventDay | undefined): string | null {
+  if (!d) return null;
+  const labels = [
+    ...d.alertTitles,
+    ...d.top.slice(0, 1).map((e) => `Nearby: ${e.title}`),
+    ...(d.schoolBreaks.length ? [`School break (${d.schoolBreaks.length} district${d.schoolBreaks.length > 1 ? "s" : ""})`] : []),
+  ];
   return labels.length ? labels.join(" · ") : null;
 }
 
 function buildInputs(storeId: StoreId, stream: LabStream): LabInputs | null {
   const cal = getCalendar(storeId, stream);
   if (!cal.length) return null;
+  const local = getLocalEventDays(storeId, cal);
+  const eventLabel = cal.map((_, i) => labelFor(local[i]));
 
   if (stream === "items") {
     const series = getItemSeries(storeId);
     if (!series.length) return null;
-    const categoryOf = new Map(getSkus().map((s) => [s.id, s.category]));
     const n = series[0].units.length;
     const y = new Array<number>(n).fill(0);
     for (const s of series) for (let i = 0; i < n; i++) y[i] += s.units[i];
@@ -72,14 +59,6 @@ function buildInputs(storeId: StoreId, stream: LabStream): LabInputs | null {
     const vol = series.map((s) => Math.max(1e-6, s.units.reduce((a, b) => a + b, 0)));
     const total = vol.reduce((a, b) => a + b, 0);
     const w = vol.map((v) => v / total);
-    const exposure = itemEventExposure(
-      cal,
-      series.map((s, k) => ({ category: categoryOf.get(s.skuId) ?? "", weight: w[k] })),
-      getEvents(),
-    );
-    const cats = new Set(series.map((s) => categoryOf.get(s.skuId) ?? ""));
-
-    const local = getLocalEventDays(storeId, cal);
     const feats: FeatureRow[] = cal.map((_, i) => {
       let promo = 0;
       let discount = 0;
@@ -87,16 +66,11 @@ function buildInputs(storeId: StoreId, stream: LabStream): LabInputs | null {
       for (let k = 0; k < series.length; k++) {
         promo += (series[k].onPromo[i] ? 1 : 0) * w[k];
         discount += series[k].discount[i] * w[k];
-        logPrice += Math.log(series[k].priceIndex[i]) * w[k];
+        logPrice += shelfLogPrice(series[k], i) * w[k];
       }
-      return { promo, discount, logPriceIndex: logPrice, eventLog: exposure.total[i], ...localFeatures(local[i]) };
+      return { promo, discount, logPriceIndex: logPrice, ...localFeatures(local[i]) };
     });
-    return {
-      y,
-      cal,
-      feats,
-      eventLabel: cal.map((d, i) => labelsFor(d.date, "inside", cats, local[i]?.top[0]?.title)),
-    };
+    return { y, cal, feats, eventLabel };
   }
 
   const series = getFuelSeries(storeId);
@@ -106,24 +80,13 @@ function buildInputs(storeId: StoreId, stream: LabStream): LabInputs | null {
   for (const s of series) for (let i = 0; i < n; i++) y[i] += s.gallons[i];
   const vol = series.map((s) => Math.max(1e-6, s.gallons.reduce((a, b) => a + b, 0)));
   const total = vol.reduce((a, b) => a + b, 0);
-  const events = getEvents();
-
-  const local = getLocalEventDays(storeId, cal);
-  const feats: FeatureRow[] = cal.map((d, i) => ({
+  const feats: FeatureRow[] = cal.map((_, i) => ({
     promo: 0,
     discount: 0,
     logPriceIndex: series.reduce((a, s, k) => a + Math.log(s.priceIndex[i]) * (vol[k] / total), 0),
-    eventLog: events
-      .filter((ev) => d.date >= ev.start && d.date <= ev.end && eventApplies(ev, "fuel", null))
-      .reduce((a, ev) => a + Math.log(ev.effect), 0),
     ...localFeatures(local[i]),
   }));
-  return {
-    y,
-    cal,
-    feats,
-    eventLabel: cal.map((d, i) => labelsFor(d.date, "fuel", null, local[i]?.top[0]?.title)),
-  };
+  return { y, cal, feats, eventLabel };
 }
 
 export function buildLabWorkspace(storeId: StoreId, stream: LabStream): LabWorkspace {

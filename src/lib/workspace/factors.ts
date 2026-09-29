@@ -13,16 +13,14 @@
  * effect too small to list).
  */
 
-import type { DayCtx, OpsEvent } from "../data/types";
+import type { DayCtx } from "../data/types";
 import type { LocalEventDay } from "../db/repository";
 import type { DayEffects } from "../forecast/drivers";
 
 export type FactorRow = {
   id: string;
-  type: "weather" | "promo" | "holiday" | "price" | "event" | "local" | "level";
+  type: "weather" | "promo" | "holiday" | "price" | "alert" | "local" | "school" | "level";
   label: string;
-  /** Event kind, for the event rows' colour. */
-  kind?: OpsEvent["kind"];
   pct: number;
   units: number;
 };
@@ -50,15 +48,13 @@ export function factorsFor(opts: {
   /** The day's actual (history) or forecast (future). */
   value: number;
   effects: DayEffects;
-  /** Logged events in force, with each one's log multiplier on this series. */
-  logged: { ev: OpsEvent; log: number }[];
-  eventCoef: number;
+  /** Weather alerts and nearby events that day (NWS, PredictHQ). */
   local: LocalEventDay | null;
   /** Log-space recent-level correction; 0 on history days. */
   correction?: number;
   mode: ChartRowFactors["mode"];
 }): ChartRowFactors {
-  const { day, value, effects, logged, eventCoef, local } = opts;
+  const { day, value, effects, local } = opts;
   const parts: { row: Omit<FactorRow, "pct" | "units">; log: number }[] = [];
 
   const rain = day.precipMm >= 1 ? ` · ${day.precipMm.toFixed(0)} mm rain` : "";
@@ -81,14 +77,12 @@ export function factorsFor(opts: {
   });
   parts.push({ row: { id: "price", type: "price", label: "Price" }, log: effects.price });
 
-  // Logged events are split per event; their log multipliers share one coefficient.
-  const loggedTotal = logged.reduce((a, e) => a + e.log, 0);
-  for (const { ev, log } of logged) {
-    const share = Math.abs(loggedTotal) > 1e-12 ? log / loggedTotal : 0;
-    parts.push({
-      row: { id: ev.id, type: "event", label: ev.label, kind: ev.kind },
-      log: Math.abs(eventCoef) > 0 ? eventCoef * log : effects.events * share,
-    });
+  if (Math.abs(effects.alerts) > 0) {
+    const titles = local?.alertTitles ?? [];
+    const label = titles.length
+      ? `${titles[0]}${titles.length > 1 ? ` +${titles.length - 1} more` : ""}`
+      : "Weather alert";
+    parts.push({ row: { id: "alert", type: "alert", label }, log: effects.alerts });
   }
 
   if (local && Math.abs(effects.local) > 0) {
@@ -96,10 +90,16 @@ export function factorsFor(opts: {
     const more = local.top.length > 1 ? ` +${local.top.length - 1} more` : "";
     const label = lead
       ? `${lead.title}${lead.attendance ? ` (${fmtAttendance(lead.attendance)})` : ""}${more}`
-      : local.severeWeather
-        ? "Severe weather alert"
-        : "Events nearby";
+      : "Events nearby";
     parts.push({ row: { id: "local", type: "local", label }, log: effects.local });
+  }
+
+  if (local && Math.abs(effects.school) > 0) {
+    const n = local.schoolBreaks;
+    const label = n.length
+      ? `School break · ${n[0]}${n.length > 1 ? ` +${n.length - 1} more` : ""}`
+      : "School break";
+    parts.push({ row: { id: "school", type: "school", label }, log: effects.school });
   }
 
   if (opts.correction) {

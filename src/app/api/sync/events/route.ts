@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { syncEvents } from "@/lib/db/ingest";
 import { predictHqToken } from "@/lib/external/predicthq";
+import { runSync } from "@/lib/sync/auto";
 
 export const dynamic = "force-dynamic";
 
-/** Events near each store from PredictHQ. Needs PREDICTHQ_API_TOKEN. */
+/** Events near each store from PredictHQ. Needs PREDICTHQ_API_TOKEN. Shares the auto-sync lock. */
 export async function POST() {
   if (!predictHqToken()) {
     return NextResponse.json(
@@ -12,6 +12,6 @@ export async function POST() {
       { status: 400 },
     );
   }
-  const r = await syncEvents();
+  const r = await runSync("predicthq-events");
   return NextResponse.json(r, { status: r.ok ? 200 : 502 });
 }
