@@ -226,7 +226,7 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
   );
   const anomalyByDate = new Map(anomalies.map((a) => [a.date, a]));
 
-  const from = Math.max(0, histLen - filters.historyDays);
+  const from = Math.max(0, histLen - filters.horizon);
   const chartRows: ChartRow[] = [];
   for (let i = from; i < histLen; i++) {
     const date = cal[i].date;
@@ -281,7 +281,7 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
 
   // Per-grade panels span the same window the filter selects, so the grade
   // chart and the headline chart always show the same stretch of time.
-  const winFrom = Math.max(0, histLen - filters.historyDays);
+  const winFrom = Math.max(0, histLen - filters.horizon);
   const gradeDates = cal.slice(winFrom, histLen).map((d) => d.date);
   const gradeSeries: GradeSeriesRow[] = fits.map((f) => ({
     id: f.grade.id,
@@ -299,7 +299,7 @@ export function buildFuelWorkspace(filters: Filters): FuelWorkspace {
 
   // Street price is its own chart on its own axis. Putting it on the volume
   // plot as a second y-scale would manufacture a correlation.
-  const priceFrom = Math.max(0, histLen - Math.min(filters.historyDays, 180));
+  const priceFrom = Math.max(0, histLen - Math.min(filters.horizon, 180));
   const priceDates = cal.slice(priceFrom, histLen).map((d) => d.date);
   const priceSeries: GradeSeriesRow[] = fits.map((f) => ({
     id: f.grade.id,

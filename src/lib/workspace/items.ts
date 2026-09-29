@@ -18,6 +18,7 @@ import {
   type StoreId,
 } from "../data/catalog";
 import {
+  eventsOn,
   forecastOriginIndex,
   getCalendar,
   getItemSeries,
@@ -169,6 +170,27 @@ function planFor(fit: SkuFit, horizon: number): SkuPlanRow {
 /* Workspace assembly                                                         */
 /* -------------------------------------------------------------------------- */
 
+export type ChartRowEvent = {
+  label: string;
+  kind: string;
+  pct: number;
+  units: number;
+};
+
+export type ChartRowFactors = {
+  tempF: number;
+  tempAnomaly: number;
+  weatherUnits: number;
+  weatherPct: number;
+  promoUnits: number;
+  promoPct: number;
+  holiday: string | null;
+  holidayPct: number;
+  holidayUnits: number;
+  events: ChartRowEvent[];
+  baseline: number;
+};
+
 export type ChartRow = {
   date: string;
   actual: number | null;
@@ -183,6 +205,7 @@ export type ChartRow = {
     deviation: number;
     cause: string | null;
   } | null;
+  factors?: ChartRowFactors | null;
 };
 
 export type CategoryRow = {
@@ -243,7 +266,7 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
   const aggregate = forecast(actual, horizon);
 
   const chartRows: ChartRow[] = [];
-  const from = Math.max(0, histLen - filters.historyDays);
+  const from = Math.max(0, histLen - filters.horizon);
 
   const anomalies = detectAnomalies(
     inScope[0]?.series.dates ?? [],
@@ -253,55 +276,8 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
   );
   const anomalyByDate = new Map(anomalies.map((a) => [a.date, a]));
 
-  for (let i = from; i < histLen; i++) {
-    const date = cal[i].date;
-    const a = anomalyByDate.get(date);
-    chartRows.push({
-      date,
-      actual: actual[i],
-      mean: null,
-      lo80: null, hi80: null, lo95: null, hi95: null,
-      anomaly: a
-        ? {
-            direction: a.direction,
-            severity: a.severity,
-            deviation: a.deviation,
-            cause: a.causes[0]?.label ?? a.context[0]?.label ?? null,
-          }
-        : null,
-    });
-  }
-
-  // Join history to forecast: repeat the last actual as the forecast's first
-  // anchor so the two lines meet instead of leaving a visual gap.
-  if (chartRows.length) {
-    const last = chartRows[chartRows.length - 1];
-    last.mean = last.actual;
-    last.lo80 = last.actual;
-    last.hi80 = last.actual;
-    last.lo95 = last.actual;
-    last.hi95 = last.actual;
-  }
-
-  for (let h = 0; h < horizon; h++) {
-    const p = aggregate.points[h];
-    chartRows.push({
-      date: cal[origin + h].date,
-      actual: null,
-      mean: p.mean,
-      lo80: p.lo80, hi80: p.hi80,
-      lo95: p.lo95, hi95: p.hi95,
-      anomaly: null,
-    });
-  }
-
-  const horizonTotal = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.mean, 0);
-  const horizonLo = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.lo80, 0);
-  const horizonHi = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.hi80, 0);
-  const priorTotal = actual.slice(histLen - horizon).reduce((a, b) => a + b, 0);
-
-  // Drivers run on the aggregate, using the promo/price columns of the scoped
-  // SKUs weighted by their share of volume — a store-level promo intensity.
+  // Promo/price columns weighted by volume share — used for factor decomposition
+  // and later for the driver model.
   const weights = inScope.map((f) => {
     const v = f.series.units.slice(-90).reduce((a, b) => a + b, 0);
     return Math.max(1e-6, v);
@@ -319,6 +295,108 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
     }
     return { promo, discount, logPriceIndex: logPrice };
   });
+
+  for (let i = from; i < histLen; i++) {
+    const date = cal[i].date;
+    const a = anomalyByDate.get(date);
+    const d = actual[i];
+    const wPct = cal[i].tempAnomaly * 0.003;
+    const pPct = feats[i].promo > 0 ? feats[i].promo * feats[i].discount : 0;
+    const hPct = cal[i].holidayWeight > 0 ? cal[i].holidayWeight - 1 : 0;
+    const dayEv = eventsOn(date);
+    const allEv = [...dayEv.causes, ...dayEv.context];
+    const evPcts = allEv.map((e) => e.effect - 1);
+    const totPct = wPct + pPct + hPct + evPcts.reduce((s, v) => s + v, 0);
+    const base = totPct !== 0 ? d / (1 + totPct) : d;
+    chartRows.push({
+      date,
+      actual: d,
+      mean: null,
+      lo80: null, hi80: null, lo95: null, hi95: null,
+      anomaly: a
+        ? {
+            direction: a.direction,
+            severity: a.severity,
+            deviation: a.deviation,
+            cause: a.causes[0]?.label ?? a.context[0]?.label ?? null,
+          }
+        : null,
+      factors: {
+        tempF: cal[i].tempF,
+        tempAnomaly: cal[i].tempAnomaly,
+        weatherUnits: Math.round(base * wPct),
+        weatherPct: wPct,
+        promoUnits: Math.round(base * pPct),
+        promoPct: pPct,
+        holiday: cal[i].holiday,
+        holidayPct: hPct,
+        holidayUnits: Math.round(base * hPct),
+        events: allEv.map((e, j) => ({
+          label: e.label,
+          kind: e.kind,
+          pct: evPcts[j],
+          units: Math.round(base * evPcts[j]),
+        })),
+        baseline: Math.round(base),
+      },
+    });
+  }
+
+  // Join history to forecast: repeat the last actual as the forecast's first
+  // anchor so the two lines meet instead of leaving a visual gap.
+  if (chartRows.length) {
+    const last = chartRows[chartRows.length - 1];
+    last.mean = last.actual;
+    last.lo80 = last.actual;
+    last.hi80 = last.actual;
+    last.lo95 = last.actual;
+    last.hi95 = last.actual;
+  }
+
+  for (let h = 0; h < horizon; h++) {
+    const p = aggregate.points[h];
+    const fIdx = origin + h;
+    const m = p.mean;
+    const wPct = cal[fIdx].tempAnomaly * 0.003;
+    const pPct = feats[fIdx].promo > 0 ? feats[fIdx].promo * feats[fIdx].discount : 0;
+    const hPct = cal[fIdx].holidayWeight > 0 ? cal[fIdx].holidayWeight - 1 : 0;
+    const dayEv = eventsOn(cal[fIdx].date);
+    const allEv = [...dayEv.causes, ...dayEv.context];
+    const evPcts = allEv.map((e) => e.effect - 1);
+    const totPct = wPct + pPct + hPct + evPcts.reduce((s, v) => s + v, 0);
+    const base = totPct !== 0 ? m / (1 + totPct) : m;
+    chartRows.push({
+      date: cal[fIdx].date,
+      actual: null,
+      mean: m,
+      lo80: p.lo80, hi80: p.hi80,
+      lo95: p.lo95, hi95: p.hi95,
+      anomaly: null,
+      factors: {
+        tempF: cal[fIdx].tempF,
+        tempAnomaly: cal[fIdx].tempAnomaly,
+        weatherUnits: Math.round(base * wPct),
+        weatherPct: wPct,
+        promoUnits: Math.round(base * pPct),
+        promoPct: pPct,
+        holiday: cal[fIdx].holiday,
+        holidayPct: hPct,
+        holidayUnits: Math.round(base * hPct),
+        events: allEv.map((e, j) => ({
+          label: e.label,
+          kind: e.kind,
+          pct: evPcts[j],
+          units: Math.round(base * evPcts[j]),
+        })),
+        baseline: Math.round(base),
+      },
+    });
+  }
+
+  const horizonTotal = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.mean, 0);
+  const horizonLo = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.lo80, 0);
+  const horizonHi = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.hi80, 0);
+  const priorTotal = actual.slice(histLen - horizon).reduce((a, b) => a + b, 0);
 
   const drivers = fitDrivers(cal, feats, actual, origin, origin + horizon - 1);
 

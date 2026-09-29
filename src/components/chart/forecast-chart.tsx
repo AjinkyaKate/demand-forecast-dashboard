@@ -29,12 +29,34 @@ export type ForecastRow = {
     deviation: number;
     cause: string | null;
   } | null;
+  factors?: {
+    tempF: number;
+    tempAnomaly: number;
+    weatherUnits: number;
+    weatherPct: number;
+    promoUnits: number;
+    promoPct: number;
+    holiday: string | null;
+    holidayPct: number;
+    holidayUnits: number;
+    events: { label: string; kind: string; pct: number; units: number }[];
+    baseline: number;
+  } | null;
 };
 
 const SEVERITY_VAR: Record<string, string> = {
   critical: "var(--status-critical)",
   serious: "var(--status-serious)",
   warning: "var(--status-warning)",
+};
+
+const EVENT_DOT: Record<string, { dot: string; badge: string; badgeBg: string }> = {
+  local:       { dot: "#3B82F6", badge: "#60A5FA", badgeBg: "rgba(59,130,246,0.15)" },
+  traffic:     { dot: "#3B82F6", badge: "#60A5FA", badgeBg: "rgba(59,130,246,0.15)" },
+  weather:     { dot: "#F59E0B", badge: "#FBBF24", badgeBg: "rgba(245,158,11,0.15)" },
+  competition: { dot: "#A855F7", badge: "#C084FC", badgeBg: "rgba(168,85,247,0.15)" },
+  equipment:   { dot: "#EF4444", badge: "#F87171", badgeBg: "rgba(239,68,68,0.15)" },
+  supply:      { dot: "#EF4444", badge: "#F87171", badgeBg: "rgba(239,68,68,0.15)" },
 };
 
 const PAD = { top: 10, right: 14, bottom: 34, left: 54 };
@@ -140,6 +162,18 @@ export function ForecastChart({
   };
 
   const active = cursor != null ? rows[cursor] : null;
+  const ff = active?.factors;
+  const hasFactors = ff != null && (
+    Math.abs(ff.weatherUnits) >= 1 ||
+    Math.abs(ff.promoUnits) >= 1 ||
+    ff.holiday != null ||
+    ff.events.some((e) => Math.abs(e.units) >= 1)
+  );
+  const fmtPct = (pct: number) => {
+    const v = (pct * 100).toFixed(2);
+    return pct >= 0 ? `+${v}%` : `${v}%`;
+  };
+  const fmtSigned = (n: number) => (n > 0 ? "+" : "") + format(n);
   const xTicks = tickIndices(rows.length, width < 520 ? 4 : 7);
 
   const tooltipLeft = cursor != null ? geom.x(cursor) : 0;
@@ -219,7 +253,6 @@ export function ForecastChart({
             strokeLinejoin="round"
             strokeLinecap="round"
           />
-
           {/* Anomaly markers: r=4 (8px) with a 2px surface ring so they stay
               legible where they sit on the line. Status colour is never the
               only signal — the tooltip and table name each one. */}
@@ -333,19 +366,154 @@ export function ForecastChart({
           left={flip ? undefined : Math.max(PAD.left, tooltipLeft + 12)}
           right={flip ? Math.max(8, width - tooltipLeft + 12) : undefined}
         >
-          <TooltipHeading>{dowDate(active.date)}</TooltipHeading>
+          <div className="flex items-center justify-between gap-3">
+            <TooltipHeading>{dowDate(active.date)}</TooltipHeading>
+            {ff ? (
+              <span className="tabular shrink-0 text-[10px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                {Math.round(ff.tempF)}°F {ff.tempAnomaly >= 0 ? "+" : ""}{ff.tempAnomaly.toFixed(1)}°F
+              </span>
+            ) : null}
+          </div>
           <dl className="mt-1.5 space-y-1">
             {active.actual != null ? (
-              <TooltipRow color="var(--series-1)" label={actualLabel} value={format(active.actual)} />
-            ) : null}
-            {active.mean != null ? (
-              <TooltipRow color="var(--series-2)" label={forecastLabel} value={format(active.mean)} />
-            ) : null}
-            {active.lo80 != null && active.hi80 != null ? (
-              <div className="pl-[18px] text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
-                80% range {format(active.lo80)} – {format(active.hi80)}
-              </div>
-            ) : null}
+              <>
+                {/* --- HISTORY TOOLTIP: actual first, then drivers --- */}
+                <TooltipRow color="var(--series-1)" label={actualLabel} value={format(active.actual)} />
+                {hasFactors && ff ? (
+                  <>
+                    <div className="my-0.5" style={{ borderTop: "1px solid var(--tooltip-rule)" }} />
+                    {Math.abs(ff.weatherUnits) >= 1 ? (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                          <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#F59E0B" }} />
+                          Weather
+                        </dt>
+                        <dd className="flex items-center gap-1.5">
+                          <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ff.weatherUnits)}</span>
+                          <span className="tabular rounded px-1 text-[10px]" style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B" }}>{fmtPct(ff.weatherPct)}</span>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {Math.abs(ff.promoUnits) >= 1 ? (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                          <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#2DD4BF" }} />
+                          Promo
+                        </dt>
+                        <dd className="flex items-center gap-1.5">
+                          <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ff.promoUnits)}</span>
+                          <span className="tabular rounded px-1 text-[10px]" style={{ background: "rgba(45,212,191,0.15)", color: "#2DD4BF" }}>{fmtPct(ff.promoPct)}</span>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {ff.holiday ? (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="flex min-w-0 items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                          <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#22C55E" }} />
+                          <span className="truncate">{ff.holiday}</span>
+                        </dt>
+                        <dd className="flex shrink-0 items-center gap-1.5">
+                          <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ff.holidayUnits)}</span>
+                          <span className="tabular rounded px-1 text-[10px]" style={{ background: "rgba(34,197,94,0.15)", color: "#22C55E" }}>{fmtPct(ff.holidayPct)}</span>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {ff.events.filter((e) => Math.abs(e.units) >= 1).map((ev, j) => {
+                      const c = EVENT_DOT[ev.kind] ?? EVENT_DOT.local;
+                      return (
+                        <div key={j} className="flex items-baseline justify-between gap-3">
+                          <dt className="flex min-w-0 items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                            <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: c.dot }} />
+                            <span className="truncate">{ev.label}</span>
+                          </dt>
+                          <dd className="flex shrink-0 items-center gap-1.5">
+                            <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ev.units)}</span>
+                            <span className="tabular rounded px-1 text-[10px]" style={{ background: c.badgeBg, color: c.badge }}>{fmtPct(ev.pct)}</span>
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : null}
+              </>
+            ) : (
+              <>
+                {/* --- FORECAST TOOLTIP: baseline → drivers → forecast --- */}
+                {hasFactors && ff ? (
+                  <>
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                        <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#94A3B8" }} />
+                        Baseline
+                      </dt>
+                      <dd className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>
+                        {format(ff.baseline)}
+                      </dd>
+                    </div>
+                    {Math.abs(ff.weatherUnits) >= 1 ? (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                          <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#F59E0B" }} />
+                          Weather
+                        </dt>
+                        <dd className="flex items-center gap-1.5">
+                          <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ff.weatherUnits)}</span>
+                          <span className="tabular rounded px-1 text-[10px]" style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B" }}>{fmtPct(ff.weatherPct)}</span>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {Math.abs(ff.promoUnits) >= 1 ? (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                          <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#2DD4BF" }} />
+                          Promo
+                        </dt>
+                        <dd className="flex items-center gap-1.5">
+                          <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ff.promoUnits)}</span>
+                          <span className="tabular rounded px-1 text-[10px]" style={{ background: "rgba(45,212,191,0.15)", color: "#2DD4BF" }}>{fmtPct(ff.promoPct)}</span>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {ff.holiday ? (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="flex min-w-0 items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                          <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: "#22C55E" }} />
+                          <span className="truncate">{ff.holiday}</span>
+                        </dt>
+                        <dd className="flex shrink-0 items-center gap-1.5">
+                          <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ff.holidayUnits)}</span>
+                          <span className="tabular rounded px-1 text-[10px]" style={{ background: "rgba(34,197,94,0.15)", color: "#22C55E" }}>{fmtPct(ff.holidayPct)}</span>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {ff.events.filter((e) => Math.abs(e.units) >= 1).map((ev, j) => {
+                      const c = EVENT_DOT[ev.kind] ?? EVENT_DOT.local;
+                      return (
+                        <div key={j} className="flex items-baseline justify-between gap-3">
+                          <dt className="flex min-w-0 items-center gap-1.5 text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                            <span aria-hidden className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ backgroundColor: c.dot }} />
+                            <span className="truncate">{ev.label}</span>
+                          </dt>
+                          <dd className="flex shrink-0 items-center gap-1.5">
+                            <span className="tabular text-xs" style={{ color: "var(--tooltip-ink)" }}>{fmtSigned(ev.units)}</span>
+                            <span className="tabular rounded px-1 text-[10px]" style={{ background: c.badgeBg, color: c.badge }}>{fmtPct(ev.pct)}</span>
+                          </dd>
+                        </div>
+                      );
+                    })}
+                    <div className="my-0.5" style={{ borderTop: "1px solid var(--tooltip-rule)" }} />
+                  </>
+                ) : null}
+                {active.mean != null ? (
+                  <TooltipRow color="var(--series-2)" label={forecastLabel} value={format(active.mean)} />
+                ) : null}
+                {active.lo80 != null && active.hi80 != null ? (
+                  <div className="pl-[18px] text-[11px]" style={{ color: "var(--tooltip-ink-dim)" }}>
+                    80% range {format(active.lo80)} – {format(active.hi80)}
+                  </div>
+                ) : null}
+              </>
+            )}
           </dl>
           {active.anomaly ? (
             <TooltipNote>

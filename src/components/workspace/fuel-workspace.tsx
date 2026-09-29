@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { ChartFrame, DataTable } from "@/components/chart/chart-frame";
 import { ForecastChart } from "@/components/chart/forecast-chart";
 import { MultiLine, gutterFor } from "@/components/chart/multi-line";
 import { SmallMultiples } from "@/components/chart/small-multiples";
 import { StackedBar } from "@/components/chart/stacked-bar";
 import { HeroFigure, StatTile } from "@/components/figures/stat-tile";
-import { buildFuelWorkspace, GRADE_OPTIONS } from "@/lib/workspace/fuel";
+import { GRADE_OPTIONS } from "@/lib/workspace/fuel";
+import { useFuelWorkspace } from "@/lib/hooks/use-workspace";
 import type { Filters } from "@/lib/workspace/types";
 import {
   compact,
@@ -24,9 +24,25 @@ import { cn } from "@/lib/utils";
 
 export function FuelWorkspace() {
   const { filters, update, pending } = useFilters();
-  const w = useMemo(() => buildFuelWorkspace(filters), [filters]);
+  const { data: w, loading, error } = useFuelWorkspace(filters);
 
   const gal = (n: number) => thousands(Math.round(n));
+
+  if (error) {
+    return <div className="surface-card rounded-card p-6 text-center text-red-500">Failed to load workspace: {error}</div>;
+  }
+  if (loading || !w) {
+    return (
+      <div className="flex flex-col gap-4 animate-pulse">
+        <div className="surface-card rounded-card h-12" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
+        </div>
+        <div className="surface-card rounded-card h-80" />
+      </div>
+    );
+  }
+
   const urgent = w.plan.filter((p) => p.status === "order-now");
 
   return (

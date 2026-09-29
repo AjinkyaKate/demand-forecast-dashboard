@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
 import { ChartFrame, DataTable } from "@/components/chart/chart-frame";
 import { BarChart } from "@/components/chart/bar-chart";
 import { ForecastChart } from "@/components/chart/forecast-chart";
 import { HeroFigure, StatTile } from "@/components/figures/stat-tile";
-import { buildItemWorkspace, CATEGORY_OPTIONS } from "@/lib/workspace/items";
+import { CATEGORY_OPTIONS } from "@/lib/workspace/items";
+import { useItemWorkspace } from "@/lib/hooks/use-workspace";
 import type { Filters } from "@/lib/workspace/types";
 import {
   compact,
@@ -18,13 +18,29 @@ import {
 import { FilterBar, useFilters } from "./filters";
 import { SkuPlanTable } from "./sku-plan-table";
 import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge } from "./shared";
+import { ExternalFactorsPanel } from "./external-factors";
 import { cn } from "@/lib/utils";
 
 export function ItemWorkspace() {
   const { filters, update, pending } = useFilters();
-  const w = useMemo(() => buildItemWorkspace(filters), [filters]);
+  const { data: w, loading, error } = useItemWorkspace(filters);
 
   const units = (n: number) => thousands(Math.round(n));
+
+  if (error) {
+    return <div className="surface-card rounded-card p-6 text-center text-red-500">Failed to load workspace: {error}</div>;
+  }
+  if (loading || !w) {
+    return (
+      <div className="flex flex-col gap-4 animate-pulse">
+        <div className="surface-card rounded-card h-12" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
+        </div>
+        <div className="surface-card rounded-card h-80" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -204,7 +220,12 @@ export function ItemWorkspace() {
           <AnomalyFeed incidents={w.incidents} unit="units" />
         </div>
 
-        {/* --- Chunk 5: the decision table -------------------------------- */}
+        {/* --- Chunk 5: external data sources ------------------------------- */}
+        <div className="chunk-in chunk-in-5">
+          <ExternalFactorsPanel />
+        </div>
+
+        {/* --- Chunk 6: the decision table -------------------------------- */}
         <section className="chunk-in chunk-in-5 surface-card rounded-card flex flex-col gap-5 p-5 sm:p-6">
           <SectionHeading
             title="Replenishment plan"

@@ -27,7 +27,6 @@ import {
 import { STORES } from "@/lib/data/catalog";
 import {
   DEFAULT_FILTERS,
-  HISTORY_PRESETS,
   HORIZON_PRESETS,
   type Filters,
 } from "@/lib/workspace/types";
@@ -126,12 +125,6 @@ export function FilterBar({
     // Container radius 10px with 6px padding → inner controls at 6px stay
     // concentric (10 = 6 + 4 plus the control's own inset).
     <div className="surface-card rounded-inner flex flex-wrap items-end gap-x-3 gap-y-3 p-2 sm:gap-x-4">
-      <Field
-        label="Date range"
-        value={String(filters.historyDays)}
-        onChange={(v) => update({ historyDays: Number(v) })}
-        options={HISTORY_PRESETS.map((p) => ({ value: String(p.value), label: p.label }))}
-      />
       <Field
         label="Forecast horizon"
         value={String(filters.horizon)}
