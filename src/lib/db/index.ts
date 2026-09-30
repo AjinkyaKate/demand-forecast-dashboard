@@ -8,7 +8,7 @@ let _db: Database.Database | null = null;
 export function getDb(): Database.Database {
   if (!_db) {
     _db = new Database(DB_PATH, { readonly: true });
-    _db.pragma("journal_mode = WAL");
+    try { _db.pragma("journal_mode = WAL"); } catch {}
   }
   return _db;
 }

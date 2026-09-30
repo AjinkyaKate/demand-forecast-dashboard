@@ -22,7 +22,7 @@ export type LegendItem = {
   label: string;
   color: string;
   /** Legends mirror the mark: a line for lines, a rect for bars and areas. */
-  shape?: "line" | "rect" | "band" | "ring";
+  shape?: "line" | "rect" | "band" | "ring" | "conf-gradient";
 };
 
 function LegendKey({ item }: { item: LegendItem }) {
@@ -52,6 +52,12 @@ function LegendKey({ item }: { item: LegendItem }) {
           <span
             className="block h-2.5 w-2.5 rounded-full border-2"
             style={{ borderColor: item.color }}
+          />
+        )}
+        {shape === "conf-gradient" && (
+          <span
+            className="block h-2.5 w-4 rounded-[3px]"
+            style={{ background: "linear-gradient(to right, #22c55e, #eab308, #ef4444)", opacity: 0.55 }}
           />
         )}
       </span>

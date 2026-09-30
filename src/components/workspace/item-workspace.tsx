@@ -141,11 +141,11 @@ export function ItemWorkspace() {
         <div className="chunk-in chunk-in-3">
           <ChartFrame
             title={`Demand — actual vs forecast · ${w.scopeLabel}`}
-            subtitle="Daily units, with the 80% and 95% prediction interval."
+            subtitle="Daily units. Band color grades confidence: green = high, red = low."
             legend={[
               { label: "Actual", color: "var(--series-1)", shape: "line" },
               { label: "Forecast", color: "var(--series-2)", shape: "line" },
-              { label: "80% / 95% interval", color: "var(--series-2)", shape: "band" },
+              { label: "Confidence band", color: "", shape: "conf-gradient" },
               { label: "Anomaly", color: "var(--status-critical)", shape: "ring" },
             ]}
             table={
