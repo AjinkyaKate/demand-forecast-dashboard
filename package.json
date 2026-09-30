@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "tsx scripts/seed.ts && tsx scripts/migrate.ts && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "smoke": "tsx scripts/smoke.ts",

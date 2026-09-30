@@ -36,8 +36,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# database
-/data/
+# database (keep forecast.db tracked so Vercel deploys the same data as local)
+# /data/
 
 # typescript
 *.tsbuildinfo
