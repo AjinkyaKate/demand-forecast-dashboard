@@ -11,7 +11,8 @@ import { DriverBars } from "@/components/chart/driver-bars";
 import type { Anomaly } from "@/lib/forecast/anomalies";
 import type { DriverModel } from "@/lib/forecast/drivers";
 import { BRIDGE_ORDER_LABELS } from "@/lib/forecast/drivers";
-import type { Accuracy } from "@/lib/forecast/holt-winters";
+import type { Accuracy } from "@/lib/forecast/backtest";
+import type { ModelInfo } from "@/lib/workspace/items";
 import { dowDate, percent, shortDate, signedPercent, thousands } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -238,7 +239,88 @@ export function DriverCard({
 /* Accuracy                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export function AccuracyPanel({ accuracy }: { accuracy: Accuracy }) {
+const MODEL_NAME: Record<ModelInfo["used"], string> = {
+  driver: "Driver model",
+  "holt-winters": "Holt-Winters",
+};
+
+/** Which model forecasts this view, and the backtest that chose it. */
+function ModelChoiceNote({ model }: { model: ModelInfo }) {
+  const pct = (w: number | null) => (w == null || !Number.isFinite(w) ? "—" : percent(1 - w, 1));
+  return (
+    <div className="bg-surface-2 rounded-inner mt-4 p-3">
+      <p className="text-ink-primary text-xs font-medium">Forecast by {MODEL_NAME[model.used]}</p>
+      <p className="text-ink-muted mt-1 text-[11px] leading-relaxed">
+        {model.used === "driver"
+          ? "Learns input effects from past sales and applies them to what’s known ahead: planned promos, holidays, the weather forecast, alerts and events."
+          : "Sales history only — the driver model didn’t score better on this backtest."}
+      </p>
+      {model.used === "driver" && model.inputs ? (
+        <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Inputs in use">
+          {[
+            { k: "Promotions & price", on: true },
+            { k: "Holidays", on: true },
+            { k: "Weather", on: model.inputs.weather },
+            { k: "Weather alerts", on: model.inputs.alerts },
+            { k: "Local events", on: model.inputs.events },
+          ].map((x) => (
+            <li key={x.k}>
+              <StatusBadge tone={x.on ? "good" : "neutral"}>
+                {x.k}{x.on ? "" : " · left out"}
+              </StatusBadge>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {model.used === "driver" && model.inputs && !(model.inputs.weather && model.inputs.alerts && model.inputs.events) ? (
+        <p className="text-ink-muted mt-1.5 text-[11px] leading-relaxed">
+          Left out = tested on the backtest and didn&apos;t lower the error for this series. It switches
+          back on by itself once the data shows it helps.
+        </p>
+      ) : null}
+      <dl className="tabular mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Driver model</dt>
+          <dd className="text-ink-primary font-medium">{pct(model.driverWape)}</dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Holt-Winters</dt>
+          <dd className="text-ink-primary font-medium">{pct(model.hwWape)}</dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Series on driver model</dt>
+          <dd className="text-ink-primary font-medium">
+            {model.seriesOnDriver}/{model.seriesTotal}
+          </dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="text-ink-muted">Using weather / alerts / events</dt>
+          <dd className="text-ink-primary font-medium">
+            {model.seriesUsing.weather} / {model.seriesUsing.alerts} / {model.seriesUsing.events}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+export function AccuracyPanel({ accuracy, model }: { accuracy: Accuracy; model?: ModelInfo }) {
+  // A store with too little history has nothing to score. Say so instead of
+  // printing a number computed from nothing.
+  if (accuracy.points === 0) {
+    return (
+      <section className="surface-card rounded-card p-5 sm:p-6">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-ink-primary text-sm font-semibold">Forecast accuracy</h3>
+          <StatusBadge tone="neutral">Not scored yet</StatusBadge>
+        </div>
+        <p className="text-ink-secondary mt-3 text-xs leading-relaxed">
+          This store doesn&apos;t have enough sales history to backtest the forecast. Scoring
+          needs about four months of daily sales. Until then, read the forecast as a best guess.
+        </p>
+      </section>
+    );
+  }
   const beatsNaive = accuracy.mase < 1;
   // Each metric's gloss lives in its `title`, not on screen — four rows of
   // explanation under four numbers doubles the panel and halves its legibility.
@@ -292,6 +374,7 @@ export function AccuracyPanel({ accuracy }: { accuracy: Accuracy }) {
           </div>
         ))}
       </dl>
+      {model ? <ModelChoiceNote model={model} /> : null}
     </section>
   );
 }
@@ -319,5 +402,37 @@ export function SectionHeading({
       </div>
       {aside}
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page header                                                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The page's header card, full width: title, one-line summary and status on
+ * the left, the page's filters on the right. On a narrow screen the filters
+ * drop below the title.
+ */
+export function WorkspaceHeader({
+  title,
+  description,
+  status,
+  filters,
+}: {
+  title: string;
+  description?: ReactNode;
+  status?: ReactNode;
+  filters: ReactNode;
+}) {
+  return (
+    <header className="surface-card rounded-card flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+      <div className="min-w-0">
+        <h2 className="text-ink-primary text-lg font-semibold tracking-[-0.01em]">{title}</h2>
+        {description ? <p className="text-ink-muted mt-0.5 text-xs">{description}</p> : null}
+        {status ? <div className="mt-2">{status}</div> : null}
+      </div>
+      <div className="lg:shrink-0">{filters}</div>
+    </header>
   );
 }

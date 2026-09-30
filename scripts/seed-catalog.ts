@@ -1,4 +1,8 @@
 /**
+ * Seed input only: the demo catalog that scripts/seed.ts writes into SQLite.
+ * The app never imports this file — at runtime every store, SKU, grade,
+ * holiday and event is read from the database.
+ *
  * The C-store catalog: stores, SKUs, fuel grades and the observable calendar.
  *
  * "Observable" matters — the driver model (lib/forecast/drivers.ts) is only
@@ -54,6 +58,12 @@ export type Store = {
   traffic: number;
   /** Fuel-to-inside sales skew; highway sites pump far more per basket. */
   fuelSkew: number;
+  /** Demo site location — drives per-store weather and nearby events. */
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  /** ISO 3166-2 subdivision, for state-level public holidays. */
+  region: string;
 };
 
 export const STORES: Store[] = [
@@ -63,6 +73,10 @@ export const STORES: Store[] = [
     format: "Highway",
     traffic: 1.0,
     fuelSkew: 1.35,
+    latitude: 40.2415,
+    longitude: -74.2966,
+    timezone: "America/New_York",
+    region: "US-NJ",
   },
   {
     id: "s-204",
@@ -70,6 +84,10 @@ export const STORES: Store[] = [
     format: "Urban",
     traffic: 0.82,
     fuelSkew: 0.7,
+    latitude: 40.4953,
+    longitude: -74.4452,
+    timezone: "America/New_York",
+    region: "US-NJ",
   },
   {
     id: "s-318",
@@ -77,6 +95,10 @@ export const STORES: Store[] = [
     format: "Suburban",
     traffic: 0.74,
     fuelSkew: 0.95,
+    latitude: 40.0885,
+    longitude: -74.217,
+    timezone: "America/New_York",
+    region: "US-NJ",
   },
   {
     id: "s-442",
@@ -84,6 +106,10 @@ export const STORES: Store[] = [
     format: "Rural",
     traffic: 0.55,
     fuelSkew: 1.1,
+    latitude: 40.5334,
+    longitude: -74.9443,
+    timezone: "America/New_York",
+    region: "US-NJ",
   },
 ];
 

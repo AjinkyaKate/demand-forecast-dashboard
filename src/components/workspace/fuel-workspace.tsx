@@ -6,7 +6,7 @@ import { MultiLine, gutterFor } from "@/components/chart/multi-line";
 import { SmallMultiples } from "@/components/chart/small-multiples";
 import { StackedBar } from "@/components/chart/stacked-bar";
 import { HeroFigure, StatTile } from "@/components/figures/stat-tile";
-import { GRADE_OPTIONS } from "@/lib/workspace/fuel";
+import { useMeta } from "@/components/shell/meta";
 import { useFuelWorkspace } from "@/lib/hooks/use-workspace";
 import type { Filters } from "@/lib/workspace/types";
 import {
@@ -19,63 +19,88 @@ import {
 } from "@/lib/format";
 import { FilterBar, useFilters } from "./filters";
 import { TankPlanTable } from "./tank-plan-table";
-import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge } from "./shared";
+import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge, WorkspaceHeader } from "./shared";
 import { cn } from "@/lib/utils";
 
 export function FuelWorkspace() {
   const { filters, update, pending } = useFilters();
+  const { meta } = useMeta();
+  const gradeOptions = [
+    { value: "all", label: "All grades" },
+    ...(meta?.grades ?? []).map((g) => ({ value: g.id, label: g.name })),
+  ];
   const { data: w, loading, error } = useFuelWorkspace(filters);
 
   const gal = (n: number) => thousands(Math.round(n));
 
-  if (error) {
-    return <div className="surface-card rounded-card p-6 text-center text-red-500">Failed to load workspace: {error}</div>;
-  }
-  if (loading || !w) {
-    return (
-      <div className="flex flex-col gap-4 animate-pulse">
-        <div className="surface-card rounded-card h-12" />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
-        </div>
-        <div className="surface-card rounded-card h-80" />
-      </div>
-    );
-  }
+  const urgent = w ? w.plan.filter((p) => p.status === "order-now") : [];
 
-  const urgent = w.plan.filter((p) => p.status === "order-now");
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="chunk-in chunk-in-1 flex flex-col gap-4">
-        <SectionHeading
-          title="Fuel Demand Forecasting"
-          description={`${w.scopeLabel} · forecast horizon ${filters.horizon} days`}
-          aside={
-            urgent.length > 0 ? (
-              <StatusBadge tone="critical">
-                {urgent.map((p) => p.grade.short).join(", ")} at reserve within 2 days
-              </StatusBadge>
-            ) : w.counts.schedule > 0 ? (
-              <StatusBadge tone="warning">
-                {w.counts.schedule} grade{w.counts.schedule === 1 ? "" : "s"} need a drop this week
-              </StatusBadge>
-            ) : (
-              <StatusBadge tone="good">All tanks above reserve</StatusBadge>
-            )
-          }
-        />
+  const header = (
+    <WorkspaceHeader
+      title="Fuel Demand Forecasting"
+      description={
+        w ? `${w.scopeLabel} · forecast horizon ${filters.horizon} days` : `Forecast horizon ${filters.horizon} days`
+      }
+      status={
+        w ? (
+          urgent.length > 0 ? (
+            <StatusBadge tone="critical">
+              {urgent.map((p) => p.grade.short).join(", ")} at reserve within 2 days
+            </StatusBadge>
+          ) : w.counts.schedule > 0 ? (
+            <StatusBadge tone="warning">
+              {w.counts.schedule} grade{w.counts.schedule === 1 ? "" : "s"} need a drop this week
+            </StatusBadge>
+          ) : (
+            <StatusBadge tone="good">All tanks above reserve</StatusBadge>
+          )
+        ) : null
+      }
+      filters={
         <FilterBar
+          busy={loading && !!w}
           scope={{
             label: "Grade",
             value: filters.gradeId,
             onChange: (v) => update({ gradeId: v as Filters["gradeId"] }),
-            options: GRADE_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+            options: gradeOptions,
           }}
         />
-      </div>
+      }
+    />
+  );
 
-      <div className={cn("flex flex-col gap-4", pending && "is-refetching")}>
+  // The header and filters stay on screen in every state; only the first
+  // load, with nothing to show yet, gets a skeleton.
+  if (error && !w) {
+    return (
+      <div className="flex flex-col gap-4">
+        {header}
+        <div className="surface-card rounded-card text-ink-secondary p-6 text-center">
+          Couldn&apos;t load the forecast: {error}
+        </div>
+      </div>
+    );
+  }
+  if (!w) {
+    return (
+      <div className="flex flex-col gap-4">
+        {header}
+        <div className="flex animate-pulse flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
+          </div>
+          <div className="surface-card rounded-card h-80" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="chunk-in chunk-in-1">{header}</div>
+
+      <div className={cn("flex flex-col gap-4", (pending || loading) && "is-refetching")}>
         <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 lg:grid-cols-4">
           <div className="surface-card rounded-card p-5">
             <HeroFigure
@@ -105,9 +130,13 @@ export function FuelWorkspace() {
 
           <StatTile
             label="Forecast accuracy"
-            value={percent(1 - w.accuracy.wape, 1)}
-            caption={`${w.accuracy.points} backtested days`}
-            captionRight={`bias ${signedPercent(w.accuracy.bias, 1)}`}
+            value={w.accuracy.points > 0 ? percent(1 - w.accuracy.wape, 1) : "—"}
+            caption={
+              w.accuracy.points > 0
+                ? `${w.accuracy.points} backtested days`
+                : "Not enough history to score yet"
+            }
+            captionRight={w.accuracy.points > 0 ? `bias ${signedPercent(w.accuracy.bias, 1)}` : undefined}
           />
 
           {/* Counted as "needs a drop" rather than "healthy": when every tank
@@ -248,7 +277,7 @@ export function FuelWorkspace() {
           <div className="xl:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="gal" />
           </div>
-          <AccuracyPanel accuracy={w.accuracy} />
+          <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
           <div className="xl:col-span-2">
             <AnomalyFeed incidents={w.incidents} unit="gallons" />

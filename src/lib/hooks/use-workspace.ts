@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Filters } from "../workspace/types";
 import type { ItemWorkspace } from "../workspace/items";
 import type { FuelWorkspace } from "../workspace/fuel";
+import type { LabWorkspace } from "../workspace/lab";
 
 type WorkspaceState<T> = {
   data: T | null;
@@ -12,6 +13,9 @@ type WorkspaceState<T> = {
 };
 
 function buildUrl(base: string, filters: Filters, extra?: Record<string, string>) {
+  // No store yet means the store list is still loading; wait rather than
+  // fetch a default and then fetch again.
+  if (!filters.storeId) return null;
   const params = new URLSearchParams({
     storeId: filters.storeId,
     horizon: String(filters.horizon),
@@ -20,39 +24,35 @@ function buildUrl(base: string, filters: Filters, extra?: Record<string, string>
   return `${base}?${params}`;
 }
 
-function useWorkspaceFetch<T>(url: string): WorkspaceState<T> {
-  const [state, setState] = useState<WorkspaceState<T>>({
-    data: null,
-    loading: true,
-    error: null,
-  });
-  const abortRef = useRef<AbortController | null>(null);
+/**
+ * Fetch JSON for `url`. Loading is derived from which URL the held result
+ * belongs to, so a new URL reads as loading without a synchronous setState in
+ * the effect — and the previous data stays on screen until the new one lands.
+ */
+function useWorkspaceFetch<T>(url: string | null): WorkspaceState<T> {
+  const [result, setResult] = useState<{ url: string; data: T | null; error: string | null } | null>(null);
 
   useEffect(() => {
-    abortRef.current?.abort();
+    if (!url) return;
     const ac = new AbortController();
-    abortRef.current = ac;
-
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-
     fetch(url, { signal: ac.signal })
       .then((r) => {
         if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-        return r.json();
+        return r.json() as Promise<T>;
       })
-      .then((data: T) => {
-        if (!ac.signal.aborted) setState({ data, loading: false, error: null });
-      })
-      .catch((err) => {
-        if (!ac.signal.aborted) {
-          setState({ data: null, loading: false, error: err.message });
-        }
+      .then((data) => setResult({ url, data, error: null }))
+      .catch((err: Error) => {
+        if (!ac.signal.aborted) setResult({ url, data: null, error: err.message });
       });
-
     return () => ac.abort();
   }, [url]);
 
-  return state;
+  const current = result?.url === url;
+  return {
+    data: result?.data ?? null,
+    loading: !current,
+    error: current ? (result?.error ?? null) : null,
+  };
 }
 
 export function useItemWorkspace(filters: Filters) {
@@ -105,13 +105,28 @@ export function useForecastAccuracy() {
 export type ExternalSource = {
   source: string;
   label: string;
+  description: string;
+  endpoint: string;
+  configured: boolean;
   lastSync: string | null;
   rows: number;
   dateFrom: string | null;
   dateTo: string | null;
+  /** "ok" | "error" | "never" | "needs-key". */
   status: string;
+  error: string | null;
+  /** Automatic refresh schedule, e.g. "every 30 min"; null when auto-sync is off. */
+  schedule: string | null;
+  nextSync: string | null;
+  running: boolean;
 };
 
-export function useExternalStatus() {
-  return useWorkspaceFetch<{ sources: ExternalSource[] }>("/api/sync/status");
+/** Sync status of every external source. Bump `nonce` to re-read it. */
+export function useExternalStatus(nonce = 0) {
+  return useWorkspaceFetch<{ sources: ExternalSource[]; autoSync: boolean }>(`/api/sync/status?n=${nonce}`);
+}
+
+export function useModelLab(storeId: string, stream: string) {
+  const url = storeId ? `/api/model-lab?${new URLSearchParams({ storeId, stream })}` : null;
+  return useWorkspaceFetch<LabWorkspace>(url);
 }

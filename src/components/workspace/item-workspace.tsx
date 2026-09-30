@@ -4,7 +4,7 @@ import { ChartFrame, DataTable } from "@/components/chart/chart-frame";
 import { BarChart } from "@/components/chart/bar-chart";
 import { ForecastChart } from "@/components/chart/forecast-chart";
 import { HeroFigure, StatTile } from "@/components/figures/stat-tile";
-import { CATEGORY_OPTIONS } from "@/lib/workspace/items";
+import { useMeta } from "@/components/shell/meta";
 import { useItemWorkspace } from "@/lib/hooks/use-workspace";
 import type { Filters } from "@/lib/workspace/types";
 import {
@@ -17,27 +17,65 @@ import {
 } from "@/lib/format";
 import { FilterBar, useFilters } from "./filters";
 import { SkuPlanTable } from "./sku-plan-table";
-import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge } from "./shared";
+import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, WorkspaceHeader } from "./shared";
 import { ExternalFactorsPanel } from "./external-factors";
 import { cn } from "@/lib/utils";
 
 export function ItemWorkspace() {
   const { filters, update, pending } = useFilters();
+  const { meta } = useMeta();
   const { data: w, loading, error } = useItemWorkspace(filters);
+  const categoryOptions = [
+    { value: "all", label: "All categories" },
+    ...(meta?.categories ?? []).map((c) => ({ value: c.id, label: c.name })),
+  ];
 
   const units = (n: number) => thousands(Math.round(n));
 
-  if (error) {
-    return <div className="surface-card rounded-card p-6 text-center text-red-500">Failed to load workspace: {error}</div>;
-  }
-  if (loading || !w) {
+  const header = (
+    <WorkspaceHeader
+      title="Item Demand Forecasting"
+      description={
+        w
+          ? `${w.scopeLabel} · ${w.skuCount} SKUs · forecast horizon ${filters.horizon} days`
+          : `Forecast horizon ${filters.horizon} days`
+      }
+      filters={
+        <FilterBar
+          busy={loading && !!w}
+          scope={{
+            label: "Category",
+            value: filters.categoryId,
+            onChange: (v) => update({ categoryId: v as Filters["categoryId"] }),
+            options: categoryOptions,
+          }}
+        />
+      }
+    />
+  );
+
+  // The header and filters stay on screen in every state; only the first
+  // load, with nothing to show yet, gets a skeleton.
+  if (error && !w) {
     return (
-      <div className="flex flex-col gap-4 animate-pulse">
-        <div className="surface-card rounded-card h-12" />
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
+      <div className="flex flex-col gap-4">
+        {header}
+        <div className="surface-card rounded-card text-ink-secondary p-6 text-center">
+          Couldn&apos;t load the forecast: {error}
         </div>
-        <div className="surface-card rounded-card h-80" />
+      </div>
+    );
+  }
+  if (!w) {
+    return (
+      <div className="flex flex-col gap-4">
+        {header}
+        <div className="flex animate-pulse flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <div key={i} className="surface-card rounded-card h-28" />)}
+          </div>
+          <div className="surface-card rounded-card h-80" />
+        </div>
       </div>
     );
   }
@@ -45,34 +83,12 @@ export function ItemWorkspace() {
   return (
     <div className="flex flex-col gap-4">
       {/* --- Chunk 1: heading + filters ---------------------------------- */}
-      <div className="chunk-in chunk-in-1 flex flex-col gap-4">
-        <SectionHeading
-          title="Item Demand Forecasting"
-          description={`${w.scopeLabel} · ${w.skuCount} SKUs · forecast horizon ${filters.horizon} days`}
-          aside={
-            w.counts.orderNow > 0 ? (
-              <StatusBadge tone="critical">
-                {w.counts.orderNow} SKU{w.counts.orderNow === 1 ? "" : "s"} need ordering today
-              </StatusBadge>
-            ) : (
-              <StatusBadge tone="good">No SKUs below reorder point</StatusBadge>
-            )
-          }
-        />
-        <FilterBar
-          scope={{
-            label: "Category",
-            value: filters.categoryId,
-            onChange: (v) => update({ categoryId: v as Filters["categoryId"] }),
-            options: CATEGORY_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
-          }}
-        />
-      </div>
+      <div className="chunk-in chunk-in-1">{header}</div>
 
       {/* Everything below re-renders against the same slice. While a new
           slice computes, the previous render is held at reduced opacity —
           no skeleton, no layout jump. */}
-      <div className={cn("flex flex-col gap-4", pending && "is-refetching")}>
+      <div className={cn("flex flex-col gap-4", (pending || loading) && "is-refetching")}>
         {/* --- Chunk 2: hero + KPIs -------------------------------------- */}
         {/* --- Chunk 2: hero + KPIs -------------------------------------- */}
         <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 lg:grid-cols-4">
@@ -104,9 +120,13 @@ export function ItemWorkspace() {
 
           <StatTile
             label="Forecast accuracy"
-            value={percent(1 - w.accuracy.wape, 1)}
-            caption={`${w.accuracy.points} backtested days`}
-            captionRight={`bias ${signedPercent(w.accuracy.bias, 1)}`}
+            value={w.accuracy.points > 0 ? percent(1 - w.accuracy.wape, 1) : "—"}
+            caption={
+              w.accuracy.points > 0
+                ? `${w.accuracy.points} backtested days`
+                : "Not enough history to score yet"
+            }
+            captionRight={w.accuracy.points > 0 ? `bias ${signedPercent(w.accuracy.bias, 1)}` : undefined}
           />
 
           <StatTile
@@ -181,7 +201,7 @@ export function ItemWorkspace() {
           <div className="xl:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="units" />
           </div>
-          <AccuracyPanel accuracy={w.accuracy} />
+          <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
           <div className="xl:col-span-2">
             <ChartFrame

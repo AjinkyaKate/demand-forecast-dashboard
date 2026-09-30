@@ -1,17 +1,20 @@
 /**
  * Model smoke test. Run: npx tsx scripts/smoke.ts
  *
- * Verifies the generator and the forecaster produce sane, non-degenerate
- * numbers before any of it is wired to a chart.
+ * Verifies the data in SQLite and the forecaster produce sane,
+ * non-degenerate numbers before any of it is wired to a chart.
  */
 
-import { FUEL_GRADES, SKUS, SKU_BY_ID, AS_OF, HISTORY_DAYS } from "../src/lib/data/catalog";
 import {
+  getAsOf,
   getCalendar,
+  getNamedEvents,
+  getFuelGrades,
   getFuelSeries,
   getItemSeries,
-  forecastOriginIndex,
-} from "../src/lib/data/generate";
+  getSkus,
+  getStores,
+} from "../src/lib/db/repository";
 import { forecast } from "../src/lib/forecast/holt-winters";
 import { detectAnomalies, groupAnomalies } from "../src/lib/forecast/anomalies";
 import { fitDrivers } from "../src/lib/forecast/drivers";
@@ -20,16 +23,19 @@ const pct = (n: number) => (Number.isFinite(n) ? `${(n * 100).toFixed(1)}%` : "n
 const num = (n: number, d = 0) => n.toLocaleString("en-US", { maximumFractionDigits: d });
 
 const t0 = Date.now();
-const cal = getCalendar();
-const origin = forecastOriginIndex();
+const STORE = getStores()[0].id;
+const cal = getCalendar(STORE);
+const origin = cal.filter((d) => !d.isFuture).length;
+const FUEL_GRADES = getFuelGrades();
+const SKU_BY_ID = new Map(getSkus().map((s) => [s.id, s]));
 
-console.log(`as-of ${AS_OF} · calendar ${cal.length} days · history ${HISTORY_DAYS} · origin idx ${origin}`);
+console.log(`store ${STORE} · as-of ${getAsOf()} · calendar ${cal.length} days · history ${origin}`);
 console.log(`first ${cal[0].date} · last history ${cal[origin - 1].date} · last future ${cal[cal.length - 1].date}`);
-console.log(`skus ${SKUS.length} · fuel grades ${FUEL_GRADES.length}\n`);
+console.log(`skus ${SKU_BY_ID.size} · fuel grades ${FUEL_GRADES.length}\n`);
 
 /* --- Items ---------------------------------------------------------------- */
 
-const items = getItemSeries("s-101");
+const items = getItemSeries(STORE);
 console.log(`items generated in ${Date.now() - t0}ms · ${items.length} series × ${items[0].units.length} days\n`);
 
 // Store-level total (the headline series)
@@ -57,7 +63,7 @@ console.log(`  CHECK beats seasonal naive: MASE ${r.accuracy.mase.toFixed(2)} ${
 
 /* --- Anomalies ------------------------------------------------------------ */
 
-const an = detectAnomalies(items[0].dates, total, r.fit, { threshold: 3 });
+const an = detectAnomalies(items[0].dates, total, r.fit, { threshold: 3, events: getNamedEvents(STORE) });
 const groups = groupAnomalies(an);
 console.log(`ANOMALIES: ${an.length} days in ${groups.length} incidents`);
 for (const g of groups.slice(0, 6)) {
@@ -79,6 +85,11 @@ const dr = fitDrivers(
     promo: first.onPromo[i] ? 1 : 0,
     discount: first.discount[i],
     logPriceIndex: Math.log(first.priceIndex[i]),
+    localAttendance: 0,
+    schoolBreak: 0,
+    alertWinter: 0,
+    alertHeat: 0,
+    alertStorm: 0,
   })),
   first.units,
   origin,
@@ -94,7 +105,7 @@ console.log(`  CHECK bridge reconciles: ${num(recon, 2)} vs expected ${num(dr.ex
 
 /* --- Fuel ----------------------------------------------------------------- */
 
-const fuel = getFuelSeries("s-101");
+const fuel = getFuelSeries(STORE);
 console.log("FUEL");
 for (const f of fuel) {
   const g = FUEL_GRADES.find((x) => x.id === f.gradeId)!;

@@ -1,4 +1,4 @@
-import type { CategoryId, FuelGradeId, StoreId } from "../data/catalog";
+import type { CategoryId, FuelGradeId, StoreId } from "../data/types";
 
 /** Filter state. One row of controls scopes every chart, stat and table. */
 export type Filters = {
@@ -27,7 +27,8 @@ export const HORIZON_PRESETS = [
 ] as const;
 
 export const DEFAULT_FILTERS: Filters = {
-  storeId: "s-101",
+  /** Empty = the first store in the database, resolved once the list loads. */
+  storeId: "",
   historyDays: 180,
   horizon: 14,
   categoryId: "all",

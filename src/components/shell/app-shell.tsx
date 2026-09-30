@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "./theme";
-import { AS_OF } from "@/lib/data/catalog";
+import { useMeta } from "./meta";
 import { longDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const MODULES = [
   { href: "/items", label: "Item Forecasting", short: "Items" },
   { href: "/fuel", label: "Fuel Forecasting", short: "Fuel" },
+  { href: "/lab", label: "Model Lab", short: "Lab" },
 ];
 
 function ModuleSwitch() {
@@ -47,6 +48,7 @@ function ModuleSwitch() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { meta } = useMeta();
   return (
     <div className="bg-plane min-h-dvh">
       {/* The header sits directly on the plane — no bar, no rule. Separation
@@ -77,12 +79,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ModuleSwitch />
 
           <div className="ml-auto flex items-center gap-2.5">
-            <p className="text-ink-muted hidden text-xs md:block">
-              Data as of{" "}
-              <span className="text-ink-secondary tabular font-medium">
-                {longDate(AS_OF)}
-              </span>
-            </p>
+            {meta ? (
+              <p className="text-ink-muted hidden text-xs md:block">
+                Data as of{" "}
+                <span className="text-ink-secondary tabular font-medium">
+                  {longDate(meta.asOf)}
+                </span>
+              </p>
+            ) : null}
             <ThemeToggle />
           </div>
         </div>

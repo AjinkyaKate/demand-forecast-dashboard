@@ -1,33 +1,33 @@
 /**
  * Item Forecasting workspace — everything the page needs, computed once.
  *
- * Per-store SKU fits are memoised because they are the expensive part (~300ms
- * for the full catalogue) and they do not depend on the horizon, the category
- * filter, or the visible history window. Changing those re-slices a cached
- * result instead of refitting.
+ * Every SKU is forecast from its own history and its own known future: its
+ * planned promotions and price, the store's weather forecast, public
+ * holidays, NWS weather alerts, and events near the store
+ * (driver-forecast.ts). Per-store SKU fits are memoised because they are the
+ * expensive part and don't depend on the horizon or the category filter.
  */
 
+import type { CategoryId, ItemSeries, Sku, StoreId } from "../data/types";
 import {
-  AS_OF,
-  CATEGORIES,
-  CATEGORY_BY_ID,
-  SKUS,
-  SKU_BY_ID,
-  type CategoryId,
-  type Sku,
-  type StoreId,
-} from "../data/catalog";
-import {
-  eventsOn,
-  forecastOriginIndex,
+  getAsOf,
   getCalendar,
+  getCategories,
   getItemSeries,
-  type ItemSeries,
-} from "../data/generate";
-import { hashSeed, mulberry32 } from "../rng";
-import { forecast, type Accuracy, type ForecastPoint } from "../forecast/holt-winters";
+  getLocalEventDays,
+  getNamedEvents,
+  getOnHand,
+  getSkus,
+  memo,
+  type LocalEventDay,
+} from "../db/repository";
+import type { Accuracy } from "../forecast/backtest";
+import type { FeatureRow } from "../forecast/design";
+import { forecastSeries, type ModelChoice, type OptionalGroup } from "../forecast/driver-forecast";
+import type { ForecastPoint } from "../forecast/holt-winters";
 import { detectAnomalies, groupAnomalies, type Anomaly } from "../forecast/anomalies";
-import { fitDrivers, type DriverModel } from "../forecast/drivers";
+import { fitDriversDetailed, type DriverModel } from "../forecast/drivers";
+import { factorsFor, type ChartRowFactors } from "./factors";
 import type { Filters } from "./types";
 import { SERVICE_Z } from "./types";
 
@@ -38,42 +38,71 @@ export type SkuFit = {
   series: ItemSeries;
   points: ForecastPoint[];
   accuracy: Accuracy;
-  /** Units currently on hand at the store. */
+  /** Which model forecasts this SKU, chosen by backtest. */
+  model: ModelChoice;
+  /** Optional inputs its driver model kept (null when it couldn't be tested). */
+  inputs: Record<OptionalGroup, boolean> | null;
+  /** Units on hand at the latest count (inventory_on_hand). */
   onHand: number;
 };
 
-const fitCache = new Map<StoreId, SkuFit[]>();
+/**
+ * log of a SKU's shelf price index on day i — the price with any promo
+ * discount taken back out. Discounts already enter the model through the
+ * promo columns; leaving them in the price too would count every promotion
+ * twice and blur both effects.
+ *
+ * The index is snapped to whole-percent steps. The stored price index and
+ * discount are each rounded, so dividing one by the other leaves ±0.1%
+ * noise; a series whose only "price change" is that noise would otherwise
+ * earn an enormous coefficient for it.
+ */
+export function shelfLogPrice(s: ItemSeries, i: number): number {
+  const shelf = s.priceIndex[i] / Math.max(0.01, 1 - s.discount[i]);
+  return Math.log(Math.round(shelf * 100) / 100);
+}
 
-function onHandFor(sku: Sku, storeId: StoreId, avgDaily: number): number {
-  // A plausible current position: somewhere between half a week and five
-  // weeks of cover, quantised to whole cases the way a real count would be.
-  const rand = mulberry32(hashSeed(`onhand:${sku.id}:${storeId}`));
-  const coverDays = 0.5 + rand() * 24;
-  const units = avgDaily * coverDays;
-  return Math.max(0, Math.round(units / sku.caseSize) * sku.caseSize);
+/** The API event columns of a feature row: nearby attendance and NWS alerts. */
+export function localFeatures(d: LocalEventDay | undefined) {
+  return {
+    localAttendance: Math.log1p((d?.attendance ?? 0) / 1000),
+    schoolBreak: d?.schoolBreaks.length ? 1 : 0,
+    alertWinter: d?.alerts.winter ? 1 : 0,
+    alertHeat: d?.alerts.heat ? 1 : 0,
+    alertStorm: d?.alerts.storm ? 1 : 0,
+  };
 }
 
 export function getSkuFits(storeId: StoreId): SkuFit[] {
-  const hit = fitCache.get(storeId);
-  if (hit) return hit;
-
-  const series = getItemSeries(storeId);
-  const out: SkuFit[] = [];
-  for (const s of series) {
-    const sku = SKU_BY_ID.get(s.skuId);
-    if (!sku) continue;
-    const r = forecast(s.units, MAX_HORIZON);
-    const avgDaily = s.units.slice(-28).reduce((a, b) => a + b, 0) / 28;
-    out.push({
-      sku,
-      series: s,
-      points: r.points,
-      accuracy: r.accuracy,
-      onHand: onHandFor(sku, storeId, avgDaily),
-    });
-  }
-  fitCache.set(storeId, out);
-  return out;
+  return memo(`skufits:${storeId}`, () => {
+    const cal = getCalendar(storeId, "items");
+    const local = getLocalEventDays(storeId, cal);
+    const skuById = new Map(getSkus().map((k) => [k.id, k]));
+    const onHand = getOnHand(storeId);
+    const out: SkuFit[] = [];
+    for (const s of getItemSeries(storeId)) {
+      const sku = skuById.get(s.skuId);
+      if (!sku) continue;
+      // This SKU's own known inputs, every day of history and the future.
+      const feats: FeatureRow[] = cal.map((_, i) => ({
+        promo: s.onPromo[i] ? 1 : 0,
+        discount: s.discount[i],
+        logPriceIndex: shelfLogPrice(s, i),
+        ...localFeatures(local[i]),
+      }));
+      const r = forecastSeries(cal, feats, s.units, MAX_HORIZON);
+      out.push({
+        sku,
+        series: s,
+        points: r.points,
+        accuracy: r.accuracy,
+        model: r.model,
+        inputs: r.inputs,
+        onHand: onHand.get(sku.id) ?? 0,
+      });
+    }
+    return out;
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -107,7 +136,7 @@ export type SkuPlanRow = {
 
 const REVIEW_DAYS = 7;
 
-function planFor(fit: SkuFit, horizon: number): SkuPlanRow {
+function planFor(fit: SkuFit, horizon: number, categoryShort: Map<string, string>): SkuPlanRow {
   const { sku, points, onHand } = fit;
   const lt = sku.leadTimeDays;
 
@@ -150,7 +179,7 @@ function planFor(fit: SkuFit, horizon: number): SkuPlanRow {
 
   return {
     sku,
-    categoryName: CATEGORY_BY_ID.get(sku.category)?.short ?? sku.category,
+    categoryName: categoryShort.get(sku.category) ?? sku.category,
     horizonUnits,
     avgDaily,
     onHand,
@@ -170,26 +199,7 @@ function planFor(fit: SkuFit, horizon: number): SkuPlanRow {
 /* Workspace assembly                                                         */
 /* -------------------------------------------------------------------------- */
 
-export type ChartRowEvent = {
-  label: string;
-  kind: string;
-  pct: number;
-  units: number;
-};
-
-export type ChartRowFactors = {
-  tempF: number;
-  tempAnomaly: number;
-  weatherUnits: number;
-  weatherPct: number;
-  promoUnits: number;
-  promoPct: number;
-  holiday: string | null;
-  holidayPct: number;
-  holidayUnits: number;
-  events: ChartRowEvent[];
-  baseline: number;
-};
+export type { ChartRowFactors } from "./factors";
 
 export type ChartRow = {
   date: string;
@@ -217,6 +227,31 @@ export type CategoryRow = {
   revenue: number;
 };
 
+/** Which model the headline forecast uses, and why. */
+export type ModelInfo = {
+  used: ModelChoice;
+  /** Backtest error of each candidate on the headline series. */
+  driverWape: number | null;
+  hwWape: number | null;
+  /** How many of the scoped series (SKUs / grades) use the driver model. */
+  seriesOnDriver: number;
+  seriesTotal: number;
+  /** Optional inputs the headline driver model kept, when it could be tested. */
+  inputs: Record<OptionalGroup, boolean> | null;
+  /** How many scoped series (SKUs / grades) kept each optional input. */
+  seriesUsing: Record<OptionalGroup, number>;
+};
+
+/** Count the scoped series whose driver model kept each optional input. */
+export function countInputs(fits: { model: ModelChoice; inputs: Record<OptionalGroup, boolean> | null }[]) {
+  const on = fits.filter((f) => f.model === "driver" && f.inputs);
+  return {
+    weather: on.filter((f) => f.inputs!.weather).length,
+    alerts: on.filter((f) => f.inputs!.alerts).length,
+    events: on.filter((f) => f.inputs!.events).length,
+  };
+}
+
 export type ItemWorkspace = {
   asOf: string;
   scopeLabel: string;
@@ -229,6 +264,7 @@ export type ItemWorkspace = {
   priorTotal: number;
   deltaVsPrior: number;
   accuracy: Accuracy;
+  model: ModelInfo;
   chartRows: ChartRow[];
   /** 12 weekly buckets for the headline sparkline. */
   sparkline: number[];
@@ -242,9 +278,10 @@ export type ItemWorkspace = {
 };
 
 export function buildItemWorkspace(filters: Filters): ItemWorkspace {
-  const cal = getCalendar();
-  const origin = forecastOriginIndex();
+  const cal = getCalendar(filters.storeId, "items");
   const fits = getSkuFits(filters.storeId);
+  const events = getNamedEvents(filters.storeId);
+  const categories = getCategories();
   const horizon = filters.horizon;
 
   const inScope =
@@ -252,7 +289,8 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
       ? fits
       : fits.filter((f) => f.sku.category === filters.categoryId);
 
-  const histLen = inScope[0]?.series.units.length ?? 0;
+  const histLen = inScope[0]?.series.units.length ?? fits[0]?.series.units.length ?? 0;
+  const origin = histLen;
 
   // Aggregate actuals across the scoped SKUs.
   const actual = new Array<number>(histLen).fill(0);
@@ -260,30 +298,14 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
     for (let i = 0; i < histLen; i++) actual[i] += f.series.units[i];
   }
 
-  // Aggregating point forecasts is exact for the mean. Aggregating the bands
-  // is not — summing interval endpoints assumes the SKUs miss in lockstep, so
-  // the store-level band is built from a fresh fit on the aggregate series.
-  const aggregate = forecast(actual, horizon);
-
-  const chartRows: ChartRow[] = [];
-  const from = Math.max(0, histLen - filters.horizon);
-
-  const anomalies = detectAnomalies(
-    inScope[0]?.series.dates ?? [],
-    actual,
-    aggregate.fit,
-    { threshold: 3 },
-  );
-  const anomalyByDate = new Map(anomalies.map((a) => [a.date, a]));
-
-  // Promo/price columns weighted by volume share — used for factor decomposition
-  // and later for the driver model.
+  // Promo and shelf-price columns weighted by recent volume share.
   const weights = inScope.map((f) => {
     const v = f.series.units.slice(-90).reduce((a, b) => a + b, 0);
     return Math.max(1e-6, v);
   });
   const wSum = weights.reduce((a, b) => a + b, 0);
-  const feats = cal.map((_, i) => {
+  const local = getLocalEventDays(filters.storeId, cal);
+  const feats: FeatureRow[] = cal.map((_, i) => {
     let promo = 0;
     let discount = 0;
     let logPrice = 0;
@@ -291,26 +313,44 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
       const w = weights[k] / wSum;
       promo += (inScope[k].series.onPromo[i] ? 1 : 0) * w;
       discount += inScope[k].series.discount[i] * w;
-      logPrice += Math.log(inScope[k].series.priceIndex[i]) * w;
+      logPrice += shelfLogPrice(inScope[k].series, i) * w;
     }
-    return { promo, discount, logPriceIndex: logPrice };
+    return { promo, discount, logPriceIndex: logPrice, ...localFeatures(local[i]) };
   });
 
+  // The headline series gets its own fit rather than a sum of SKU bands:
+  // summing interval endpoints assumes every SKU misses in lockstep.
+  const aggregate = forecastSeries(cal, feats, actual, horizon);
+
+  const anomalies = detectAnomalies(cal.slice(0, histLen).map((d) => d.date), actual, aggregate.hwFit, {
+    threshold: 3,
+    events,
+  });
+  const anomalyByDate = new Map(anomalies.map((a) => [a.date, a]));
+
+  // Tooltip effects: the forecast's own when the driver model is in use,
+  // otherwise the attribution model's explanation of the number.
+  const driverFit = fitDriversDetailed(cal, feats, actual, origin, origin + horizon - 1);
+  const source = aggregate.driver ?? driverFit;
+  const mode = aggregate.driver ? "model" : "explanation";
+  const factors = (i: number, value: number) =>
+    factorsFor({
+      day: cal[i],
+      value,
+      effects: source.effectsAt(i),
+      local: local[i] ?? null,
+      correction: i >= origin && aggregate.driver ? aggregate.driver.correction(i - origin + 1) : 0,
+      mode,
+    });
+
+  const chartRows: ChartRow[] = [];
+  const from = Math.max(0, histLen - filters.horizon);
+
   for (let i = from; i < histLen; i++) {
-    const date = cal[i].date;
-    const a = anomalyByDate.get(date);
-    const d = actual[i];
-    const wPct = cal[i].tempAnomaly * 0.003;
-    const pPct = feats[i].promo > 0 ? feats[i].promo * feats[i].discount : 0;
-    const hPct = cal[i].holidayWeight > 0 ? cal[i].holidayWeight - 1 : 0;
-    const dayEv = eventsOn(date);
-    const allEv = [...dayEv.causes, ...dayEv.context];
-    const evPcts = allEv.map((e) => e.effect - 1);
-    const totPct = wPct + pPct + hPct + evPcts.reduce((s, v) => s + v, 0);
-    const base = totPct !== 0 ? d / (1 + totPct) : d;
+    const a = anomalyByDate.get(cal[i].date);
     chartRows.push({
-      date,
-      actual: d,
+      date: cal[i].date,
+      actual: actual[i],
       mean: null,
       lo80: null, hi80: null, lo95: null, hi95: null,
       anomaly: a
@@ -321,24 +361,7 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
             cause: a.causes[0]?.label ?? a.context[0]?.label ?? null,
           }
         : null,
-      factors: {
-        tempF: cal[i].tempF,
-        tempAnomaly: cal[i].tempAnomaly,
-        weatherUnits: Math.round(base * wPct),
-        weatherPct: wPct,
-        promoUnits: Math.round(base * pPct),
-        promoPct: pPct,
-        holiday: cal[i].holiday,
-        holidayPct: hPct,
-        holidayUnits: Math.round(base * hPct),
-        events: allEv.map((e, j) => ({
-          label: e.label,
-          kind: e.kind,
-          pct: evPcts[j],
-          units: Math.round(base * evPcts[j]),
-        })),
-        baseline: Math.round(base),
-      },
+      factors: factors(i, actual[i]),
     });
   }
 
@@ -353,43 +376,17 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
     last.hi95 = last.actual;
   }
 
-  for (let h = 0; h < horizon; h++) {
+  for (let h = 0; h < horizon && origin + h < cal.length; h++) {
     const p = aggregate.points[h];
-    const fIdx = origin + h;
-    const m = p.mean;
-    const wPct = cal[fIdx].tempAnomaly * 0.003;
-    const pPct = feats[fIdx].promo > 0 ? feats[fIdx].promo * feats[fIdx].discount : 0;
-    const hPct = cal[fIdx].holidayWeight > 0 ? cal[fIdx].holidayWeight - 1 : 0;
-    const dayEv = eventsOn(cal[fIdx].date);
-    const allEv = [...dayEv.causes, ...dayEv.context];
-    const evPcts = allEv.map((e) => e.effect - 1);
-    const totPct = wPct + pPct + hPct + evPcts.reduce((s, v) => s + v, 0);
-    const base = totPct !== 0 ? m / (1 + totPct) : m;
+    const i = origin + h;
     chartRows.push({
-      date: cal[fIdx].date,
+      date: cal[i].date,
       actual: null,
-      mean: m,
+      mean: p.mean,
       lo80: p.lo80, hi80: p.hi80,
       lo95: p.lo95, hi95: p.hi95,
       anomaly: null,
-      factors: {
-        tempF: cal[fIdx].tempF,
-        tempAnomaly: cal[fIdx].tempAnomaly,
-        weatherUnits: Math.round(base * wPct),
-        weatherPct: wPct,
-        promoUnits: Math.round(base * pPct),
-        promoPct: pPct,
-        holiday: cal[fIdx].holiday,
-        holidayPct: hPct,
-        holidayUnits: Math.round(base * hPct),
-        events: allEv.map((e, j) => ({
-          label: e.label,
-          kind: e.kind,
-          pct: evPcts[j],
-          units: Math.round(base * evPcts[j]),
-        })),
-        baseline: Math.round(base),
-      },
+      factors: factors(i, p.mean),
     });
   }
 
@@ -398,10 +395,10 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
   const horizonHi = aggregate.points.slice(0, horizon).reduce((a, p) => a + p.hi80, 0);
   const priorTotal = actual.slice(histLen - horizon).reduce((a, b) => a + b, 0);
 
-  const drivers = fitDrivers(cal, feats, actual, origin, origin + horizon - 1);
+  const drivers = driverFit.model;
 
   // Category rollup — forecast horizon vs the same-length prior window.
-  const categories: CategoryRow[] = CATEGORIES.map((c) => {
+  const categoryRows: CategoryRow[] = categories.map((c) => {
     const members = fits.filter((f) => f.sku.category === c.id);
     let horizonUnits = 0;
     let priorUnits = 0;
@@ -423,7 +420,7 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
   }).sort((a, b) => b.horizonUnits - a.horizonUnits);
 
   const plan = inScope
-    .map((f) => planFor(f, horizon))
+    .map((f) => planFor(f, horizon, new Map(categories.map((c) => [c.id, c.short]))))
     .sort((a, b) => {
       const rank: Record<PlanStatus, number> = {
         "order-now": 0, "order-soon": 1, overstocked: 2, healthy: 3,
@@ -442,10 +439,10 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
   const scopeLabel =
     filters.categoryId === "all"
       ? "All categories"
-      : (CATEGORY_BY_ID.get(filters.categoryId)?.name ?? "Category");
+      : (categories.find((c) => c.id === filters.categoryId)?.name ?? "Category");
 
   return {
-    asOf: AS_OF,
+    asOf: getAsOf(),
     scopeLabel,
     unit: "units",
     horizonTotal,
@@ -454,10 +451,19 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
     priorTotal,
     deltaVsPrior: priorTotal > 0 ? (horizonTotal - priorTotal) / priorTotal : 0,
     accuracy: aggregate.accuracy,
+    model: {
+      used: aggregate.model,
+      driverWape: aggregate.candidates.driver?.wape ?? null,
+      hwWape: aggregate.candidates.hw.wape,
+      seriesOnDriver: inScope.filter((f) => f.model === "driver").length,
+      seriesTotal: inScope.length,
+      inputs: aggregate.model === "driver" ? aggregate.inputs : null,
+      seriesUsing: countInputs(inScope),
+    },
     chartRows,
     sparkline,
     drivers,
-    categories,
+    categories: categoryRows,
     plan,
     incidents: groupAnomalies(anomalies).slice(0, 6),
     counts: {
@@ -470,11 +476,3 @@ export function buildItemWorkspace(filters: Filters): ItemWorkspace {
     skuCount: inScope.length,
   };
 }
-
-/** Category options for the scope filter. */
-export const CATEGORY_OPTIONS = [
-  { value: "all" as const, label: "All categories" },
-  ...CATEGORIES.map((c) => ({ value: c.id, label: c.name })),
-];
-
-export const TOTAL_SKUS = SKUS.length;

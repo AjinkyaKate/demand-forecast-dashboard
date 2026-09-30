@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/shell/theme";
 import { AppShell } from "@/components/shell/app-shell";
 import { FiltersProvider } from "@/components/workspace/filters";
+import { MetaProvider } from "@/components/shell/meta";
 
 export const metadata: Metadata = {
   title: "Demand Forecast · C-store & Retail",
@@ -17,9 +18,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="flex min-h-full flex-col">
         <ThemeProvider>
-          <FiltersProvider>
-            <AppShell>{children}</AppShell>
-          </FiltersProvider>
+          <MetaProvider>
+            <FiltersProvider>
+              <AppShell>{children}</AppShell>
+            </FiltersProvider>
+          </MetaProvider>
         </ThemeProvider>
       </body>
     </html>

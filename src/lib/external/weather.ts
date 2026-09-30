@@ -1,87 +1,115 @@
 /**
- * Open-Meteo weather API client.
+ * Open-Meteo client — free, no API key.
  *
- * Fetches historical daily temperatures and 16-day forecasts for the store
- * region. Free, no API key required. We compute `temp_anomaly` as the
- * departure from the same cosine seasonal-normal curve the synthetic
- * generator used, so the driver model's weather coefficient stays calibrated.
+ * Everything is fetched for one location (a store's coordinates):
+ *   - observed daily history (archive API)
+ *   - the 16-day forecast, plus the last week, which the archive lags on
+ *   - climate normals: the day-of-year average over ten full years
+ *
+ * Temperature anomaly — the weather signal the model reads — is the departure
+ * from that location's own normal, not from an assumed curve.
  */
 
-const BASE_HISTORY = "https://archive-api.open-meteo.com/v1/archive";
-const BASE_FORECAST = "https://api.open-meteo.com/v1/forecast";
+const ARCHIVE = "https://archive-api.open-meteo.com/v1/archive";
+const FORECAST = "https://api.open-meteo.com/v1/forecast";
+const DAILY = "temperature_2m_mean,precipitation_sum";
 
-/** Central NJ — representative location for the store cluster. */
-export const REGION_LAT = 40.52;
-export const REGION_LON = -74.35;
+export type Location = { latitude: number; longitude: number; timezone: string };
 
-export type WeatherDay = {
-  date: string;
-  tempF: number;
-  tempAnomaly: number;
+export type RawDay = { date: string; tempF: number; precipMm: number };
+
+export type Normals = {
+  /** Index 1..366 → normal °F and mm for that day of year. */
+  tempF: number[];
+  precipMm: number[];
+  years: string;
 };
 
-/** Seasonal-normal temperature (°F) — same curve as generate.ts. */
-function tempNormal(doy: number): number {
-  return 54 - 24 * Math.cos((2 * Math.PI * (doy - 15)) / 365);
+const cToF = (c: number) => c * 1.8 + 32;
+
+function url(base: string, loc: Location, extra: Record<string, string>) {
+  const u = new URL(base);
+  u.searchParams.set("latitude", String(loc.latitude));
+  u.searchParams.set("longitude", String(loc.longitude));
+  u.searchParams.set("timezone", loc.timezone);
+  u.searchParams.set("daily", DAILY);
+  u.searchParams.set("temperature_unit", "celsius");
+  for (const [k, v] of Object.entries(extra)) u.searchParams.set(k, v);
+  return u.toString();
 }
 
-function dayOfYear(iso: string): number {
-  const d = new Date(iso + "T00:00:00Z");
-  const start = Date.UTC(d.getUTCFullYear(), 0, 1);
-  return Math.floor((d.getTime() - start) / 86400000) + 1;
-}
-
-function celsiusToF(c: number): number {
-  return c * 1.8 + 32;
-}
-
-function parseRows(dates: string[], tempMeanC: number[]): WeatherDay[] {
-  const rows: WeatherDay[] = [];
-  for (let i = 0; i < dates.length; i++) {
-    if (tempMeanC[i] == null) continue;
-    const tempF = Math.round(celsiusToF(tempMeanC[i]) * 10) / 10;
-    const normal = tempNormal(dayOfYear(dates[i]));
-    rows.push({
-      date: dates[i],
-      tempF,
-      tempAnomaly: Math.round((tempF - normal) * 10) / 10,
+async function getDaily(u: string): Promise<RawDay[]> {
+  const res = await fetch(u);
+  if (!res.ok) throw new Error(`Open-Meteo ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const json = (await res.json()) as {
+    daily: { time: string[]; temperature_2m_mean: (number | null)[]; precipitation_sum: (number | null)[] };
+  };
+  const out: RawDay[] = [];
+  const d = json.daily;
+  for (let i = 0; i < d.time.length; i++) {
+    const t = d.temperature_2m_mean[i];
+    if (t == null) continue; // the archive leaves the most recent days empty
+    out.push({
+      date: d.time[i],
+      tempF: Math.round(cToF(t) * 10) / 10,
+      precipMm: Math.round((d.precipitation_sum[i] ?? 0) * 10) / 10,
     });
   }
-  return rows;
+  return out;
 }
 
-/** Fetch historical daily mean temperature for a date range. */
-export async function fetchHistoricalWeather(
-  from: string,
-  to: string,
-): Promise<WeatherDay[]> {
-  const url = new URL(BASE_HISTORY);
-  url.searchParams.set("latitude", String(REGION_LAT));
-  url.searchParams.set("longitude", String(REGION_LON));
-  url.searchParams.set("start_date", from);
-  url.searchParams.set("end_date", to);
-  url.searchParams.set("daily", "temperature_2m_mean");
-  url.searchParams.set("temperature_unit", "celsius");
-  url.searchParams.set("timezone", "America/New_York");
-
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Open-Meteo history ${res.status}: ${await res.text()}`);
-  const json = await res.json();
-  return parseRows(json.daily.time, json.daily.temperature_2m_mean);
+export function fetchObserved(loc: Location, from: string, to: string) {
+  return getDaily(url(ARCHIVE, loc, { start_date: from, end_date: to }));
 }
 
-/** Fetch the 16-day daily temperature forecast. */
-export async function fetchForecastWeather(): Promise<WeatherDay[]> {
-  const url = new URL(BASE_FORECAST);
-  url.searchParams.set("latitude", String(REGION_LAT));
-  url.searchParams.set("longitude", String(REGION_LON));
-  url.searchParams.set("daily", "temperature_2m_mean");
-  url.searchParams.set("temperature_unit", "celsius");
-  url.searchParams.set("timezone", "America/New_York");
-  url.searchParams.set("forecast_days", "16");
+export function fetchForecast(loc: Location) {
+  return getDaily(url(FORECAST, loc, { forecast_days: "16", past_days: "7" }));
+}
 
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Open-Meteo forecast ${res.status}: ${await res.text()}`);
-  const json = await res.json();
-  return parseRows(json.daily.time, json.daily.temperature_2m_mean);
+export function dayOfYear(iso: string): number {
+  const d = new Date(iso + "T00:00:00Z");
+  return Math.floor((d.getTime() - Date.UTC(d.getUTCFullYear(), 0, 1)) / 86400000) + 1;
+}
+
+/**
+ * Day-of-year normals over the ten full years before `beforeYear`, smoothed
+ * with a ±7-day circular window so a single freak week doesn't bend the curve.
+ */
+export async function fetchNormals(loc: Location, beforeYear: number): Promise<Normals> {
+  const first = beforeYear - 10;
+  const last = beforeYear - 1;
+  const days = await fetchObserved(loc, `${first}-01-01`, `${last}-12-31`);
+
+  const tSum = new Array<number>(367).fill(0);
+  const pSum = new Array<number>(367).fill(0);
+  const n = new Array<number>(367).fill(0);
+  for (const d of days) {
+    const k = dayOfYear(d.date);
+    tSum[k] += d.tempF;
+    pSum[k] += d.precipMm;
+    n[k]++;
+  }
+  // Day 366 only occurs in leap years; borrow day 365's sample.
+  if (n[366] === 0) {
+    tSum[366] = tSum[365];
+    pSum[366] = pSum[365];
+    n[366] = n[365];
+  }
+
+  const tempF = new Array<number>(367).fill(NaN);
+  const precipMm = new Array<number>(367).fill(NaN);
+  for (let k = 1; k <= 366; k++) {
+    let t = 0;
+    let p = 0;
+    let c = 0;
+    for (let off = -7; off <= 7; off++) {
+      const j = ((k - 1 + off + 366) % 366) + 1;
+      t += tSum[j];
+      p += pSum[j];
+      c += n[j];
+    }
+    tempF[k] = c ? Math.round((t / c) * 10) / 10 : NaN;
+    precipMm[k] = c ? Math.round((p / c) * 100) / 100 : NaN;
+  }
+  return { tempF, precipMm, years: `${first}–${last}` };
 }
