@@ -294,7 +294,13 @@ export function getLocalEventDays(storeId: StoreId, cal: DayCtx[]): LocalEventDa
           heat: has("alert-heat"),
           storm: has("alert-storm") || nearby.some((e) => e.category === "severe-weather"),
         },
-        alertTitles: [...new Set(alerts.map((e) => e.title))],
+        // Name every source that set an alert flag, PredictHQ severe weather included.
+        alertTitles: [
+          ...new Set([
+            ...alerts.map((e) => e.title),
+            ...nearby.filter((e) => e.category === "severe-weather").map((e) => e.title),
+          ]),
+        ],
         schoolBreaks: [
           ...new Set(
             nearby
