@@ -197,7 +197,7 @@ export function FuelWorkspace() {
         {/* Volume by grade and street price are two charts, not one chart with
             two y-scales. Their units and magnitudes have nothing in common —
             sharing a plot would invent a correlation. */}
-        <div className="chunk-in chunk-in-4 grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
+        <div className="chunk-in chunk-in-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
           <ChartFrame
             title="Volume by grade"
             subtitle="One panel per grade, each on its own scale."
@@ -273,13 +273,13 @@ export function FuelWorkspace() {
           </ChartFrame>
         </div>
 
-        <div className="chunk-in chunk-in-5 grid grid-cols-1 items-start gap-4 xl:grid-cols-3">
-          <div className="xl:col-span-2">
+        <div className="chunk-in chunk-in-5 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="gal" />
           </div>
           <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
-          <div className="xl:col-span-2">
+          <div className="lg:col-span-2">
             <AnomalyFeed incidents={w.incidents} unit="gallons" />
           </div>
 

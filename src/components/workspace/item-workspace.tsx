@@ -197,13 +197,13 @@ export function ItemWorkspace() {
         </div>
 
         {/* --- Chunk 4: drivers, accuracy, category mix -------------------- */}
-        <div className="chunk-in chunk-in-4 grid grid-cols-1 items-start gap-4 xl:grid-cols-3">
-          <div className="xl:col-span-2">
+        <div className="chunk-in chunk-in-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="units" />
           </div>
           <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
-          <div className="xl:col-span-2">
+          <div className="lg:col-span-2">
             <ChartFrame
               title="Forecast by category"
               subtitle={`Next ${filters.horizon} days vs the prior ${filters.horizon}.`}
