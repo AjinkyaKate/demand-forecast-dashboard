@@ -3,7 +3,7 @@
  * data: create missing tables, add missing columns.
  */
 
-import type Database from "better-sqlite3";
+import type { DbLike } from "./index";
 import { SCHEMA_SQL } from "./schema";
 
 const STORE_COLUMNS: [string, string][] = [
@@ -13,7 +13,7 @@ const STORE_COLUMNS: [string, string][] = [
   ["region", "TEXT"],
 ];
 
-export function ensureSchema(db: Database.Database) {
+export function ensureSchema(db: DbLike) {
   const have = new Set(
     (db.prepare("PRAGMA table_info(stores)").all() as { name: string }[]).map((c) => c.name),
   );
