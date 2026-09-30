@@ -36,9 +36,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# database (allow forecast.db for Vercel deployment)
-/data/*.db-shm
-/data/*.db-wal
+# database
+/data/
 
 # typescript
 *.tsbuildinfo
