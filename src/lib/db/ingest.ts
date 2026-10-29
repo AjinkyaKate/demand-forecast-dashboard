@@ -10,7 +10,7 @@
  * what the dashboard's data-sources panel and cache versioning read.
  */
 
-import type Database from "better-sqlite3";
+import type { DbLike } from "./index";
 import { addDays } from "../format";
 import { dayOfYear, fetchForecast, fetchNormals, fetchObserved, type RawDay } from "../external/weather";
 import { fetchHolidays } from "../external/holidays";
@@ -42,20 +42,20 @@ type StoreLoc = {
   historyStart: string;
 };
 
-function logSync(db: Database.Database, r: SyncResult) {
+function logSync(db: DbLike, r: SyncResult) {
   db.prepare(
     `INSERT INTO external_sync_log (source, rows, date_from, date_to, status, error)
      VALUES (?, ?, ?, ?, ?, ?)`,
   ).run(r.source, r.rows, r.dateFrom, r.dateTo, r.ok ? "ok" : "error", r.ok ? null : (r.message ?? null));
 }
 
-function withDb<T>(fn: (db: Database.Database) => Promise<T>): Promise<T> {
+function withDb<T>(fn: (db: DbLike) => Promise<T>): Promise<T> {
   const db = getWritableDb();
   ensureSchema(db);
   return fn(db).finally(() => db.close());
 }
 
-function stores(db: Database.Database): StoreLoc[] {
+function stores(db: DbLike): StoreLoc[] {
   return db
     .prepare(
       `SELECT id, latitude, longitude, timezone, region, history_start AS historyStart

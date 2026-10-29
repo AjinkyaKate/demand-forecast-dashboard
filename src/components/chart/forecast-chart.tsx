@@ -56,6 +56,19 @@ const WEATHER_SOURCE: Record<ChartRowFactors["weatherSource"], string> = {
   none: "no reading",
 };
 
+/* -- Confidence color grading -------------------------------------------- */
+
+function confColor(t: number): string {
+  const c = Math.max(0, Math.min(1, t));
+  const G = [34, 197, 94];
+  const A = [234, 179, 8];
+  const R = [239, 68, 68];
+  const [from, to, s] = c <= 0.5
+    ? [G, A, c / 0.5]
+    : [A, R, (c - 0.5) / 0.5];
+  return `rgb(${from.map((v, i) => Math.round(v + (to[i] - v) * s)).join(",")})`;
+}
+
 const PAD = { top: 10, right: 14, bottom: 34, left: 54 };
 
 export function ForecastChart({
@@ -118,9 +131,29 @@ export function ForecastChart({
         ? `${linePath(solid)}L${solid[solid.length - 1].x} ${baseY}L${solid[0].x} ${baseY}Z`
         : "";
 
+    // Confidence gradient: per-day color based on interval width / mean.
+    const conf: { stops: { offset: string; color: string }[]; x1: number; x2: number } | null = (() => {
+      const fcDays = rows
+        .map((r, i) => ({ i, r }))
+        .filter(({ r }) => r.mean != null && r.hi80 != null && r.lo80 != null);
+      if (fcDays.length < 2) return null;
+      const cvs = fcDays.map(({ r }) => {
+        const w = r.hi80! - r.lo80!;
+        return r.mean! > 0 ? w / r.mean! : 0;
+      });
+      const minCv = Math.min(...cvs);
+      const maxCv = Math.max(...cvs);
+      const range = maxCv - minCv || 1;
+      const stops = fcDays.map(({ i: idx }, j) => ({
+        offset: `${((x(idx) - x(fcDays[0].i)) / Math.max(1, x(fcDays[fcDays.length - 1].i) - x(fcDays[0].i)) * 100).toFixed(1)}%`,
+        color: confColor((cvs[j] - minCv) / range),
+      }));
+      return { stops, x1: x(fcDays[0].i), x2: x(fcDays[fcDays.length - 1].i) };
+    })();
+
     return {
       x, y, ticks, domain, zeroBased,
-      actualPts, meanPts, hi80, lo80, hi95, lo95, originIdx, actualArea,
+      actualPts, meanPts, hi80, lo80, hi95, lo95, originIdx, actualArea, conf,
     };
   }, [rows, plotW, plotH]);
 
@@ -190,6 +223,14 @@ export function ForecastChart({
             <rect x={PAD.left} y={PAD.top} width={plotW} height={plotH} />
           </clipPath>
           <AreaGradient id="fc-actual-wash" color="var(--series-1)" top={0.16} />
+          {geom.conf ? (
+            <linearGradient id="fc-conf-band" gradientUnits="userSpaceOnUse"
+              x1={geom.conf.x1} y1={0} x2={geom.conf.x2} y2={0}>
+              {geom.conf.stops.map((s, i) => (
+                <stop key={i} offset={s.offset} stopColor={s.color} />
+              ))}
+            </linearGradient>
+          ) : null}
         </defs>
 
         {/* Gridlines: solid hairlines, one step off the surface, recessive. */}
@@ -222,9 +263,9 @@ export function ForecastChart({
         ))}
 
         <g clipPath="url(#fc-plot)">
-          {/* 95 % then 80 %: nested washes of the forecast hue, never blocks. */}
-          <path d={bandPath(geom.hi95, geom.lo95)} fill="var(--series-2)" opacity={0.1} />
-          <path d={bandPath(geom.hi80, geom.lo80)} fill="var(--series-2)" opacity={0.18} />
+          {/* 95 % then 80 %: colored by confidence when a gradient exists. */}
+          <path d={bandPath(geom.hi95, geom.lo95)} fill={geom.conf ? "url(#fc-conf-band)" : "var(--series-2)"} opacity={0.14} />
+          <path d={bandPath(geom.hi80, geom.lo80)} fill={geom.conf ? "url(#fc-conf-band)" : "var(--series-2)"} opacity={0.28} />
 
           {geom.actualArea ? (
             <path d={geom.actualArea} fill="url(#fc-actual-wash)" />

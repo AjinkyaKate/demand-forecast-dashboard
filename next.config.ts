@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Native and wasm-backed packages stay in node_modules on the server.
+  serverExternalPackages: ["better-sqlite3", "sql.js"],
 };
 
 export default nextConfig;

@@ -75,6 +75,13 @@ Imports write to the same tables everything else reads (`stores`, `skus`,
 `categories`, `daily_item_sales`) and log to `import_log`, which is part of the
 read cache's version key. `npm run seed` brings the demo data back.
 
+**Hosting.** Two database drivers sit behind one interface
+(`src/lib/db/index.ts`): better-sqlite3 on `data/forecast.db` locally, and
+sql.js in memory on Vercel (set by the `VERCEL` env, or `DB_DRIVER=sqljs`).
+On Vercel the database starts empty with the schema; an import works for that
+instance and is gone after a cold start. Persisting the bytes to Vercel Blob,
+or moving to a hosted SQLite such as Turso, is what real data needs next.
+
 Not yet covered: stock on hand per item (so the order suggestions run on real
 counts), item costs, fuel sales, and a scheduled pull from a POS. The import
 module is `src/lib/import/sales.ts`; the routes are under `src/app/api/import/`.

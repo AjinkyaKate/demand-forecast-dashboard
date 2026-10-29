@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { withDb } from "@/lib/db";
 import { queryStores } from "@/lib/db/queries";
 
 export const dynamic = "force-dynamic";
 
 export function GET() {
-  return NextResponse.json(queryStores());
+  return withDb(() => NextResponse.json(queryStores()));
 }

@@ -154,11 +154,11 @@ export function FuelWorkspace() {
         <div className="chunk-in chunk-in-3">
           <ChartFrame
             title={`Fuel volume — actual vs forecast · ${w.scopeLabel}`}
-            subtitle="Daily gallons, with the 80% and 95% prediction interval."
+            subtitle="Daily gallons. Band color grades confidence: green = high, red = low."
             legend={[
               { label: "Actual", color: "var(--series-1)", shape: "line" },
               { label: "Forecast", color: "var(--series-2)", shape: "line" },
-              { label: "80% / 95% interval", color: "var(--series-2)", shape: "band" },
+              { label: "Confidence band", color: "", shape: "conf-gradient" },
               { label: "Anomaly", color: "var(--status-critical)", shape: "ring" },
             ]}
             table={
@@ -197,7 +197,7 @@ export function FuelWorkspace() {
         {/* Volume by grade and street price are two charts, not one chart with
             two y-scales. Their units and magnitudes have nothing in common —
             sharing a plot would invent a correlation. */}
-        <div className="chunk-in chunk-in-4 grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
+        <div className="chunk-in chunk-in-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
           <ChartFrame
             title="Volume by grade"
             subtitle="One panel per grade, each on its own scale."
@@ -273,13 +273,13 @@ export function FuelWorkspace() {
           </ChartFrame>
         </div>
 
-        <div className="chunk-in chunk-in-5 grid grid-cols-1 items-start gap-4 xl:grid-cols-3">
-          <div className="xl:col-span-2">
+        <div className="chunk-in chunk-in-5 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
             <DriverCard drivers={w.drivers} horizon={filters.horizon} unitLabel="gal" />
           </div>
           <AccuracyPanel accuracy={w.accuracy} model={w.model} />
 
-          <div className="xl:col-span-2">
+          <div className="lg:col-span-2">
             <AnomalyFeed incidents={w.incidents} unit="gallons" />
           </div>
 
