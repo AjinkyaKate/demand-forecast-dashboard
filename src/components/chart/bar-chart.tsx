@@ -124,7 +124,7 @@ export function BarChart({
       </svg>
       {hover && data.find((d) => d.id === hover)?.detail ? (
         <div className="bg-surface-2 text-ink-secondary mt-2 rounded-md px-2.5 py-1.5 text-[11px]">
-          <span className="text-ink-primary font-medium">
+          <span className="text-ink-primary">
             {data.find((d) => d.id === hover)!.label}
           </span>{" "}
           — {data.find((d) => d.id === hover)!.detail}

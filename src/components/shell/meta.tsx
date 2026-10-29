@@ -6,7 +6,7 @@
  * carries its own copy of these lists.
  */
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export type Meta = {
   asOf: string;
@@ -15,12 +15,18 @@ export type Meta = {
   grades: { id: string; name: string; short: string }[];
 };
 
-type MetaState = { meta: Meta | null; error: string | null };
+type MetaState = {
+  meta: Meta | null;
+  error: string | null;
+  /** Re-read the reference data, e.g. after the user imports sales. */
+  refresh: () => void;
+};
 
-const MetaContext = createContext<MetaState>({ meta: null, error: null });
+const MetaContext = createContext<MetaState>({ meta: null, error: null, refresh: () => {} });
 
 export function MetaProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<MetaState>({ meta: null, error: null });
+  const [state, setState] = useState<Omit<MetaState, "refresh">>({ meta: null, error: null });
+  const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -34,9 +40,14 @@ export function MetaProvider({ children }: { children: ReactNode }) {
         if (!ac.signal.aborted) setState({ meta: null, error: err.message });
       });
     return () => ac.abort();
-  }, []);
+  }, [nonce]);
 
-  return <MetaContext value={state}>{children}</MetaContext>;
+  const value = useMemo<MetaState>(
+    () => ({ ...state, refresh: () => setNonce((n) => n + 1) }),
+    [state],
+  );
+
+  return <MetaContext value={value}>{children}</MetaContext>;
 }
 
 export function useMeta(): MetaState {

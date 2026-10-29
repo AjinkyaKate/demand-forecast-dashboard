@@ -18,8 +18,9 @@ import { compact, dowDate, percent, shortDate, signedPercent, thousands } from "
 import { useModelLab } from "@/lib/hooks/use-workspace";
 import type { LabStream, LabWorkspace } from "@/lib/workspace/lab";
 import { cn } from "@/lib/utils";
+import { TabsSubtle, TabsSubtleItem } from "@/components/ui/tabs-subtle";
 import { Field, FilterGroup } from "./filters";
-import { StatusBadge, WorkspaceHeader } from "./shared";
+import { NoDataState, StatusBadge, WorkspaceHeader } from "./shared";
 
 /** Error change in percentage points, with the sign that reads naturally. */
 function pts(delta: number, digits = 1): string {
@@ -36,7 +37,7 @@ function DeltaPill({ delta }: { delta: number | null }) {
   const better = delta < 0;
   const color = better ? "var(--delta-good)" : "var(--delta-bad)";
   return (
-    <span className="tabular inline-flex items-center gap-1 text-xs font-medium" style={{ color }}>
+    <span className="tabular inline-flex items-center gap-1 text-xs" style={{ color }}>
       <span aria-hidden>{better ? "▼" : "▲"}</span>
       {pts(delta)} error
     </span>
@@ -80,7 +81,7 @@ function Ladder({
           )}
         >
           <span className="min-w-0">
-            <span className="text-ink-primary flex items-center gap-2 text-[13px] font-medium">
+            <span className="text-ink-primary flex items-center gap-2 text-[13px]">
               {s.label}
               {s.id === inProduction ? <StatusBadge tone="good">In production</StatusBadge> : null}
             </span>
@@ -100,7 +101,7 @@ function Ladder({
                 }}
               />
             </span>
-            <span className="text-ink-primary tabular w-14 shrink-0 text-right text-[13px] font-semibold">
+            <span className="text-ink-primary tabular w-14 shrink-0 text-right text-[13px]">
               {percent(s.metrics.wape, 1)}
             </span>
           </span>
@@ -118,17 +119,17 @@ function Ladder({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="text-ink-muted hidden grid-cols-[minmax(0,15rem)_minmax(0,1fr)_9.5rem] gap-x-4 px-3 text-[11px] font-medium sm:grid">
+      <div className="text-ink-muted hidden grid-cols-[minmax(0,15rem)_minmax(0,1fr)_9.5rem] gap-x-4 px-3 text-[11px] sm:grid">
         <span>Model</span>
         <span>Forecast error (WAPE) — shorter is better</span>
         <span className="text-right">Change vs the row above</span>
       </div>
       <div>
-        <p className="text-ink-muted px-3 pb-1 text-[11px] font-medium tracking-wide uppercase">Baselines</p>
+        <p className="text-ink-muted px-3 pb-1 text-[11px] tracking-wide uppercase">Baselines</p>
         <ul className="flex flex-col gap-0.5">{baselines.map((s) => <Row key={s.id} s={s} />)}</ul>
       </div>
       <div>
-        <p className="text-ink-muted px-3 pb-1 text-[11px] font-medium tracking-wide uppercase">
+        <p className="text-ink-muted px-3 pb-1 text-[11px] tracking-wide uppercase">
           Adding one input at a time
         </p>
         <ul className="flex flex-col gap-0.5">{rungs.map((s) => <Row key={s.id} s={s} />)}</ul>
@@ -170,14 +171,14 @@ function DataCard({ w }: { w: LabWorkspace }) {
   return (
     <section className="surface-card rounded-card flex flex-col gap-4 p-5 sm:p-6">
       <div>
-        <h3 className="text-ink-primary text-[15px] font-medium">Data behind these numbers</h3>
+        <h3 className="text-ink-primary text-[15px]">Data behind these numbers</h3>
         <p className="text-ink-muted mt-1 text-[13px]">Read from the database for this store.</p>
       </div>
       <dl className="grid grid-cols-2 gap-3">
         {rows.map((r) => (
           <div key={r.k} className="bg-surface-2 rounded-inner p-3">
             <dt className="text-ink-muted text-[11px] leading-snug">{r.k}</dt>
-            <dd className="text-ink-primary tabular mt-1 text-lg font-semibold">{r.v}</dd>
+            <dd className="text-ink-primary tabular mt-1 text-lg">{r.v}</dd>
             {r.note ? <dd className="text-ink-muted text-[11px]">{r.note}</dd> : null}
           </div>
         ))}
@@ -215,12 +216,23 @@ export function ModelLab() {
   const fmt = (n: number) => compact(n);
   const whole = (n: number) => thousands(Math.round(n));
 
+  if (meta && meta.stores.length === 0) return <NoDataState title="Model Lab" />;
+
   const filters = (
     <FilterGroup busy={loading && !!w}>
+      {/* Two streams, so a tab pair reads faster than a menu. */}
+      <TabsSubtle
+        value={stream}
+        onValueChange={(v) => setStream(v as LabStream)}
+        aria-label="Demand stream"
+        className="p-1"
+      >
+        {STREAM_OPTIONS.map((o) => (
+          <TabsSubtleItem key={o.value} value={o.value} label={o.label} className="py-0.5" />
+        ))}
+      </TabsSubtle>
       <Field label="Store" value={storeId} onChange={setStoreId}
-        options={stores.map((s) => ({ value: s.id, label: s.name }))} widthClass="w-[248px]" />
-      <Field label="Demand" value={stream} onChange={(v) => setStream(v as LabStream)}
-        options={STREAM_OPTIONS} widthClass="w-[140px]" />
+        options={stores.map((s) => ({ value: s.id, label: s.name }))} />
     </FilterGroup>
   );
 
@@ -420,10 +432,10 @@ export function ModelLab() {
               {lab.learned.map((r) => (
                 <div key={r.id} className="flex items-baseline justify-between gap-4 py-2.5 first:pt-0 last:pb-0">
                   <div className="min-w-0">
-                    <dt className="text-ink-primary text-[13px] font-medium">{r.label}</dt>
+                    <dt className="text-ink-primary text-[13px]">{r.label}</dt>
                     <dd className="text-ink-muted text-[11px] leading-snug">{r.meaning}</dd>
                   </div>
-                  <dd className="text-ink-primary tabular shrink-0 text-right text-[13px] font-semibold">{r.value}</dd>
+                  <dd className="text-ink-primary tabular shrink-0 text-right text-[13px]">{r.value}</dd>
                 </div>
               ))}
             </dl>
@@ -485,11 +497,11 @@ export function ModelLab() {
               <table className="w-full min-w-[34rem] border-collapse text-xs">
                 <thead>
                   <tr className="text-ink-muted border-hairline border-b text-left">
-                    <th scope="col" className="py-2 pr-3 font-medium">Date</th>
-                    <th scope="col" className="py-2 pr-3 font-medium">What was going on</th>
-                    <th scope="col" className="py-2 pr-3 text-right font-medium">Actual</th>
-                    <th scope="col" className="py-2 pr-3 text-right font-medium">Holt-Winters</th>
-                    <th scope="col" className="py-2 text-right font-medium">Driver model</th>
+                    <th scope="col" className="py-2 pr-3">Date</th>
+                    <th scope="col" className="py-2 pr-3">What was going on</th>
+                    <th scope="col" className="py-2 pr-3 text-right">Actual</th>
+                    <th scope="col" className="py-2 pr-3 text-right">Holt-Winters</th>
+                    <th scope="col" className="py-2 text-right">Driver model</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -552,7 +564,7 @@ export function ModelLab() {
       </div>
 
       <p className="text-ink-muted border-hairline border-t pt-4 text-xs leading-relaxed">
-        <strong className="text-ink-secondary font-medium">What this means for the dashboard:</strong>{" "}
+        <span className="text-ink-secondary">What this means for the dashboard:</span>{" "}
         the Items and Fuel pages forecast every SKU and fuel grade with the driver model: effects of
         promotions, price, holidays, weather and events are learned from past sales, then applied to
         what&apos;s known about the days ahead — planned promotions, Open-Meteo&apos;s forecast for the

@@ -421,7 +421,7 @@ export function ForecastChart({
           ) : null}
           {active.anomaly ? (
             <TooltipNote>
-              <span className="font-medium" style={{ color: SEVERITY_VAR[active.anomaly.severity] }}>
+              <span className="" style={{ color: SEVERITY_VAR[active.anomaly.severity] }}>
                 {active.anomaly.direction === "spike" ? "▲ Spike" : "▼ Drop"}
               </span>{" "}
               {(active.anomaly.deviation * 100).toFixed(0)}% vs expected

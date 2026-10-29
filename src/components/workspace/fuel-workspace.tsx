@@ -19,7 +19,7 @@ import {
 } from "@/lib/format";
 import { FilterBar, useFilters } from "./filters";
 import { TankPlanTable } from "./tank-plan-table";
-import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, StatusBadge, WorkspaceHeader } from "./shared";
+import { AccuracyPanel, AnomalyFeed, DriverCard, NoDataState, SectionHeading, StatusBadge, WorkspaceHeader } from "./shared";
 import { cn } from "@/lib/utils";
 
 export function FuelWorkspace() {
@@ -35,12 +35,12 @@ export function FuelWorkspace() {
 
   const urgent = w ? w.plan.filter((p) => p.status === "order-now") : [];
 
+  // Nothing on file yet: point at the upload instead of a skeleton that never fills.
+  if (meta && meta.stores.length === 0) return <NoDataState title="Fuel Demand Forecasting" />;
+
   const header = (
     <WorkspaceHeader
       title="Fuel Demand Forecasting"
-      description={
-        w ? `${w.scopeLabel} · forecast horizon ${filters.horizon} days` : `Forecast horizon ${filters.horizon} days`
-      }
       status={
         w ? (
           urgent.length > 0 ? (
@@ -101,7 +101,7 @@ export function FuelWorkspace() {
       <div className="chunk-in chunk-in-1">{header}</div>
 
       <div className={cn("flex flex-col gap-4", (pending || loading) && "is-refetching")}>
-        <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 lg:grid-cols-4">
+        <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="surface-card rounded-card p-5">
             <HeroFigure
               label={`Forecast volume · next ${filters.horizon} days`}

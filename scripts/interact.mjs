@@ -1,4 +1,6 @@
 import { chromium } from "playwright";
+// Point at another port with BASE_URL=http://localhost:3001 when 3000 is taken.
+const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2 });
 const p = await ctx.newPage();
@@ -8,7 +10,7 @@ p.on("console", (m) => { if (m.type() === "error") errs.push(m.text().slice(0, 1
 
 const ok = (label, cond) => console.log(`  ${cond ? "PASS" : "FAIL"}  ${label}`);
 
-await p.goto("http://localhost:3000/items", { waitUntil: "networkidle" });
+await p.goto(`${BASE}/items`, { waitUntil: "networkidle" });
 await p.waitForTimeout(1000);
 
 console.log("HOVER / CROSSHAIR");
@@ -57,7 +59,7 @@ ok("toggles back to chart", await svg.isVisible());
 
 console.log("\nFILTERS SCOPE EVERYTHING");
 const before = await p.locator("section").first().innerText();
-await p.getByRole("combobox").nth(1).click();   // Forecast horizon
+await p.getByRole("combobox", { name: "Forecast horizon" }).click();
 await p.waitForTimeout(250);
 await p.getByRole("option", { name: "Next 30 days" }).click();
 await p.waitForTimeout(900);
@@ -68,15 +70,15 @@ const heroTxt = await p.locator("text=Forecast demand · next 30 days").first().
 ok("hero label updated", heroTxt);
 
 console.log("\nSTORE SWITCH");
-await p.getByRole("combobox").nth(2).click();
+await p.getByRole("combobox", { name: "Store" }).click();
 await p.waitForTimeout(250);
 await p.getByRole("option", { name: /Midtown/ }).click();
 await p.waitForTimeout(1500);
 ok("store switch recomputes without error", errs.length === 0);
-ok("store name shown in trigger", (await p.getByRole("combobox").nth(2).innerText()).includes("Midtown"));
+ok("store name shown in trigger", (await p.getByRole("combobox", { name: "Store" }).innerText()).includes("Midtown"));
 
 console.log("\nSORTING");
-await p.goto("http://localhost:3000/items", { waitUntil: "networkidle" });
+await p.goto(`${BASE}/items`, { waitUntil: "networkidle" });
 await p.waitForTimeout(1200);
 const plan = p.locator("section").filter({ hasText: "Replenishment plan" }).first();
 const firstBefore = await plan.locator("tbody tr").first().innerText();

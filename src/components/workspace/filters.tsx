@@ -86,44 +86,37 @@ export function Field({
   value,
   onChange,
   options,
-  widthClass = "w-[170px]",
+  className,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
-  widthClass?: string;
+  className?: string;
 }) {
+  // The trigger sizes itself to the widest option once, so the row never
+  // shifts when a shorter value is picked. The name stays for screen readers;
+  // the value says what the control is.
   return (
-    <label className="flex flex-col">
-      {/* The control's value says what it is; the name stays for screen readers. */}
-      <span className="sr-only">{label}</span>
-      {/* `items` is what lets the trigger render the option's LABEL rather
-          than its raw value — without it the store filter reads "s-101".
-          onValueChange emits `string | null`; a cleared value is ignored so a
-          filter can never fall out of scope. */}
-      <Select
-        items={options}
-        value={value}
-        onValueChange={(v) => {
-          if (v != null) onChange(v);
-        }}
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger
+        aria-label={label}
+        className={cn("min-h-8 gap-1.5 px-2.5 py-1 text-[13px]", className)}
       >
-        <SelectTrigger
-          size="sm"
-          className={cn("press bg-surface-1 rounded-chip h-9 text-[13px]", widthClass)}
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((o) => (
-            <SelectItem key={o.value} value={o.value} className="text-[13px]">
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </label>
+        <SelectValue placeholder={label} />
+      </SelectTrigger>
+      <SelectContent align="end" className="shadow-(--shadow-pop)">
+        {options.map((o) => (
+          <SelectItem
+            key={o.value}
+            value={o.value}
+            className="min-h-9 py-2 pe-9 text-[13px]"
+          >
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -144,7 +137,7 @@ export function FilterGroup({ busy, children }: { busy?: boolean; children: Reac
         <span aria-hidden className="border-ink-muted size-3 animate-spin rounded-full border-2 border-t-transparent" />
         {busy ? "Updating…" : ""}
       </span>
-      <div className="flex max-w-full flex-wrap items-center gap-2">{children}</div>
+      <div className="flex max-w-full flex-wrap items-center gap-1.5">{children}</div>
     </div>
   );
 }
@@ -168,14 +161,12 @@ export function FilterBar({
         value={String(filters.horizon)}
         onChange={(v) => update({ horizon: Number(v) })}
         options={HORIZON_PRESETS.map((p) => ({ value: String(p.value), label: p.label }))}
-        widthClass="w-[140px]"
       />
       <Field
         label="Store"
         value={filters.storeId}
         onChange={(v) => update({ storeId: v as Filters["storeId"] })}
         options={(meta?.stores ?? []).map((s) => ({ value: s.id, label: s.name }))}
-        widthClass="w-[248px]"
       />
       {scope ? (
         <Field
@@ -183,7 +174,6 @@ export function FilterBar({
           value={scope.value}
           onChange={scope.onChange}
           options={scope.options}
-          widthClass="w-[176px]"
         />
       ) : null}
     </FilterGroup>

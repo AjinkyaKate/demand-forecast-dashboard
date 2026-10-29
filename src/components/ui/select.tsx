@@ -1,200 +1,1020 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Select as SelectPrimitive } from "@base-ui/react/select"
-import { cn } from "cn"
-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
-
-const Select = SelectPrimitive.Root
-
-function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
-  return (
-    <SelectPrimitive.Group
-      data-slot="select-group"
-      className={cn("scroll-my-1 p-1", className)}
-      {...props}
-    />
-  )
+import {
+  Children,
+  cloneElement,
+  createContext,
+  forwardRef,
+  isValidElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
+import { createPortal } from 'react-dom'
+import { AnimatePresence, motion, useReducedMotion, type MotionValue } from 'motion/react'
+import { cn } from '@/lib/utils'
+import { useMounted } from '@/hooks/use-mounted'
+import { playHoverSound, playClickSound } from '@/lib/sound'
+import { springs } from '@/lib/motion-tokens'
+import { useProximityHighlight, ProximityHighlight } from '@/lib/hooks/use-proximity-highlight'
+const MAX_HEIGHT = 320
+const SIDE_OFFSET = 8
+const VIEWPORT_MARGIN = 12
+const TYPEAHEAD_RESET_MS = 500
+interface SelectContextValue {
+  value: string
+  setValue: (v: string) => void
+  open: boolean
+  setOpen: (next: boolean) => void
+  disabled: boolean
+  triggerId: string
+  contentId: string
+  labelMap: React.MutableRefObject<Map<string, string>>
+  registerOption: (value: string, label: string) => void
+  openInteractionRef: React.MutableRefObject<'keyboard' | 'pointer'>
+  itemsWidth: number | null
+  setItemsWidth: (w: number | null) => void
 }
 
-function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
-  return (
-    <SelectPrimitive.Value
-      data-slot="select-value"
-      className={cn("flex flex-1 text-left", className)}
-      {...props}
-    />
-  )
+const SelectContext = createContext<SelectContextValue | null>(null)
+
+function useSelectCtx(componentName: string) {
+  const ctx = useContext(SelectContext)
+  if (!ctx) throw new Error(`${componentName} must be used within <Select>`)
+  return ctx
+}
+interface SelectContentContextValue {
+  activeIndex: number | null
+  setActiveIndex: (i: number | null) => void
+  highlightX: ReturnType<typeof import('motion/react').useSpring>
+  highlightSize: MotionValue<number>
+  highlightOpacity: ReturnType<typeof import('motion/react').useSpring>
+  axis: 'x' | 'y'
+  focusedIndex: number
+  setFocusedIndex: (i: number) => void
+  setOpen: (next: boolean) => void
+  registerItem: (index: number, el: HTMLElement | null) => void
 }
 
-function SelectTrigger({
-  className,
-  size = "default",
-  children,
-  ...props
-}: SelectPrimitive.Trigger.Props & {
-  size?: "sm" | "default"
-}) {
-  return (
-    <SelectPrimitive.Trigger
-      data-slot="select-trigger"
-      data-size={size}
-      className={cn(
-        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <SelectPrimitive.Icon
-        render={
-          <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
+const SelectContentContext = createContext<SelectContentContextValue | null>(null)
+
+function useSelectContentCtx(componentName: string) {
+  const ctx = useContext(SelectContentContext)
+  if (!ctx) throw new Error(`${componentName} must be used within <SelectContent>`)
+  return ctx
+}
+function normalizeTypeahead(value: string) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+export interface SelectProps {
+  children: ReactNode
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+  disabled?: boolean
+  name?: string
+  required?: boolean
+  className?: string
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  (
+    {
+      children,
+      value: valueProp,
+      defaultValue = '',
+      onValueChange,
+      disabled = false,
+      name,
+      required = false,
+      className,
+    },
+    ref,
+  ) => {
+    const isControlled = valueProp !== undefined
+    const [internalValue, setInternalValue] = useState(defaultValue)
+    const value = isControlled ? valueProp : internalValue
+
+    const [open, setOpen] = useState(false)
+    const [itemsWidth, setItemsWidth] = useState<number | null>(null)
+    const openInteractionRef = useRef<'keyboard' | 'pointer'>('pointer')
+    const labelMap = useRef(new Map<string, string>())
+    const [options, setOptions] = useState<{ value: string; label: string }[]>([])
+    const registerOption = useCallback((v: string, label: string) => {
+      labelMap.current.set(v, label)
+      setOptions((prev) => {
+        const idx = prev.findIndex((o) => o.value === v)
+        if (idx >= 0) {
+          if (prev[idx].label === label) return prev
+          const next = [...prev]
+          next[idx] = { value: v, label }
+          return next
         }
-      />
-    </SelectPrimitive.Trigger>
-  )
+        return [...prev, { value: v, label }]
+      })
+    }, [])
+
+    const reactId = useId()
+    const triggerId = `${reactId}-trigger`
+    const contentId = `${reactId}-content`
+
+    const setValue = useCallback(
+      (v: string) => {
+        if (!isControlled) setInternalValue(v)
+        onValueChange?.(v)
+        setOpen(false)
+        requestAnimationFrame(() => {
+          document.getElementById(triggerId)?.focus()
+        })
+      },
+      [isControlled, onValueChange, triggerId],
+    )
+    useEffect(() => {
+      if (!open) return
+      const handlePointerDown = (e: PointerEvent) => {
+        const target = e.target as Node
+        if ((target as HTMLElement).closest?.('[data-select-trigger]')) return
+        if ((target as HTMLElement).closest?.('[data-select-content]')) return
+        setOpen(false)
+      }
+      document.addEventListener('pointerdown', handlePointerDown)
+      return () => document.removeEventListener('pointerdown', handlePointerDown)
+    }, [open])
+    useEffect(() => {
+      if (!open) return
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          setOpen(false)
+          document.getElementById(triggerId)?.focus()
+        }
+      }
+      document.addEventListener('keydown', handleKeyDown as EventListener)
+      return () => document.removeEventListener('keydown', handleKeyDown as EventListener)
+    }, [open, triggerId])
+
+    const ctx = useMemo<SelectContextValue>(
+      () => ({
+        value,
+        setValue,
+        open,
+        setOpen,
+        disabled,
+        triggerId,
+        contentId,
+        labelMap,
+        registerOption,
+        openInteractionRef,
+        itemsWidth,
+        setItemsWidth,
+      }),
+      [value, setValue, open, disabled, triggerId, contentId, registerOption, itemsWidth],
+    )
+
+    return (
+      <SelectContext.Provider value={ctx}>
+        <div className={cn('relative inline-block', className)}>
+          {children}
+
+          <select
+            ref={ref as React.Ref<HTMLSelectElement>}
+            tabIndex={-1}
+            aria-hidden="true"
+            className="sr-only"
+            name={name}
+            required={required}
+            value={value}
+            disabled={disabled}
+            onChange={(e) => setValue(e.target.value)}
+            onFocus={(e) => e.preventDefault()}
+          >
+            <option value=""></option>
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </SelectContext.Provider>
+    )
+  },
+)
+Select.displayName = 'Select'
+export interface SelectTriggerProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'children'> {
+  children?: ReactNode
+  showChevron?: boolean
+  disabled?: boolean
 }
 
-function SelectContent({
-  className,
-  children,
-  side = "bottom",
-  sideOffset = 4,
-  align = "center",
-  alignOffset = 0,
-  alignItemWithTrigger = true,
-  ...props
-}: SelectPrimitive.Popup.Props &
-  Pick<
-    SelectPrimitive.Positioner.Props,
-    "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
-  >) {
-  return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Positioner
-        side={side}
-        sideOffset={sideOffset}
-        align={align}
-        alignOffset={alignOffset}
-        alignItemWithTrigger={alignItemWithTrigger}
-        className="isolate z-50"
+export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
+  (
+    {
+      children,
+      showChevron = true,
+      className,
+      disabled: disabledProp,
+      onClick,
+      onMouseEnter,
+      ...props
+    },
+    ref,
+  ) => {
+    const {
+      open,
+      setOpen,
+      disabled: rootDisabled,
+      triggerId,
+      contentId,
+      openInteractionRef,
+      itemsWidth,
+    } = useSelectCtx('SelectTrigger')
+    const reduceMotion = useReducedMotion()
+    const disabled = disabledProp ?? rootDisabled
+
+    return (
+      <button
+        ref={ref}
+        id={triggerId}
+        type="button"
+        data-select-trigger
+        role="combobox"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-controls={open ? contentId : undefined}
+        disabled={disabled}
+        style={itemsWidth ? { width: itemsWidth } : undefined}
+        className={cn(
+          'flex min-h-11 w-full items-center justify-between gap-2 border border-(--color-border) bg-(--color-surface) px-4 py-3 text-start text-sm font-normal text-(--color-fg) transition-colors duration-(--motion-dur-fast) motion-reduce:transition-none',
+          'rounded-md supports-[corner-shape:squircle]:rounded-md',
+          'hover:bg-(--color-surface-2)',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--color-bg)',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+          className,
+        )}
+        onClick={(e) => {
+          onClick?.(e)
+          if (!disabled) {
+            playClickSound()
+            openInteractionRef.current = 'pointer'
+            setOpen(!open)
+          }
+        }}
+        onKeyDown={(e) => {
+          if (!open && ['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) {
+            e.preventDefault()
+            if (!disabled) {
+              openInteractionRef.current = 'keyboard'
+              setOpen(true)
+            }
+          }
+        }}
+        onMouseEnter={(e) => {
+          onMouseEnter?.(e)
+          if (!disabled) playHoverSound()
+        }}
+        {...props}
       >
-        <SelectPrimitive.Popup
-          data-slot="select-content"
-          data-align-trigger={alignItemWithTrigger}
-          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+        <span className="flex min-w-0 flex-1 items-center gap-2">{children}</span>
+        {showChevron && (
+          <motion.span
+            className="shrink-0 text-(--color-muted)"
+            aria-hidden="true"
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={reduceMotion ? { duration: 0 } : springs.moderate}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 6l4 4 4-4" />
+            </svg>
+          </motion.span>
+        )}
+      </button>
+    )
+  },
+)
+SelectTrigger.displayName = 'SelectTrigger'
+export interface SelectValueProps extends HTMLAttributes<HTMLSpanElement> {
+  placeholder?: string
+}
+
+export const SelectValue = forwardRef<HTMLSpanElement, SelectValueProps>(
+  ({ placeholder = 'Select…', className, ...props }, ref) => {
+    const { value, labelMap } = useSelectCtx('SelectValue')
+    const reduceMotion = useReducedMotion()
+    const label = value ? (labelMap.current.get(value) ?? value) : undefined
+
+    if (reduceMotion) {
+      return (
+        <span
+          ref={ref}
+          className={cn('min-w-0 truncate', !label && 'text-(--color-muted)', className)}
           {...props}
         >
-          <SelectScrollUpButton />
-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
-          <SelectScrollDownButton />
-        </SelectPrimitive.Popup>
-      </SelectPrimitive.Positioner>
-    </SelectPrimitive.Portal>
-  )
-}
+          {label ?? placeholder}
+        </span>
+      )
+    }
 
-function SelectLabel({
-  className,
-  ...props
-}: SelectPrimitive.GroupLabel.Props) {
-  return (
-    <SelectPrimitive.GroupLabel
-      data-slot="select-label"
-      className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
-      {...props}
-    />
-  )
-}
-
-function SelectItem({
-  className,
-  children,
-  ...props
-}: SelectPrimitive.Item.Props) {
-  return (
-    <SelectPrimitive.Item
-      data-slot="select-item"
-      className={cn(
-        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
-        className
-      )}
-      {...props}
-    >
-      <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
-        {children}
-      </SelectPrimitive.ItemText>
-      <SelectPrimitive.ItemIndicator
-        render={
-          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
-        }
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'relative inline-block min-w-0 truncate',
+          !label && 'text-(--color-muted)',
+          className,
+        )}
+        {...props}
       >
-        <CheckIcon className="pointer-events-none" />
-      </SelectPrimitive.ItemIndicator>
-    </SelectPrimitive.Item>
-  )
+        <AnimatePresence initial={false}>
+          {label ? (
+            <motion.span
+              key={label}
+              initial={{ opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0, position: 'static' }}
+              exit={{ opacity: 0, y: -3, position: 'absolute' }}
+              transition={{
+                ...springs.fast,
+                opacity: { duration: 0.1 },
+              }}
+              className="inline-block min-w-0 truncate"
+              style={{ top: 0, insetInlineStart: 0 }}
+            >
+              {label}
+            </motion.span>
+          ) : (
+            <motion.span
+              key="placeholder"
+              initial={{ opacity: 0, position: 'static' }}
+              animate={{ opacity: 1, position: 'static' }}
+              exit={{ opacity: 0, position: 'absolute' }}
+              transition={{ duration: 0.06 }}
+              className="inline-block min-w-0 truncate"
+              style={{ top: 0, insetInlineStart: 0 }}
+            >
+              {placeholder}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
+    )
+  },
+)
+SelectValue.displayName = 'SelectValue'
+export interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
+  align?: 'start' | 'center' | 'end'
+  side?: 'bottom' | 'top'
 }
 
-function SelectSeparator({
-  className,
-  ...props
-}: SelectPrimitive.Separator.Props) {
-  return (
-    <SelectPrimitive.Separator
-      data-slot="select-separator"
-      className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
+export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
+  ({ align = 'start', side = 'bottom', children, className, ...props }, ref) => {
+    const {
+      open,
+      setOpen,
+      triggerId,
+      contentId,
+      value,
+      openInteractionRef,
+      itemsWidth,
+      setItemsWidth,
+    } = useSelectCtx('SelectContent')
+    const panelRef = useRef<HTMLDivElement | null>(null)
+    const [position, setPosition] = useState({ left: 0, top: 0 })
+    const maxWidthRef = useRef(0)
+    const mounted = useMounted()
+    const {
+      activeIndex,
+      setActiveIndex,
+      registerItem,
+      handlers,
+      highlightX,
+      highlightSize,
+      highlightOpacity,
+      axis,
+    } = useProximityHighlight(panelRef, { axis: 'y' })
+
+    const [focusedIndex, setFocusedIndex] = useState(0)
+    const reduceMotion = useReducedMotion()
+    const initialFocusIndex = useMemo(() => {
+      const values: string[] = []
+      collectSelectItemValues(children, values)
+      const idx = values.indexOf(value)
+      return idx >= 0 ? idx : 0
+    }, [children, value])
+
+    const [prevOpen, setPrevOpen] = useState(open)
+    if (open !== prevOpen) {
+      setPrevOpen(open)
+      if (open) setFocusedIndex(initialFocusIndex)
+    }
+
+    const [focusRect, setFocusRect] = useState<{
+      top: number
+      left: number
+      width: number
+      height: number
+    } | null>(null)
+    const [showFocusRing, setShowFocusRing] = useState(false)
+
+    useEffect(() => {
+      if (open) setShowFocusRing(openInteractionRef.current === 'keyboard')
+    }, [open, openInteractionRef])
+
+    useEffect(() => {
+      const items = open
+        ? panelRef.current?.querySelectorAll<HTMLElement>('[role="option"]')
+        : undefined
+      const el = focusedIndex >= 0 ? items?.[focusedIndex] : undefined
+      if (!el) {
+        setFocusRect(null)
+        return
+      }
+      setFocusRect({
+        top: el.offsetTop,
+        left: el.offsetLeft,
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+      })
+    }, [open, focusedIndex])
+
+    const [selectedRect, setSelectedRect] = useState<{ top: number; height: number } | null>(null)
+
+    useLayoutEffect(() => {
+      const items = open
+        ? panelRef.current?.querySelectorAll<HTMLElement>('[role="option"]')
+        : undefined
+      const el =
+        items && Array.from(items).find((item) => item.getAttribute('data-value') === value)
+      setSelectedRect(el ? { top: el.offsetTop, height: el.offsetHeight } : null)
+    }, [open, value])
+
+    const indexedChildren = useMemo(() => {
+      const counter = { current: 0 }
+      return assignSelectItemIndices(children, counter)
+    }, [children])
+
+    const measureRef = useRef<HTMLDivElement | null>(null)
+    useLayoutEffect(() => {
+      const el = measureRef.current
+      if (!el || typeof ResizeObserver === 'undefined') return
+      const update = () => {
+        const w = el.getBoundingClientRect().width
+        maxWidthRef.current = Math.max(maxWidthRef.current, w)
+        setItemsWidth(maxWidthRef.current)
+      }
+      update()
+      const ro = new ResizeObserver(update)
+      ro.observe(el)
+      return () => ro.disconnect()
+    }, [indexedChildren, setItemsWidth])
+
+    useEffect(() => {
+      if (!open) return
+      const measure = () => {
+        const trigger = document.getElementById(triggerId)
+        const content = panelRef.current
+        if (!trigger || !content) return
+        const triggerRect = trigger.getBoundingClientRect()
+        const contentRect = content.getBoundingClientRect()
+        const vw = window.innerWidth
+        const vh = window.innerHeight
+
+        let left = align === 'end' ? triggerRect.right - contentRect.width : triggerRect.left
+        if (align === 'center')
+          left = triggerRect.left + (triggerRect.width - contentRect.width) / 2
+        left = clamp(left, VIEWPORT_MARGIN, vw - contentRect.width - VIEWPORT_MARGIN)
+
+        let top: number
+        const spaceBelow = vh - triggerRect.bottom - SIDE_OFFSET
+        if (side === 'top' || (side === 'bottom' && spaceBelow < contentRect.height)) {
+          top = triggerRect.top - contentRect.height - SIDE_OFFSET
+        } else {
+          top = triggerRect.bottom + SIDE_OFFSET
+        }
+        setPosition({ left, top })
+        const natural = Math.max(triggerRect.width, contentRect.width)
+        maxWidthRef.current = Math.max(maxWidthRef.current, natural)
+        setItemsWidth(maxWidthRef.current)
+      }
+
+      const frame = requestAnimationFrame(measure)
+      window.addEventListener('resize', measure)
+      window.addEventListener('scroll', measure, true)
+      return () => {
+        cancelAnimationFrame(frame)
+        window.removeEventListener('resize', measure)
+        window.removeEventListener('scroll', measure, true)
+      }
+    }, [open, align, side, triggerId, setItemsWidth])
+    useEffect(() => {
+      if (!open) return
+      let typeaheadQuery = ''
+      let typeaheadTimeout: ReturnType<typeof setTimeout> | null = null
+
+      const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+        if (!panelRef.current?.contains(document.activeElement)) return
+        const items = panelRef.current.querySelectorAll<HTMLElement>(
+          '[role="option"]:not([data-disabled])',
+        )
+        if (!items.length) return
+        const count = items.length
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          setShowFocusRing(true)
+          const next = (focusedIndex + 1) % count
+          setFocusedIndex(next)
+          items[next]?.focus()
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          setShowFocusRing(true)
+          const next = (focusedIndex - 1 + count) % count
+          setFocusedIndex(next)
+          items[next]?.focus()
+        } else if (e.key === 'Home') {
+          e.preventDefault()
+          setShowFocusRing(true)
+          setFocusedIndex(0)
+          items[0]?.focus()
+        } else if (e.key === 'End') {
+          e.preventDefault()
+          setShowFocusRing(true)
+          setFocusedIndex(count - 1)
+          items[count - 1]?.focus()
+        } else if (e.key === 'Tab') {
+          setOpen(false)
+        } else if (e.key.length === 1 && !e.altKey && !e.ctrlKey && !e.metaKey && e.key.trim()) {
+          e.preventDefault()
+          typeaheadQuery += e.key.toLowerCase()
+          if (typeaheadTimeout) clearTimeout(typeaheadTimeout)
+          typeaheadTimeout = setTimeout(() => {
+            typeaheadQuery = ''
+          }, TYPEAHEAD_RESET_MS)
+
+          const normalizedQuery = normalizeTypeahead(typeaheadQuery)
+          const match = Array.from(items).findIndex((el) => {
+            const text = normalizeTypeahead(
+              el.getAttribute('data-text-value') ?? el.textContent ?? '',
+            )
+            return text.startsWith(normalizedQuery)
+          })
+          if (match >= 0) {
+            setShowFocusRing(true)
+            setFocusedIndex(match)
+            items[match]?.focus()
+          }
+        }
+      }
+      document.addEventListener('keydown', handleKeyDown)
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown)
+        if (typeaheadTimeout) clearTimeout(typeaheadTimeout)
+      }
+    }, [open, focusedIndex, setOpen])
+    useEffect(() => {
+      if (!open) return
+      const frame = requestAnimationFrame(() => {
+        const items = panelRef.current?.querySelectorAll<HTMLElement>(
+          '[role="option"]:not([data-disabled])',
+        )
+        if (!items?.length) return
+        const selectedIdx = Array.from(items).findIndex(
+          (el) => el.getAttribute('data-value') === value,
+        )
+        const focusIdx = selectedIdx >= 0 ? selectedIdx : 0
+        setFocusedIndex(focusIdx)
+        items[focusIdx]?.focus()
+      })
+      return () => cancelAnimationFrame(frame)
+    }, [open, value])
+
+    const setRefs = useCallback(
+      (el: HTMLDivElement | null) => {
+        ;(panelRef as React.MutableRefObject<HTMLDivElement | null>).current = el
+        if (typeof ref === 'function') ref(el)
+        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = el
+      },
+      [ref],
+    )
+
+    const contentCtx = useMemo<SelectContentContextValue>(
+      () => ({
+        activeIndex,
+        setActiveIndex,
+        highlightX,
+        highlightSize,
+        highlightOpacity,
+        axis,
+        focusedIndex,
+        setFocusedIndex,
+        setOpen,
+        registerItem,
+      }),
+      [
+        activeIndex,
+        setActiveIndex,
+        highlightX,
+        highlightSize,
+        highlightOpacity,
+        axis,
+        focusedIndex,
+        setOpen,
+        registerItem,
+      ],
+    )
+
+    // The hidden measurement clone must not share the real registerItem map, or its
+    // items race the real panel's for the same index slots and break the highlight.
+    const measureOnlyCtx = useMemo<SelectContentContextValue>(
+      () => ({
+        ...contentCtx,
+        registerItem: () => {},
+      }),
+      [contentCtx],
+    )
+
+    if (!mounted) return null
+
+    return createPortal(
+      <SelectContentContext.Provider value={contentCtx}>
+        {!open && (
+          <SelectContentContext.Provider value={measureOnlyCtx}>
+            <div
+              ref={measureRef}
+              aria-hidden="true"
+              className={cn(
+                'pointer-events-none invisible fixed top-0 start-0 min-w-48 border border-(--color-border) bg-(--color-bg) p-1 **:min-w-max',
+                'rounded-md supports-[corner-shape:squircle]:rounded-md',
+                className,
+              )}
+            >
+              {indexedChildren}
+            </div>
+          </SelectContentContext.Provider>
+        )}
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              key="select-dropdown"
+              initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -4, scaleY: 0.96 }}
+              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scaleY: 1 }}
+              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -4, scaleY: 0.96 }}
+              transition={
+                reduceMotion ? { duration: 0 } : { ...springs.fast, opacity: { duration: 0.12 } }
+              }
+              style={{
+                position: 'fixed',
+                left: position.left,
+                top: position.top,
+                width: itemsWidth ?? undefined,
+                zIndex: 30,
+                transformOrigin: 'top center',
+                maxWidth: 'calc(100vw - 1.5rem)',
+                maxHeight: MAX_HEIGHT,
+                overflowY: 'auto',
+              }}
+            >
+              <div
+                ref={setRefs}
+                id={contentId}
+                role="listbox"
+                aria-labelledby={triggerId}
+                data-select-content
+                className={cn(
+                  'relative w-full min-w-48 overflow-hidden border border-(--color-border) bg-(--color-bg) p-1 outline-none',
+                  'rounded-md supports-[corner-shape:squircle]:rounded-md',
+                  'shadow-md',
+                  className,
+                )}
+                tabIndex={-1}
+                {...handlers}
+                onMouseMove={(e) => {
+                  setShowFocusRing(false)
+                  handlers.onMouseMove(e)
+                }}
+                {...props}
+              >
+                <AnimatePresence>
+                  {selectedRect && (
+                    <motion.div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-1 top-0 rounded-md bg-(--color-accent)/15"
+                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0 }}
+                      animate={{ opacity: 1, y: selectedRect.top, height: selectedRect.height }}
+                      exit={
+                        reduceMotion
+                          ? { opacity: 0 }
+                          : { opacity: 0, transition: { duration: 0.08 } }
+                      }
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { ...springs.settle, opacity: { duration: 0.1 } }
+                      }
+                    />
+                  )}
+                </AnimatePresence>
+
+                <ProximityHighlight
+                  highlightX={highlightX}
+                  highlightSize={highlightSize}
+                  highlightOpacity={highlightOpacity}
+                  axis={axis}
+                  className="mx-1 rounded-md bg-(--color-surface-2)"
+                />
+
+                <AnimatePresence>
+                  {focusRect && showFocusRing && (
+                    <motion.div
+                      aria-hidden="true"
+                      className="pointer-events-none z-20 rounded-md border-2 border-(--color-accent)"
+                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        top: focusRect.top - 2,
+                        left: focusRect.left - 2,
+                        width: focusRect.width + 4,
+                        height: focusRect.height + 4,
+                      }}
+                      exit={
+                        reduceMotion
+                          ? { opacity: 0 }
+                          : { opacity: 0, transition: { duration: 0.06 } }
+                      }
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { ...springs.fast, opacity: { duration: 0.08 } }
+                      }
+                    />
+                  )}
+                </AnimatePresence>
+                {indexedChildren}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </SelectContentContext.Provider>,
+      document.body,
+    )
+  },
+)
+SelectContent.displayName = 'SelectContent'
+export interface SelectItemProps extends HTMLAttributes<HTMLDivElement> {
+  children: ReactNode
+  value: string
+  disabled?: boolean
+  textValue?: string
+  index?: number
+}
+
+export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
+  (
+    {
+      children,
+      value: itemValue,
+      disabled,
+      textValue,
+      index = 0,
+      onClick: onClickProp,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
+    const { value: selectedValue, setValue, registerOption } = useSelectCtx('SelectItem')
+    const { setActiveIndex, focusedIndex, setFocusedIndex, registerItem } =
+      useSelectContentCtx('SelectItem')
+    const reduceMotion = useReducedMotion()
+
+    const itemRef = useRef<HTMLDivElement | null>(null)
+    const isSelected = selectedValue === itemValue
+    useEffect(() => {
+      const label = typeof children === 'string' ? children : itemValue
+      registerOption(itemValue, label)
+    }, [itemValue, children, registerOption])
+    useEffect(() => {
+      const el = itemRef.current
+      if (index < 0 || !el) return
+      registerItem(index, el)
+      return () => registerItem(index, null)
+    }, [index, registerItem])
+
+    const setItemRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        itemRef.current = node
+        if (typeof ref === 'function') ref(node)
+        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node
+      },
+      [ref],
+    )
+
+    const resolvedTextValue = textValue ?? (typeof children === 'string' ? children : '')
+
+    return (
+      <div
+        ref={setItemRef}
+        role="option"
+        aria-selected={isSelected}
+        data-value={itemValue}
+        data-proximity-index={index}
+        data-disabled={disabled ? '' : undefined}
+        aria-disabled={disabled || undefined}
+        data-text-value={resolvedTextValue}
+        tabIndex={focusedIndex === index ? 0 : -1}
+        className={cn(
+          'relative flex min-h-11 w-full cursor-default select-none scroll-m-1 items-center justify-between gap-3 px-3 py-2.5 text-start text-sm outline-none transition-colors duration-(--motion-dur-fast) motion-reduce:transition-none',
+          'rounded-md supports-[corner-shape:squircle]:rounded-md',
+          'data-disabled:pointer-events-none data-disabled:opacity-50',
+          isSelected ? 'text-(--color-fg)' : 'text-(--color-muted)',
+          className,
+        )}
+        onPointerDown={(e) => {
+          e.preventDefault()
+        }}
+        onFocus={() => {
+          setFocusedIndex(index)
+          setActiveIndex(index)
+        }}
+        onClick={(e) => {
+          onClickProp?.(e)
+          if (!disabled) {
+            playClickSound()
+            setValue(itemValue)
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            if (!disabled) {
+              playClickSound()
+              setValue(itemValue)
+            }
+          }
+        }}
+        {...props}
+      >
+        <span className="relative z-10 flex min-w-0 flex-1 items-center gap-2 truncate">
+          {children}
+        </span>
+
+        <AnimatePresence>
+          {isSelected && (
+            <motion.svg
+              key="check"
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="relative z-10 shrink-0 text-(--color-fg)"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 1 }}
+            >
+              <motion.path
+                d="M4 12L9 17L20 6"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={reduceMotion ? { duration: 0 } : springs.press}
+              />
+            </motion.svg>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  },
+)
+SelectItem.displayName = 'SelectItem'
+export interface SelectGroupProps extends HTMLAttributes<HTMLDivElement> {
+  label?: ReactNode
+  labelClassName?: string
+}
+
+export const SelectGroup = forwardRef<HTMLDivElement, SelectGroupProps>(
+  ({ label, labelClassName, children, className, ...props }, ref) => (
+    <div ref={ref} role="group" className={cn(label && 'mt-2 first:mt-0', className)} {...props}>
+      {label && (
+        <div
+          className={cn(
+            'px-3 pt-1 pb-1 text-[11px] font-normal uppercase tracking-[0.12em] text-(--color-subtle)',
+            labelClassName,
+          )}
+        >
+          {label}
+        </div>
+      )}
+      {children}
+    </div>
+  ),
+)
+SelectGroup.displayName = 'SelectGroup'
+function assignSelectItemIndices(nodes: ReactNode, counter: { current: number }): ReactNode {
+  return Children.map(nodes, (child) => {
+    if (!isValidElement(child)) return child
+    if (child.type === SelectItem) {
+      return cloneElement(child as ReactElement<SelectItemProps>, {
+        index: counter.current++,
+      })
+    }
+    if (child.type === SelectGroup) {
+      const groupProps = child.props as SelectGroupProps
+      return cloneElement(child as ReactElement<SelectGroupProps>, {
+        children: assignSelectItemIndices(groupProps.children, counter),
+      })
+    }
+    return child
+  })
+}
+function collectSelectItemValues(nodes: ReactNode, values: string[]): void {
+  Children.forEach(nodes, (child) => {
+    if (!isValidElement(child)) return
+    if (child.type === SelectItem) {
+      values.push((child.props as SelectItemProps).value)
+      return
+    }
+    if (child.type === SelectGroup) {
+      collectSelectItemValues((child.props as SelectGroupProps).children, values)
+    }
+  })
+}
+export type SelectLabelProps = HTMLAttributes<HTMLDivElement>
+
+export const SelectLabel = forwardRef<HTMLDivElement, SelectLabelProps>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'px-3 pt-1 pb-1 text-[11px] font-normal uppercase tracking-[0.12em] text-(--color-subtle)',
+        className,
+      )}
       {...props}
     />
-  )
-}
+  ),
+)
+SelectLabel.displayName = 'SelectLabel'
+export type SelectSeparatorProps = HTMLAttributes<HTMLDivElement>
 
-function SelectScrollUpButton({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.ScrollUpArrow>) {
-  return (
-    <SelectPrimitive.ScrollUpArrow
-      data-slot="select-scroll-up-button"
-      className={cn(
-        "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
+export const SelectSeparator = forwardRef<HTMLDivElement, SelectSeparatorProps>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      role="separator"
+      aria-hidden="true"
+      className={cn('my-1 h-px bg-(--color-border)', className)}
       {...props}
-    >
-      <ChevronUpIcon
-      />
-    </SelectPrimitive.ScrollUpArrow>
-  )
-}
-
-function SelectScrollDownButton({
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.ScrollDownArrow>) {
+    />
+  ),
+)
+SelectSeparator.displayName = 'SelectSeparator'
+export function SelectPreview() {
+  const [value, setValue] = useState('')
   return (
-    <SelectPrimitive.ScrollDownArrow
-      data-slot="select-scroll-down-button"
-      className={cn(
-        "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
-      {...props}
+    <div
+      className="flex h-full w-full items-center justify-center p-6"
+      style={{ backgroundColor: 'var(--color-surface)' }}
     >
-      <ChevronDownIcon
-      />
-    </SelectPrimitive.ScrollDownArrow>
+      <div className="w-56">
+        <Select value={value} onValueChange={setValue} name="size">
+          <SelectTrigger>
+            <SelectValue placeholder="Choose size" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Small</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="large">Large</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   )
-}
-
-export {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
 }

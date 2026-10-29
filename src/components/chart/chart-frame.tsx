@@ -16,6 +16,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useId, useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type LegendItem = {
@@ -122,7 +123,7 @@ export function ChartFrame({
     >
       <figcaption className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
-          <h3 className="text-ink-primary text-[15px] leading-tight font-medium">
+          <h3 className="text-ink-primary text-[15px] leading-tight">
             {title}
           </h3>
           {subtitle ? (
@@ -144,32 +145,30 @@ export function ChartFrame({
           ) : null}
           {actions}
           {caption ? (
-            <button
-              type="button"
-              onClick={() => setShowNotes((v) => !v)}
+            <Button
+              variant="ghost"
+              size="icon-sm"
               aria-pressed={showNotes}
               aria-controls={notesId}
+              onClick={() => setShowNotes((v) => !v)}
               className={cn(
-                "press icon-btn focus-visible:ring-ring size-8",
-                "focus-visible:ring-2 focus-visible:outline-none",
-                showNotes && "text-ink-primary bg-surface-2",
+                "text-(--color-muted) hover:text-(--color-fg)",
+                showNotes && "bg-(--color-surface-2) text-(--color-fg)",
               )}
             >
               <InfoIcon />
               <span className="sr-only">
                 {showNotes ? "Hide method notes" : "Show method notes"}
               </span>
-            </button>
+            </Button>
           ) : null}
-          <button
-            type="button"
-            onClick={() => setShowTable((v) => !v)}
+          <Button
+            variant="ghost"
+            size="icon-sm"
             aria-pressed={showTable}
             aria-controls={bodyId}
-            className={cn(
-              "press icon-btn focus-visible:ring-ring relative size-8",
-              "focus-visible:ring-2 focus-visible:outline-none",
-            )}
+            onClick={() => setShowTable((v) => !v)}
+            className="relative text-(--color-muted) hover:text-(--color-fg)"
           >
             {/* Contextual icon swap: scale 0.25 -> 1, blur 4px -> 0,
                 spring duration 0.3 with bounce 0. initial={false} keeps it
@@ -189,7 +188,7 @@ export function ChartFrame({
             <span className="sr-only">
               {showTable ? "Show chart" : "Show data table"}
             </span>
-          </button>
+          </Button>
         </div>
       </figcaption>
 
@@ -246,7 +245,7 @@ export function DataTable<T>({
               scope="col"
               data-numeric={c.numeric ? "" : undefined}
               className={cn(
-                "text-ink-secondary border-b px-3 py-2 font-medium whitespace-nowrap",
+                "text-ink-secondary border-b px-3 py-2 whitespace-nowrap",
                 c.numeric ? "text-right" : "text-left",
               )}
             >

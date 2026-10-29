@@ -78,7 +78,7 @@ export function SkuPlanTable({
         data-numeric={numeric ? "" : undefined}
         aria-sort={active ? (sort.dir === 1 ? "ascending" : "descending") : "none"}
         className={cn(
-          "bg-surface-2 sticky top-0 z-10 border-b px-3 py-2 font-medium",
+          "bg-surface-2 sticky top-0 z-10 border-b px-3 py-2",
           numeric ? "text-right" : "text-left",
         )}
       >
@@ -118,7 +118,7 @@ export function SkuPlanTable({
             {th("forecast", `Forecast ${horizon}d`, true)}
             {th("onHand", "On hand", true)}
             {th("cover", "Days cover", true)}
-            <th scope="col" data-numeric className="bg-surface-2 text-ink-secondary sticky top-0 z-10 border-b px-3 py-2 text-right font-medium whitespace-nowrap">
+            <th scope="col" data-numeric className="bg-surface-2 text-ink-secondary sticky top-0 z-10 border-b px-3 py-2 text-right whitespace-nowrap">
               Reorder at
             </th>
             {th("order", "Order", true)}
@@ -132,7 +132,7 @@ export function SkuPlanTable({
             return (
               <tr key={r.sku.id} className="row-hover border-b last:border-0">
                 <td className="px-3 py-2">
-                  <p className="text-ink-primary font-medium">{r.sku.name}</p>
+                  <p className="text-ink-primary">{r.sku.name}</p>
                   <p className="text-ink-muted text-[11px]">
                     {r.categoryName} · {r.sku.caseSize}/case · {r.sku.leadTimeDays}d lead
                   </p>
@@ -146,7 +146,7 @@ export function SkuPlanTable({
                 <td data-numeric className="px-3 py-2 text-right">
                   <span
                     className={cn(
-                      "font-medium",
+                      "",
                       r.daysOfSupply <= r.sku.leadTimeDays
                         ? "text-[var(--status-critical)]"
                         : "text-ink-primary",
@@ -163,7 +163,7 @@ export function SkuPlanTable({
                 <td data-numeric className="px-3 py-2 text-right">
                   {r.suggestedCases > 0 ? (
                     <>
-                      <span className="text-ink-primary font-semibold">
+                      <span className="text-ink-primary">
                         {thousands(r.suggestedCases)}
                       </span>
                       <span className="text-ink-muted"> cs</span>

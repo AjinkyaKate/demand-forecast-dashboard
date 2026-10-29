@@ -141,6 +141,21 @@ CREATE TABLE IF NOT EXISTS external_sync_log (
 
 -- Promotion plan per SKU (chain-wide). Planned ahead, so it extends past the
 -- last sales day and gives the forecast window known promo days.
+-- One row per file the user imported, so the Data page can show what
+-- landed and so a fresh import invalidates the read cache.
+CREATE TABLE IF NOT EXISTS import_log (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind        TEXT NOT NULL,
+  file_name   TEXT NOT NULL,
+  mode        TEXT NOT NULL,
+  rows        INTEGER NOT NULL,
+  stores      INTEGER NOT NULL,
+  items       INTEGER NOT NULL,
+  date_from   TEXT,
+  date_to     TEXT,
+  imported_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS promotions (
   sku_id     TEXT NOT NULL REFERENCES skus(id),
   start_date TEXT NOT NULL,

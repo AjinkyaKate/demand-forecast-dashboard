@@ -93,7 +93,7 @@ function Delta({
     <span className="inline-flex items-center gap-1 text-xs">
       {/* Direction is carried by an arrow as well as by colour. */}
       <span aria-hidden style={{ color }}>{value >= 0 ? "▲" : "▼"}</span>
-      <span className="tabular font-medium" style={{ color }}>
+      <span className="tabular" style={{ color }}>
         {`${Math.abs(value * 100).toFixed(1)}%`}
       </span>
       {label ? <span className="text-ink-muted">{label}</span> : null}
@@ -141,7 +141,7 @@ export function StatTile({
         className,
       )}
     >
-      <p className="text-ink-primary text-[15px] leading-none font-medium">
+      <p className="text-ink-primary text-[15px] leading-none">
         {label}
       </p>
 
@@ -164,7 +164,7 @@ export function StatTile({
       {caption || captionRight ? (
         <div className="mt-auto flex items-baseline justify-between gap-3">
           <span className="text-ink-muted text-xs">{caption}</span>
-          <span className="text-ink-secondary tabular text-xs font-medium">
+          <span className="text-ink-secondary tabular text-xs">
             {captionRight}
           </span>
         </div>
@@ -202,14 +202,14 @@ export function HeroFigure({
 }) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <p className="text-ink-primary text-[15px] leading-none font-medium">
+      <p className="text-ink-primary text-[15px] leading-none">
         {label}
       </p>
       <p className="text-ink-primary figure flex items-baseline gap-2 leading-[1]">
         {/* Same system sans as everything else — a display face here reads as
             off-brand decoration. */}
         <span className="text-[3.25rem] sm:text-[3.75rem]">{value}</span>
-        <span className="text-ink-secondary text-base font-medium tracking-normal">
+        <span className="text-ink-secondary text-base tracking-normal">
           {unit}
         </span>
       </p>
@@ -260,7 +260,7 @@ export function Meter({
         <div className="mb-1.5 flex items-baseline justify-between gap-2">
           {label ? <span className="text-ink-muted text-[11px]">{label}</span> : null}
           {valueLabel ? (
-            <span className="text-ink-secondary tabular text-[11px] font-medium">
+            <span className="text-ink-secondary tabular text-[11px]">
               {valueLabel}
             </span>
           ) : null}

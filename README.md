@@ -50,6 +50,35 @@ PREDICTHQ_API_TOKEN=your-token
 Sales, promotions, inventory and tank levels are demo data; store coordinates
 are demo locations in central New Jersey.
 
+## Bring your own data
+
+The **Your data** page (`/data`) takes a CSV export from a POS or back office
+and runs the forecast on it. Minimum columns: a date, an item code and units
+sold. Store, item name, category, unit price, promo flag and discount columns
+are optional and each unlocks something (the store filter, readable names, the
+category chart, price sensitivity, promo lift).
+
+The page guesses the mapping from the header names and the date format from
+the values, dry-runs the mapping and reports what would land (rows kept and
+skipped, stores, items, date span, warnings) before anything is written.
+Receipt-level rows are summed to days; missing days read as zero sales;
+negative units count as zero. "Replace" wipes the demo data first; "Merge"
+upserts by store, item and day. `public/sample-sales.csv` is a worked example
+(2 stores, 6 items, 120 days, US dates, a promo window).
+
+The app ships empty: with nothing on file, `/` lands on `/data` and the
+forecasting pages show an "add sales history" state until a file is
+imported. `npm run reset` empties the database again; `npm run seed` loads the
+demo stores instead.
+
+Imports write to the same tables everything else reads (`stores`, `skus`,
+`categories`, `daily_item_sales`) and log to `import_log`, which is part of the
+read cache's version key. `npm run seed` brings the demo data back.
+
+Not yet covered: stock on hand per item (so the order suggestions run on real
+counts), item costs, fuel sales, and a scheduled pull from a POS. The import
+module is `src/lib/import/sales.ts`; the routes are under `src/app/api/import/`.
+
 ## Commands
 
 ```bash
@@ -141,6 +170,42 @@ server render and client hydration agree and every figure is reproducible.
 To plug in real data, replace `src/lib/data/generate.ts` with something that
 returns the same `ItemSeries` / `FuelSeries` shapes. Nothing downstream knows
 where the numbers came from.
+
+## UI system
+
+The shell and controls are built on [Nexvyn UI](https://github.com/Nexvyn/Nexvyn-ui),
+a shadcn registry of spring-animated components ("fluid precision, editorial
+restraint": regular-weight type, hairline borders, the accent only on focus,
+selection and the active nav item). In use:
+
+- `sidebar` primitives (`src/components/ui/sidebar.tsx`) and `nav-menu` for the
+  app shell in `src/components/shell/app-shell.tsx`: a sidebar that folds to an
+  icon rail on desktop and becomes a focus-trapped sheet on mobile.
+- `select` for the filter row, `tabs-subtle` for the Model Lab stream switch,
+  `badge` under every status pill, `switch` for the interaction-sound toggle,
+  `button` and `action-button` for the chart-frame toggles and the "Sync now"
+  state machine (idle, pending, synced, failed).
+- Type is Geist via `next/font`; its variable weight axis drives the nav
+  labels' weight shift. No weight above 400 outside the Nexvyn files.
+
+The components read `--color-bg`, `--color-fg`, `--color-accent` and friends;
+`src/app/tokens.css` maps those onto this project's own tokens (the "Nexvyn UI
+token bridge" block), so they follow both themes without edits to their source.
+Interaction sounds are off by default (`src/lib/sound.ts`) and can be switched
+on from the sidebar.
+
+Adding another component:
+
+```bash
+npx shadcn@latest add https://ui.nexvyn.dev/r/<name>.json
+```
+
+This project's `components.json` style is `base-nova`, and the CLI applies a
+Base UI transform to everything it installs: it rewrites Nexvyn's Radix-style
+`asChild` / `Slot` code into `render` props and flattens the JSX, which broke
+`action-button`. After installing, diff the file against the upstream source
+and restore it, keeping only the import-path rewrites (`@/hooks/...`,
+`@/components/ui/sidebar`).
 
 ## Design
 

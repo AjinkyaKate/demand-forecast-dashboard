@@ -5,7 +5,10 @@
  * card and the accuracy panel.
  */
 
+import Link from "next/link";
 import type { ReactNode } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ChartFrame, DataTable } from "@/components/chart/chart-frame";
 import { DriverBars } from "@/components/chart/driver-bars";
 import type { Anomaly } from "@/lib/forecast/anomalies";
@@ -22,15 +25,19 @@ import { cn } from "@/lib/utils";
 
 export type StatusTone = "critical" | "serious" | "warning" | "good" | "neutral";
 
-const TONE: Record<StatusTone, { color: string; icon: string }> = {
-  critical: { color: "var(--status-critical)", icon: "●" },
-  serious: { color: "var(--status-serious)", icon: "▲" },
-  warning: { color: "var(--status-warning)", icon: "▲" },
-  good: { color: "var(--status-good)", icon: "✓" },
-  neutral: { color: "var(--ink-muted)", icon: "–" },
+const TONE: Record<StatusTone, string> = {
+  critical: "var(--status-critical)",
+  serious: "var(--status-serious)",
+  warning: "var(--status-warning)",
+  good: "var(--status-good)",
+  neutral: "var(--ink-muted)",
 };
 
-/** Status colour never travels alone — every badge ships an icon and a label. */
+/**
+ * Status colour never travels alone: every badge ships a dot and a label.
+ * Built on the Nexvyn badge (pill, hairline, regular weight); the tone only
+ * tints the dot, the text and a wash behind them.
+ */
 export function StatusBadge({
   tone,
   children,
@@ -40,21 +47,26 @@ export function StatusBadge({
   children: ReactNode;
   className?: string;
 }) {
-  const t = TONE[tone];
+  const color = TONE[tone];
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-[11px] font-medium whitespace-nowrap",
-        className,
-      )}
+    <Badge
+      size="sm"
+      icon={
+        <span
+          aria-hidden
+          className="size-1.5 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+      }
+      className={cn("gap-1.5", className)}
       style={{
-        color: t.color,
-        backgroundColor: `color-mix(in oklab, ${t.color} 12%, transparent)`,
+        color,
+        borderColor: `color-mix(in oklab, ${color} 26%, transparent)`,
+        backgroundColor: `color-mix(in oklab, ${color} 7%, transparent)`,
       }}
     >
-      <span aria-hidden className="text-[9px] leading-none">{t.icon}</span>
       {children}
-    </span>
+    </Badge>
   );
 }
 
@@ -74,7 +86,7 @@ export function AnomalyFeed({
   if (incidents.length === 0) {
     return (
       <section className="surface-card rounded-card p-6">
-        <h3 className="text-ink-primary text-[15px] font-medium">{title}</h3>
+        <h3 className="text-ink-primary text-[15px]">{title}</h3>
         <p className="text-ink-muted mt-2 text-xs">
           No days in this window deviate from the model by more than 3 robust
           standard deviations.
@@ -86,7 +98,7 @@ export function AnomalyFeed({
   return (
     <section className="surface-card rounded-card flex flex-col p-5 sm:p-6">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-ink-primary text-[15px] font-medium">{title}</h3>
+        <h3 className="text-ink-primary text-[15px]">{title}</h3>
         <p className="text-ink-muted text-[11px]">
           {incidents.length} incident{incidents.length === 1 ? "" : "s"}
         </p>
@@ -116,7 +128,7 @@ export function AnomalyFeed({
                   <StatusBadge tone={head.severity}>
                     {head.direction === "spike" ? "Spike" : "Drop"}
                   </StatusBadge>
-                  <span className="text-ink-primary text-xs font-medium tabular">
+                  <span className="text-ink-primary text-xs tabular">
                     {span}
                   </span>
                   {group.length > 1 ? (
@@ -126,7 +138,7 @@ export function AnomalyFeed({
                   ) : null}
                 </div>
                 <span
-                  className="tabular text-xs font-semibold"
+                  className="tabular text-xs"
                   style={{
                     color:
                       head.deviation >= 0 ? "var(--delta-good)" : "var(--delta-bad)",
@@ -146,7 +158,7 @@ export function AnomalyFeed({
                 </span>
                 {" · "}
                 {cause ? (
-                  <span className="text-ink-secondary font-medium" title={cause.note}>
+                  <span className="text-ink-secondary" title={cause.note}>
                     {cause.label}
                   </span>
                 ) : (
@@ -249,7 +261,7 @@ function ModelChoiceNote({ model }: { model: ModelInfo }) {
   const pct = (w: number | null) => (w == null || !Number.isFinite(w) ? "—" : percent(1 - w, 1));
   return (
     <div className="bg-surface-2 rounded-inner mt-4 p-3">
-      <p className="text-ink-primary text-xs font-medium">Forecast by {MODEL_NAME[model.used]}</p>
+      <p className="text-ink-primary text-xs">Forecast by {MODEL_NAME[model.used]}</p>
       <p className="text-ink-muted mt-1 text-[11px] leading-relaxed">
         {model.used === "driver"
           ? "Learns input effects from past sales and applies them to what’s known ahead: planned promos, holidays, the weather forecast, alerts and events."
@@ -281,21 +293,21 @@ function ModelChoiceNote({ model }: { model: ModelInfo }) {
       <dl className="tabular mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
         <div className="flex gap-1">
           <dt className="text-ink-muted">Driver model</dt>
-          <dd className="text-ink-primary font-medium">{pct(model.driverWape)}</dd>
+          <dd className="text-ink-primary">{pct(model.driverWape)}</dd>
         </div>
         <div className="flex gap-1">
           <dt className="text-ink-muted">Holt-Winters</dt>
-          <dd className="text-ink-primary font-medium">{pct(model.hwWape)}</dd>
+          <dd className="text-ink-primary">{pct(model.hwWape)}</dd>
         </div>
         <div className="flex gap-1">
           <dt className="text-ink-muted">Series on driver model</dt>
-          <dd className="text-ink-primary font-medium">
+          <dd className="text-ink-primary">
             {model.seriesOnDriver}/{model.seriesTotal}
           </dd>
         </div>
         <div className="flex gap-1">
           <dt className="text-ink-muted">Using weather / alerts / events</dt>
-          <dd className="text-ink-primary font-medium">
+          <dd className="text-ink-primary">
             {model.seriesUsing.weather} / {model.seriesUsing.alerts} / {model.seriesUsing.events}
           </dd>
         </div>
@@ -311,7 +323,7 @@ export function AccuracyPanel({ accuracy, model }: { accuracy: Accuracy; model?:
     return (
       <section className="surface-card rounded-card p-5 sm:p-6">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-ink-primary text-sm font-semibold">Forecast accuracy</h3>
+          <h3 className="text-ink-primary text-sm">Forecast accuracy</h3>
           <StatusBadge tone="neutral">Not scored yet</StatusBadge>
         </div>
         <p className="text-ink-secondary mt-3 text-xs leading-relaxed">
@@ -352,7 +364,7 @@ export function AccuracyPanel({ accuracy, model }: { accuracy: Accuracy; model?:
   return (
     <section className="surface-card rounded-card p-5 sm:p-6">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-ink-primary text-sm font-semibold">Forecast accuracy</h3>
+        <h3 className="text-ink-primary text-sm">Forecast accuracy</h3>
         <StatusBadge tone={beatsNaive ? "good" : "warning"}>
           {beatsNaive ? "Beats baseline" : "Check model"}
         </StatusBadge>
@@ -368,7 +380,7 @@ export function AccuracyPanel({ accuracy, model }: { accuracy: Accuracy; model?:
             className="border-hairline flex items-baseline justify-between gap-4 border-b pb-3 last:border-0 last:pb-0"
           >
             <dt className="text-ink-secondary text-xs">{r.k}</dt>
-            <dd className="text-ink-primary tabular shrink-0 text-sm font-semibold">
+            <dd className="text-ink-primary tabular shrink-0 text-sm">
               {r.v}
             </dd>
           </div>
@@ -395,7 +407,7 @@ export function SectionHeading({
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
       <div>
-        <h2 className="text-ink-primary text-lg font-semibold tracking-[-0.01em]">{title}</h2>
+        <h2 className="text-ink-primary text-lg tracking-[-0.01em]">{title}</h2>
         {description ? (
           <p className="text-ink-muted mt-0.5 text-xs">{description}</p>
         ) : null}
@@ -426,13 +438,39 @@ export function WorkspaceHeader({
   filters: ReactNode;
 }) {
   return (
-    <header className="surface-card rounded-card flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+    <header className="surface-card rounded-card flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
       <div className="min-w-0">
-        <h2 className="text-ink-primary text-lg font-semibold tracking-[-0.01em]">{title}</h2>
+        <h2 className="text-ink-primary text-base tracking-[-0.01em]">{title}</h2>
         {description ? <p className="text-ink-muted mt-0.5 text-xs">{description}</p> : null}
         {status ? <div className="mt-2">{status}</div> : null}
       </div>
       <div className="lg:shrink-0">{filters}</div>
     </header>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Empty state                                                                */
+/* -------------------------------------------------------------------------- */
+
+/** Shown on every forecasting page until some sales history is on file. */
+export function NoDataState({ title }: { title: string }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <WorkspaceHeader title={title} filters={null} />
+      <section className="surface-card rounded-card flex flex-col items-start gap-4 p-6 sm:p-8">
+        <div>
+          <h3 className="text-ink-primary text-base">No sales history yet</h3>
+          <p className="text-ink-secondary mt-1 max-w-prose text-sm leading-relaxed">
+            The forecast is built from your own sales. Upload a CSV export from your POS with a
+            date, an item code and units sold, and this page fills in with the demand forecast,
+            its drivers, anomalies and the order plan.
+          </p>
+        </div>
+        <Button asChild size="sm">
+          <Link href="/data">Add sales history</Link>
+        </Button>
+      </section>
+    </div>
   );
 }

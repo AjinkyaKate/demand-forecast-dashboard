@@ -163,7 +163,7 @@ export function DriverBars({
 function HoverNote({ bar }: { bar: DriverBar }) {
   return (
     <div className="bg-surface-2 text-ink-secondary mt-2 rounded-md px-2.5 py-1.5 text-[11px] leading-snug">
-      <span className="text-ink-primary font-medium">{bar.label}</span>
+      <span className="text-ink-primary">{bar.label}</span>
       {bar.hint ? ` — ${bar.hint}` : null}
       {bar.detail ? <span className="tabular"> · {bar.detail}</span> : null}
     </div>

@@ -1,0 +1,1441 @@
+Date,Store,SKU,Item,Category,Qty Sold,Unit Price,On Promo
+06/01/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+06/01/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/01/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+06/01/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+06/01/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/01/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+06/01/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+06/01/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+06/01/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/01/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+06/01/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/01/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+06/02/2026,Elm Street Market,4011,Bananas (lb),Produce,11,0.69,No
+06/02/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/02/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+06/02/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+06/02/2026,Elm Street Market,9010,Chewing Gum,Candy,4,1.29,No
+06/02/2026,Elm Street Market,5530,Ice 10 lb,Grocery,7,2.99,No
+06/02/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+06/02/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/02/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+06/02/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+06/02/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/02/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+06/03/2026,Elm Street Market,4011,Bananas (lb),Produce,18,0.69,No
+06/03/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/03/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/03/2026,Elm Street Market,2201,Spring Water 1L,Beverages,27,1.49,No
+06/03/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+06/03/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+06/03/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+06/03/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/03/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+06/03/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+06/03/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/03/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+06/04/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+06/04/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/04/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+06/04/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+06/04/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/04/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+06/04/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+06/04/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/04/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/04/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+06/04/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,3,1.29,No
+06/04/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+06/05/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+06/05/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/05/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,18,4.99,No
+06/05/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+06/05/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/05/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+06/05/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+06/05/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/05/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,14,4.99,No
+06/05/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+06/05/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+06/05/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+06/06/2026,Elm Street Market,4011,Bananas (lb),Produce,26,0.69,No
+06/06/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/06/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+06/06/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+06/06/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/06/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+06/06/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,20,0.69,No
+06/06/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/06/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+06/06/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,21,1.49,No
+06/06/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+06/06/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,11,2.99,No
+06/07/2026,Elm Street Market,4011,Bananas (lb),Produce,13,0.69,No
+06/07/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/07/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+06/07/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+06/07/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/07/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+06/07/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+06/07/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/07/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/07/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+06/07/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+06/07/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/08/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+06/08/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/08/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/08/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+06/08/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/08/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+06/08/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,8,0.69,No
+06/08/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/08/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/08/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,10,1.49,No
+06/08/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/08/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/09/2026,Elm Street Market,4011,Bananas (lb),Produce,12,0.69,No
+06/09/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+06/09/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+06/09/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+06/09/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+06/09/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+06/09/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+06/09/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/09/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+06/09/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+06/09/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/09/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+06/10/2026,Elm Street Market,4011,Bananas (lb),Produce,14,0.69,No
+06/10/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/10/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+06/10/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+06/10/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+06/10/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+06/10/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+06/10/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+06/10/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/10/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+06/10/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+06/10/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+06/11/2026,Elm Street Market,4011,Bananas (lb),Produce,15,0.69,No
+06/11/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/11/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+06/11/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+06/11/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+06/11/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+06/11/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+06/11/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/11/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+06/11/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+06/11/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/11/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+06/12/2026,Elm Street Market,4011,Bananas (lb),Produce,24,0.69,No
+06/12/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+06/12/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,22,4.99,No
+06/12/2026,Elm Street Market,2201,Spring Water 1L,Beverages,27,1.49,No
+06/12/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+06/12/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+06/12/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+06/12/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/12/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/12/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+06/12/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+06/12/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,5,2.99,No
+06/13/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+06/13/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+06/13/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,20,4.99,No
+06/13/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+06/13/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/13/2026,Elm Street Market,5530,Ice 10 lb,Grocery,16,2.99,No
+06/13/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+06/13/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/13/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,18,4.99,No
+06/13/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,22,1.49,No
+06/13/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+06/13/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+06/14/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+06/14/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/14/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,8,4.99,No
+06/14/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+06/14/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+06/14/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+06/14/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+06/14/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+06/14/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+06/14/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,22,1.49,No
+06/14/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+06/14/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+06/15/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+06/15/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/15/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+06/15/2026,Elm Street Market,2201,Spring Water 1L,Beverages,11,1.49,No
+06/15/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/15/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+06/15/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+06/15/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+06/15/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/15/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+06/15/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/15/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+06/16/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+06/16/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+06/16/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+06/16/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+06/16/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/16/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+06/16/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+06/16/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/16/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/16/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+06/16/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/16/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+06/17/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+06/17/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/17/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,9,4.99,No
+06/17/2026,Elm Street Market,2201,Spring Water 1L,Beverages,15,1.49,No
+06/17/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+06/17/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+06/17/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+06/17/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+06/17/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/17/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+06/17/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+06/17/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+06/18/2026,Elm Street Market,4011,Bananas (lb),Produce,18,0.69,No
+06/18/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/18/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+06/18/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+06/18/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/18/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+06/18/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+06/18/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+06/18/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,6,4.99,No
+06/18/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+06/18/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/18/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+06/19/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+06/19/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+06/19/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,21,4.99,No
+06/19/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+06/19/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+06/19/2026,Elm Street Market,5530,Ice 10 lb,Grocery,16,2.99,No
+06/19/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,19,0.69,No
+06/19/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/19/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/19/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,21,1.49,No
+06/19/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+06/19/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/20/2026,Elm Street Market,4011,Bananas (lb),Produce,30,0.69,No
+06/20/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+06/20/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/20/2026,Elm Street Market,2201,Spring Water 1L,Beverages,27,1.49,No
+06/20/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/20/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+06/20/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+06/20/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/20/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+06/20/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,23,1.49,No
+06/20/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+06/20/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,13,2.99,No
+06/21/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+06/21/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+06/21/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,20,4.99,No
+06/21/2026,Elm Street Market,2201,Spring Water 1L,Beverages,32,1.49,No
+06/21/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+06/21/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+06/21/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,9,0.69,No
+06/21/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+06/21/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,7,4.99,No
+06/21/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,21,1.49,No
+06/21/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+06/21/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/22/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+06/22/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/22/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+06/22/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+06/22/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+06/22/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+06/22/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+06/22/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/22/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+06/22/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+06/22/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+06/22/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/23/2026,Elm Street Market,4011,Bananas (lb),Produce,12,0.69,No
+06/23/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/23/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+06/23/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+06/23/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+06/23/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+06/23/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+06/23/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/23/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,6,4.99,No
+06/23/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+06/23/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/23/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+06/24/2026,Elm Street Market,4011,Bananas (lb),Produce,14,0.69,No
+06/24/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/24/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/24/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+06/24/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+06/24/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+06/24/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,7,0.69,No
+06/24/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+06/24/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+06/24/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,9,1.49,No
+06/24/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/24/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+06/25/2026,Elm Street Market,4011,Bananas (lb),Produce,11,0.69,No
+06/25/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+06/25/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+06/25/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+06/25/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/25/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+06/25/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+06/25/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/25/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+06/25/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+06/25/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/25/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,5,2.99,No
+06/26/2026,Elm Street Market,4011,Bananas (lb),Produce,25,0.69,No
+06/26/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+06/26/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+06/26/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+06/26/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+06/26/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+06/26/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+06/26/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,3.49,No
+06/26/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/26/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+06/26/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+06/26/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/27/2026,Elm Street Market,4011,Bananas (lb),Produce,26,0.69,No
+06/27/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,14,3.49,No
+06/27/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+06/27/2026,Elm Street Market,2201,Spring Water 1L,Beverages,29,1.49,No
+06/27/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+06/27/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+06/27/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+06/27/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+06/27/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+06/27/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+06/27/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+06/27/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+06/28/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+06/28/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+06/28/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,23,4.99,No
+06/28/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+06/28/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+06/28/2026,Elm Street Market,5530,Ice 10 lb,Grocery,7,2.99,No
+06/28/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+06/28/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+06/28/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,14,4.99,No
+06/28/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+06/28/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+06/28/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+06/29/2026,Elm Street Market,4011,Bananas (lb),Produce,11,0.69,No
+06/29/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/29/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+06/29/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+06/29/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/29/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+06/29/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,9,0.69,No
+06/29/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+06/29/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/29/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+06/29/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+06/29/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+06/30/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+06/30/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+06/30/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,10,4.99,No
+06/30/2026,Elm Street Market,2201,Spring Water 1L,Beverages,15,1.49,No
+06/30/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+06/30/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+06/30/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+06/30/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+06/30/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+06/30/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+06/30/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,3,1.29,No
+06/30/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+07/01/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+07/01/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/01/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/01/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+07/01/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+07/01/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+07/01/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+07/01/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/01/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/01/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+07/01/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/01/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+07/02/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+07/02/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/02/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+07/02/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+07/02/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+07/02/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+07/02/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/02/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+07/02/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/02/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+07/02/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/02/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/03/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+07/03/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/03/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/03/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+07/03/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+07/03/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+07/03/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/03/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+07/03/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/03/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,23,1.49,No
+07/03/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/03/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/04/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+07/04/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+07/04/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,20,4.99,No
+07/04/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+07/04/2026,Elm Street Market,9010,Chewing Gum,Candy,12,1.29,No
+07/04/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+07/04/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+07/04/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/04/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,17,4.99,No
+07/04/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,24,1.49,No
+07/04/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+07/04/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/05/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+07/05/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+07/05/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+07/05/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+07/05/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+07/05/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+07/05/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+07/05/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,10,3.49,No
+07/05/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,14,4.99,No
+07/05/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+07/05/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+07/05/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,13,2.99,No
+07/06/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+07/06/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+07/06/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+07/06/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+07/06/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+07/06/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+07/06/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+07/06/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/06/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/06/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+07/06/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+07/06/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/07/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+07/07/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/07/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+07/07/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+07/07/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+07/07/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+07/07/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/07/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+07/07/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+07/07/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,9,1.49,No
+07/07/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/07/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/08/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+07/08/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/08/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+07/08/2026,Elm Street Market,2201,Spring Water 1L,Beverages,16,1.49,No
+07/08/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+07/08/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+07/08/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+07/08/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+07/08/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/08/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,10,1.49,No
+07/08/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/08/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/09/2026,Elm Street Market,4011,Bananas (lb),Produce,12,0.69,No
+07/09/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/09/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+07/09/2026,Elm Street Market,2201,Spring Water 1L,Beverages,15,1.49,No
+07/09/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+07/09/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+07/09/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+07/09/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+07/09/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+07/09/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+07/09/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+07/09/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/10/2026,Elm Street Market,4011,Bananas (lb),Produce,27,0.69,No
+07/10/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+07/10/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+07/10/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+07/10/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+07/10/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+07/10/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+07/10/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/10/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+07/10/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+07/10/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/10/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/11/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+07/11/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+07/11/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+07/11/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+07/11/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+07/11/2026,Elm Street Market,5530,Ice 10 lb,Grocery,16,2.99,No
+07/11/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+07/11/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/11/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+07/11/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,11,1.49,No
+07/11/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/11/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+07/12/2026,Elm Street Market,4011,Bananas (lb),Produce,15,0.69,No
+07/12/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+07/12/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+07/12/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+07/12/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/12/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+07/12/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+07/12/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/12/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/12/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+07/12/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/12/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/13/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+07/13/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/13/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+07/13/2026,Elm Street Market,2201,Spring Water 1L,Beverages,16,1.49,No
+07/13/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+07/13/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+07/13/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+07/13/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/13/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/13/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+07/13/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/13/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/14/2026,Elm Street Market,4011,Bananas (lb),Produce,24,0.69,No
+07/14/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/14/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+07/14/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+07/14/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/14/2026,Elm Street Market,5530,Ice 10 lb,Grocery,6,2.99,No
+07/14/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+07/14/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/14/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+07/14/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+07/14/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/14/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/15/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+07/15/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+07/15/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+07/15/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+07/15/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+07/15/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+07/15/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+07/15/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+07/15/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+07/15/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+07/15/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/15/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/16/2026,Elm Street Market,4011,Bananas (lb),Produce,22,0.69,No
+07/16/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/16/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+07/16/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+07/16/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/16/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+07/16/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+07/16/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/16/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+07/16/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+07/16/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/16/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/17/2026,Elm Street Market,4011,Bananas (lb),Produce,27,0.69,No
+07/17/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/17/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+07/17/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+07/17/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+07/17/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+07/17/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,19,0.69,No
+07/17/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/17/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+07/17/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,21,1.49,No
+07/17/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+07/17/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+07/18/2026,Elm Street Market,4011,Bananas (lb),Produce,31,0.69,No
+07/18/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,15,3.49,No
+07/18/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+07/18/2026,Elm Street Market,2201,Spring Water 1L,Beverages,42,1.49,No
+07/18/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+07/18/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+07/18/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+07/18/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/18/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/18/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,27,1.49,No
+07/18/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+07/18/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/19/2026,Elm Street Market,4011,Bananas (lb),Produce,15,0.69,No
+07/19/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/19/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+07/19/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+07/19/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/19/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+07/19/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+07/19/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/19/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/19/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+07/19/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+07/19/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/20/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+07/20/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/20/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+07/20/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+07/20/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+07/20/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+07/20/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+07/20/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/20/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/20/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+07/20/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/20/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/21/2026,Elm Street Market,4011,Bananas (lb),Produce,18,0.69,No
+07/21/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/21/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+07/21/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+07/21/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+07/21/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+07/21/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+07/21/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+07/21/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+07/21/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+07/21/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/21/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/22/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+07/22/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/22/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+07/22/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+07/22/2026,Elm Street Market,9010,Chewing Gum,Candy,4,1.29,No
+07/22/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+07/22/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/22/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+07/22/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+07/22/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+07/22/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/22/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/23/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+07/23/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+07/23/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+07/23/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+07/23/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+07/23/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+07/23/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+07/23/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/23/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+07/23/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+07/23/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/23/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/24/2026,Elm Street Market,4011,Bananas (lb),Produce,29,0.69,No
+07/24/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+07/24/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+07/24/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+07/24/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+07/24/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+07/24/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+07/24/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/24/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+07/24/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+07/24/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/24/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,12,2.99,No
+07/25/2026,Elm Street Market,4011,Bananas (lb),Produce,28,0.69,No
+07/25/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/25/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,22,4.99,No
+07/25/2026,Elm Street Market,2201,Spring Water 1L,Beverages,29,1.49,No
+07/25/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+07/25/2026,Elm Street Market,5530,Ice 10 lb,Grocery,16,2.99,No
+07/25/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/25/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+07/25/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,17,4.99,No
+07/25/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+07/25/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/25/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/26/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+07/26/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+07/26/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,21,4.99,No
+07/26/2026,Elm Street Market,2201,Spring Water 1L,Beverages,27,1.49,No
+07/26/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/26/2026,Elm Street Market,5530,Ice 10 lb,Grocery,18,2.99,No
+07/26/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+07/26/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/26/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+07/26/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+07/26/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/26/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/27/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+07/27/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/27/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+07/27/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+07/27/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+07/27/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+07/27/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/27/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/27/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/27/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+07/27/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+07/27/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/28/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+07/28/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+07/28/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+07/28/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+07/28/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/28/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+07/28/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/28/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/28/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,7,4.99,No
+07/28/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+07/28/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/28/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+07/29/2026,Elm Street Market,4011,Bananas (lb),Produce,14,0.69,No
+07/29/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,6,3.49,No
+07/29/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+07/29/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+07/29/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+07/29/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+07/29/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+07/29/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+07/29/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+07/29/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,11,1.49,No
+07/29/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+07/29/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+07/30/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+07/30/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/30/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+07/30/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+07/30/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+07/30/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+07/30/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+07/30/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+07/30/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+07/30/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+07/30/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+07/30/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+07/31/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+07/31/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,2.79,Yes
+07/31/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+07/31/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+07/31/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+07/31/2026,Elm Street Market,5530,Ice 10 lb,Grocery,20,2.99,No
+07/31/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+07/31/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,13,2.79,Yes
+07/31/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,14,4.99,No
+07/31/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+07/31/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+07/31/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/01/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+08/01/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,2.79,Yes
+08/01/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,22,4.99,No
+08/01/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+08/01/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+08/01/2026,Elm Street Market,5530,Ice 10 lb,Grocery,21,2.99,No
+08/01/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+08/01/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,13,2.79,Yes
+08/01/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/01/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+08/01/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+08/01/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,12,2.99,No
+08/02/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+08/02/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,17,2.79,Yes
+08/02/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+08/02/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+08/02/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+08/02/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+08/02/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+08/02/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,2.79,Yes
+08/02/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+08/02/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,22,1.49,No
+08/02/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+08/02/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/03/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+08/03/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,15,2.79,Yes
+08/03/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/03/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+08/03/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/03/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+08/03/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+08/03/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,10,2.79,Yes
+08/03/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,7,4.99,No
+08/03/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+08/03/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/03/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/04/2026,Elm Street Market,4011,Bananas (lb),Produce,18,0.69,No
+08/04/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,14,2.79,Yes
+08/04/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+08/04/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+08/04/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/04/2026,Elm Street Market,5530,Ice 10 lb,Grocery,6,2.99,No
+08/04/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+08/04/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,2.79,Yes
+08/04/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/04/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+08/04/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/04/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+08/05/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+08/05/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,16,2.79,Yes
+08/05/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,18,4.99,No
+08/05/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+08/05/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/05/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+08/05/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+08/05/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,10,2.79,Yes
+08/05/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/05/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+08/05/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+08/05/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/06/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+08/06/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,16,2.79,Yes
+08/06/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/06/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+08/06/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/06/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+08/06/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+08/06/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,2.79,Yes
+08/06/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/06/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,11,1.49,No
+08/06/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+08/06/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/07/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+08/07/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,20,2.79,Yes
+08/07/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+08/07/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+08/07/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+08/07/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+08/07/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+08/07/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,13,2.79,Yes
+08/07/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,15,4.99,No
+08/07/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+08/07/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/07/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,14,2.99,No
+08/08/2026,Elm Street Market,4011,Bananas (lb),Produce,34,0.69,No
+08/08/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,2.79,Yes
+08/08/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+08/08/2026,Elm Street Market,2201,Spring Water 1L,Beverages,32,1.49,No
+08/08/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+08/08/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+08/08/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+08/08/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,2.79,Yes
+08/08/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,14,4.99,No
+08/08/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,25,1.49,No
+08/08/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/08/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+08/09/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+08/09/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,2.79,Yes
+08/09/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+08/09/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+08/09/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+08/09/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+08/09/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+08/09/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,2.79,Yes
+08/09/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/09/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+08/09/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+08/09/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+08/10/2026,Elm Street Market,4011,Bananas (lb),Produce,22,0.69,No
+08/10/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,19,2.79,Yes
+08/10/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/10/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+08/10/2026,Elm Street Market,9010,Chewing Gum,Candy,4,1.29,No
+08/10/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+08/10/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+08/10/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,10,2.79,Yes
+08/10/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/10/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+08/10/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/10/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+08/11/2026,Elm Street Market,4011,Bananas (lb),Produce,11,0.69,No
+08/11/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,14,2.79,Yes
+08/11/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+08/11/2026,Elm Street Market,2201,Spring Water 1L,Beverages,14,1.49,No
+08/11/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/11/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+08/11/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+08/11/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,10,2.79,Yes
+08/11/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/11/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+08/11/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/11/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/12/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+08/12/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,2.79,Yes
+08/12/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/12/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+08/12/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/12/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+08/12/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+08/12/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,2.79,Yes
+08/12/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/12/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+08/12/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/12/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+08/13/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+08/13/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,19,2.79,Yes
+08/13/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/13/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+08/13/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/13/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+08/13/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+08/13/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,2.79,Yes
+08/13/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/13/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+08/13/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/13/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+08/14/2026,Elm Street Market,4011,Bananas (lb),Produce,24,0.69,No
+08/14/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,18,2.79,Yes
+08/14/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+08/14/2026,Elm Street Market,2201,Spring Water 1L,Beverages,31,1.49,No
+08/14/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/14/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+08/14/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+08/14/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,15,2.79,Yes
+08/14/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/14/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+08/14/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/14/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,13,2.99,No
+08/15/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+08/15/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,15,3.49,No
+08/15/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+08/15/2026,Elm Street Market,2201,Spring Water 1L,Beverages,35,1.49,No
+08/15/2026,Elm Street Market,9010,Chewing Gum,Candy,13,1.29,No
+08/15/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+08/15/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+08/15/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+08/15/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/15/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+08/15/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,9,1.29,No
+08/15/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,11,2.99,No
+08/16/2026,Elm Street Market,4011,Bananas (lb),Produce,15,0.69,No
+08/16/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+08/16/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/16/2026,Elm Street Market,2201,Spring Water 1L,Beverages,31,1.49,No
+08/16/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/16/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+08/16/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+08/16/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+08/16/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+08/16/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+08/16/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+08/16/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+08/17/2026,Elm Street Market,4011,Bananas (lb),Produce,15,0.69,No
+08/17/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+08/17/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+08/17/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+08/17/2026,Elm Street Market,9010,Chewing Gum,Candy,4,1.29,No
+08/17/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+08/17/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+08/17/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+08/17/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/17/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,9,1.49,No
+08/17/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/17/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+08/18/2026,Elm Street Market,4011,Bananas (lb),Produce,25,0.69,No
+08/18/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+08/18/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/18/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+08/18/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/18/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+08/18/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+08/18/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+08/18/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/18/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+08/18/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/18/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+08/19/2026,Elm Street Market,4011,Bananas (lb),Produce,13,0.69,No
+08/19/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+08/19/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+08/19/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+08/19/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/19/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+08/19/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+08/19/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+08/19/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/19/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,16,1.49,No
+08/19/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/19/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,5,2.99,No
+08/20/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+08/20/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+08/20/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+08/20/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+08/20/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/20/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+08/20/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+08/20/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+08/20/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+08/20/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+08/20/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+08/20/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+08/21/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+08/21/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+08/21/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+08/21/2026,Elm Street Market,2201,Spring Water 1L,Beverages,29,1.49,No
+08/21/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+08/21/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+08/21/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+08/21/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+08/21/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/21/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+08/21/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/21/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+08/22/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+08/22/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+08/22/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,22,4.99,No
+08/22/2026,Elm Street Market,2201,Spring Water 1L,Beverages,35,1.49,No
+08/22/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+08/22/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+08/22/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+08/22/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+08/22/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/22/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+08/22/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+08/22/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/23/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+08/23/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+08/23/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+08/23/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+08/23/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+08/23/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+08/23/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,20,0.69,No
+08/23/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+08/23/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/23/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+08/23/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+08/23/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,13,2.99,No
+08/24/2026,Elm Street Market,4011,Bananas (lb),Produce,10,0.69,No
+08/24/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+08/24/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+08/24/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+08/24/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/24/2026,Elm Street Market,5530,Ice 10 lb,Grocery,7,2.99,No
+08/24/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+08/24/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+08/24/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/24/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+08/24/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+08/24/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+08/25/2026,Elm Street Market,4011,Bananas (lb),Produce,18,0.69,No
+08/25/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+08/25/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,8,4.99,No
+08/25/2026,Elm Street Market,2201,Spring Water 1L,Beverages,21,1.49,No
+08/25/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/25/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+08/25/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+08/25/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+08/25/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+08/25/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+08/25/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+08/25/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+08/26/2026,Elm Street Market,4011,Bananas (lb),Produce,15,0.69,No
+08/26/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,6,3.49,No
+08/26/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+08/26/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+08/26/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/26/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+08/26/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+08/26/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+08/26/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+08/26/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+08/26/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,3,1.29,No
+08/26/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+08/27/2026,Elm Street Market,4011,Bananas (lb),Produce,27,0.69,No
+08/27/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+08/27/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/27/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+08/27/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+08/27/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+08/27/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+08/27/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+08/27/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+08/27/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+08/27/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+08/27/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+08/28/2026,Elm Street Market,4011,Bananas (lb),Produce,22,0.69,No
+08/28/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+08/28/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,18,4.99,No
+08/28/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+08/28/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+08/28/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+08/28/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+08/28/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+08/28/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/28/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+08/28/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+08/28/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+08/29/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+08/29/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+08/29/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/29/2026,Elm Street Market,2201,Spring Water 1L,Beverages,30,1.49,No
+08/29/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+08/29/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+08/29/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+08/29/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+08/29/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,16,4.99,No
+08/29/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,22,1.49,No
+08/29/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,8,1.29,No
+08/29/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,12,2.99,No
+08/30/2026,Elm Street Market,4011,Bananas (lb),Produce,22,0.69,No
+08/30/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+08/30/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+08/30/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+08/30/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+08/30/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+08/30/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,19,0.69,No
+08/30/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,10,3.49,No
+08/30/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+08/30/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+08/30/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+08/30/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+08/31/2026,Elm Street Market,4011,Bananas (lb),Produce,22,0.69,No
+08/31/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+08/31/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+08/31/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+08/31/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+08/31/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+08/31/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+08/31/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+08/31/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+08/31/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,13,1.49,No
+08/31/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+08/31/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+09/01/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+09/01/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+09/01/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+09/01/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+09/01/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+09/01/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+09/01/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+09/01/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/01/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+09/01/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+09/01/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/01/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+09/02/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+09/02/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+09/02/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/02/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+09/02/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/02/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+09/02/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+09/02/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/02/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+09/02/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+09/02/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/02/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,5,2.99,No
+09/03/2026,Elm Street Market,4011,Bananas (lb),Produce,26,0.69,No
+09/03/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+09/03/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+09/03/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+09/03/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/03/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+09/03/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+09/03/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/03/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/03/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+09/03/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+09/03/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No
+09/04/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+09/04/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/04/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/04/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+09/04/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/04/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+09/04/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,16,0.69,No
+09/04/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+09/04/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+09/04/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,24,1.49,No
+09/04/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+09/04/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/05/2026,Elm Street Market,4011,Bananas (lb),Produce,26,0.69,No
+09/05/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+09/05/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+09/05/2026,Elm Street Market,2201,Spring Water 1L,Beverages,35,1.49,No
+09/05/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+09/05/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+09/05/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+09/05/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/05/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,15,4.99,No
+09/05/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+09/05/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+09/05/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,15,2.99,No
+09/06/2026,Elm Street Market,4011,Bananas (lb),Produce,17,0.69,No
+09/06/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/06/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+09/06/2026,Elm Street Market,2201,Spring Water 1L,Beverages,15,1.49,No
+09/06/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+09/06/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+09/06/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+09/06/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+09/06/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+09/06/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+09/06/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/06/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/07/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+09/07/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+09/07/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,19,4.99,No
+09/07/2026,Elm Street Market,2201,Spring Water 1L,Beverages,27,1.49,No
+09/07/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/07/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+09/07/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+09/07/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/07/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,9,4.99,No
+09/07/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+09/07/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/07/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+09/08/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+09/08/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/08/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,12,4.99,No
+09/08/2026,Elm Street Market,2201,Spring Water 1L,Beverages,15,1.49,No
+09/08/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+09/08/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+09/08/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+09/08/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/08/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/08/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,10,1.49,No
+09/08/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+09/08/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/09/2026,Elm Street Market,4011,Bananas (lb),Produce,25,0.69,No
+09/09/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/09/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+09/09/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+09/09/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/09/2026,Elm Street Market,5530,Ice 10 lb,Grocery,11,2.99,No
+09/09/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+09/09/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,5,3.49,No
+09/09/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+09/09/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,11,1.49,No
+09/09/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+09/09/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+09/10/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+09/10/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+09/10/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,15,4.99,No
+09/10/2026,Elm Street Market,2201,Spring Water 1L,Beverages,20,1.49,No
+09/10/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/10/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+09/10/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+09/10/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/10/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/10/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,21,1.49,No
+09/10/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/10/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/11/2026,Elm Street Market,4011,Bananas (lb),Produce,27,0.69,No
+09/11/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+09/11/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,20,4.99,No
+09/11/2026,Elm Street Market,2201,Spring Water 1L,Beverages,22,1.49,No
+09/11/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+09/11/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+09/11/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+09/11/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/11/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/11/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,24,1.49,No
+09/11/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/11/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/12/2026,Elm Street Market,4011,Bananas (lb),Produce,27,0.69,No
+09/12/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+09/12/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,21,4.99,No
+09/12/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+09/12/2026,Elm Street Market,9010,Chewing Gum,Candy,11,1.29,No
+09/12/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+09/12/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+09/12/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+09/12/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/12/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,22,1.49,No
+09/12/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/12/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,11,2.99,No
+09/13/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+09/13/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+09/13/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+09/13/2026,Elm Street Market,2201,Spring Water 1L,Beverages,34,1.49,No
+09/13/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+09/13/2026,Elm Street Market,5530,Ice 10 lb,Grocery,19,2.99,No
+09/13/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+09/13/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/13/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/13/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+09/13/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+09/13/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,11,2.99,No
+09/14/2026,Elm Street Market,4011,Bananas (lb),Produce,24,0.69,No
+09/14/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,11,3.49,No
+09/14/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+09/14/2026,Elm Street Market,2201,Spring Water 1L,Beverages,16,1.49,No
+09/14/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+09/14/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+09/14/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+09/14/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/14/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/14/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,15,1.49,No
+09/14/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/14/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+09/15/2026,Elm Street Market,4011,Bananas (lb),Produce,18,0.69,No
+09/15/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+09/15/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+09/15/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+09/15/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+09/15/2026,Elm Street Market,5530,Ice 10 lb,Grocery,13,2.99,No
+09/15/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+09/15/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/15/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,7,4.99,No
+09/15/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,14,1.49,No
+09/15/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/15/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+09/16/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+09/16/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,10,3.49,No
+09/16/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/16/2026,Elm Street Market,2201,Spring Water 1L,Beverages,28,1.49,No
+09/16/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+09/16/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+09/16/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+09/16/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/16/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/16/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,12,1.49,No
+09/16/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+09/16/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/17/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+09/17/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/17/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,16,4.99,No
+09/17/2026,Elm Street Market,2201,Spring Water 1L,Beverages,27,1.49,No
+09/17/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/17/2026,Elm Street Market,5530,Ice 10 lb,Grocery,8,2.99,No
+09/17/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+09/17/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/17/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/17/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+09/17/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/17/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+09/18/2026,Elm Street Market,4011,Bananas (lb),Produce,21,0.69,No
+09/18/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+09/18/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,23,4.99,No
+09/18/2026,Elm Street Market,2201,Spring Water 1L,Beverages,26,1.49,No
+09/18/2026,Elm Street Market,9010,Chewing Gum,Candy,12,1.29,No
+09/18/2026,Elm Street Market,5530,Ice 10 lb,Grocery,18,2.99,No
+09/18/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,18,0.69,No
+09/18/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/18/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,16,4.99,No
+09/18/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+09/18/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+09/18/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+09/19/2026,Elm Street Market,4011,Bananas (lb),Produce,28,0.69,No
+09/19/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,16,3.49,No
+09/19/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,22,4.99,No
+09/19/2026,Elm Street Market,2201,Spring Water 1L,Beverages,33,1.49,No
+09/19/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+09/19/2026,Elm Street Market,5530,Ice 10 lb,Grocery,16,2.99,No
+09/19/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+09/19/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,3.49,No
+09/19/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,13,4.99,No
+09/19/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+09/19/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+09/19/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,9,2.99,No
+09/20/2026,Elm Street Market,4011,Bananas (lb),Produce,25,0.69,No
+09/20/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,13,3.49,No
+09/20/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+09/20/2026,Elm Street Market,2201,Spring Water 1L,Beverages,31,1.49,No
+09/20/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+09/20/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+09/20/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,11,0.69,No
+09/20/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/20/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/20/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+09/20/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/20/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+09/21/2026,Elm Street Market,4011,Bananas (lb),Produce,19,0.69,No
+09/21/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/21/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/21/2026,Elm Street Market,2201,Spring Water 1L,Beverages,18,1.49,No
+09/21/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+09/21/2026,Elm Street Market,5530,Ice 10 lb,Grocery,10,2.99,No
+09/21/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+09/21/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/21/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+09/21/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+09/21/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/21/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+09/22/2026,Elm Street Market,4011,Bananas (lb),Produce,16,0.69,No
+09/22/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/22/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/22/2026,Elm Street Market,2201,Spring Water 1L,Beverages,24,1.49,No
+09/22/2026,Elm Street Market,9010,Chewing Gum,Candy,6,1.29,No
+09/22/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+09/22/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,10,0.69,No
+09/22/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,4,3.49,No
+09/22/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/22/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,19,1.49,No
+09/22/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/22/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,6,2.99,No
+09/23/2026,Elm Street Market,4011,Bananas (lb),Produce,9,0.69,No
+09/23/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/23/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/23/2026,Elm Street Market,2201,Spring Water 1L,Beverages,23,1.49,No
+09/23/2026,Elm Street Market,9010,Chewing Gum,Candy,8,1.29,No
+09/23/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+09/23/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,15,0.69,No
+09/23/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,6,3.49,No
+09/23/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,12,4.99,No
+09/23/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+09/23/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,4,1.29,No
+09/23/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,7,2.99,No
+09/24/2026,Elm Street Market,4011,Bananas (lb),Produce,14,0.69,No
+09/24/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/24/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/24/2026,Elm Street Market,2201,Spring Water 1L,Beverages,19,1.49,No
+09/24/2026,Elm Street Market,9010,Chewing Gum,Candy,5,1.29,No
+09/24/2026,Elm Street Market,5530,Ice 10 lb,Grocery,15,2.99,No
+09/24/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,14,0.69,No
+09/24/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/24/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,8,4.99,No
+09/24/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,20,1.49,No
+09/24/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,7,1.29,No
+09/24/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,11,2.99,No
+09/25/2026,Elm Street Market,4011,Bananas (lb),Produce,22,0.69,No
+09/25/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+09/25/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,17,4.99,No
+09/25/2026,Elm Street Market,2201,Spring Water 1L,Beverages,33,1.49,No
+09/25/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+09/25/2026,Elm Street Market,5530,Ice 10 lb,Grocery,14,2.99,No
+09/25/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,12,0.69,No
+09/25/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,9,3.49,No
+09/25/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/25/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,22,1.49,No
+09/25/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+09/25/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,13,2.99,No
+09/26/2026,Elm Street Market,4011,Bananas (lb),Produce,31,0.69,No
+09/26/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,12,3.49,No
+09/26/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,21,4.99,No
+09/26/2026,Elm Street Market,2201,Spring Water 1L,Beverages,41,1.49,No
+09/26/2026,Elm Street Market,9010,Chewing Gum,Candy,9,1.29,No
+09/26/2026,Elm Street Market,5530,Ice 10 lb,Grocery,17,2.99,No
+09/26/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,22,0.69,No
+09/26/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,11,3.49,No
+09/26/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,15,4.99,No
+09/26/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,17,1.49,No
+09/26/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/26/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,11,2.99,No
+09/27/2026,Elm Street Market,4011,Bananas (lb),Produce,23,0.69,No
+09/27/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,16,3.49,No
+09/27/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,14,4.99,No
+09/27/2026,Elm Street Market,2201,Spring Water 1L,Beverages,32,1.49,No
+09/27/2026,Elm Street Market,9010,Chewing Gum,Candy,10,1.29,No
+09/27/2026,Elm Street Market,5530,Ice 10 lb,Grocery,9,2.99,No
+09/27/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,13,0.69,No
+09/27/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/27/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,11,4.99,No
+09/27/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+09/27/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,6,1.29,No
+09/27/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,8,2.99,No
+09/28/2026,Elm Street Market,4011,Bananas (lb),Produce,20,0.69,No
+09/28/2026,Elm Street Market,1234,Cold Brew 12oz,Beverages,8,3.49,No
+09/28/2026,Elm Street Market,7788,Breakfast Burrito,Hot Food,13,4.99,No
+09/28/2026,Elm Street Market,2201,Spring Water 1L,Beverages,25,1.49,No
+09/28/2026,Elm Street Market,9010,Chewing Gum,Candy,7,1.29,No
+09/28/2026,Elm Street Market,5530,Ice 10 lb,Grocery,12,2.99,No
+09/28/2026,Harbor Quick Stop,4011,Bananas (lb),Produce,17,0.69,No
+09/28/2026,Harbor Quick Stop,1234,Cold Brew 12oz,Beverages,7,3.49,No
+09/28/2026,Harbor Quick Stop,7788,Breakfast Burrito,Hot Food,10,4.99,No
+09/28/2026,Harbor Quick Stop,2201,Spring Water 1L,Beverages,18,1.49,No
+09/28/2026,Harbor Quick Stop,9010,Chewing Gum,Candy,5,1.29,No
+09/28/2026,Harbor Quick Stop,5530,Ice 10 lb,Grocery,10,2.99,No

@@ -41,6 +41,10 @@ export function dataVersion(): string {
   const sync = hasTable("external_sync_log")
     ? ((db.prepare("SELECT MAX(synced_at) AS v FROM external_sync_log").get() as { v: string | null }).v ?? "")
     : "";
+  // A user import rewrites sales, stores and SKUs; its log row is the signal.
+  const imported = hasTable("import_log")
+    ? ((db.prepare("SELECT MAX(id) || ':' || MAX(imported_at) AS v FROM import_log").get() as { v: string | null }).v ?? "")
+    : "";
   const counts = db
     .prepare(
       `SELECT ${["promotions", "store_weather", "holidays", "external_events", "stores"]
@@ -48,7 +52,7 @@ export function dataVersion(): string {
         .join(" || ':' || ")} AS v`,
     )
     .get() as { v: string };
-  return `${sync}|${counts.v}`;
+  return `${sync}|${imported}|${counts.v}`;
 }
 
 const cache = new Map<string, unknown>();

@@ -149,7 +149,7 @@ export function ChartTooltip({
 export function TooltipHeading({ children }: { children: ReactNode }) {
   return (
     <p
-      className="text-[11px] font-medium"
+      className="text-[11px]"
       style={{ color: "var(--tooltip-ink-dim)" }}
     >
       {children}
@@ -187,7 +187,7 @@ export function TooltipRow({
         {label}
       </dt>
       <dd
-        className="tabular text-xs font-semibold"
+        className="tabular text-xs"
         style={{ color: "var(--tooltip-ink)" }}
       >
         {value}

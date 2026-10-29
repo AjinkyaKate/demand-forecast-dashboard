@@ -91,10 +91,10 @@
   --tooltip-rule: rgb(255 255 255 / 0.14);
 
   /* --- Radii (concentric: outer = inner + padding) ------------------------ */
-  --r-card: 20px;
-  --r-inner: 12px;
-  --r-control: 10px;
-  --r-chip: 8px;
+  --r-card: 14px;
+  --r-inner: 10px;
+  --r-control: 8px;
+  --r-chip: 6px;
 
   /* --- Motion ------------------------------------------------------------- */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* enters, exits, UI feedback */
@@ -297,4 +297,53 @@
     background-color: var(--surface-2);
     transition: background-color 100ms var(--ease-out);
   }
+}
+
+/* =============================================================================
+   Nexvyn UI token bridge
+   -----------------------------------------------------------------------------
+   The Nexvyn components (sidebar, nav menu, select, badge, switch, action
+   button, icon bar, tabs) read their colours from --color-bg / --color-fg /
+   --color-accent and friends. Pointing those at the tokens above means they
+   wear this dashboard's palette in both themes without touching their source.
+   These sit outside any @layer so they win over the shadcn @theme emissions
+   of the same names (shadcn's --color-muted / --color-accent are surfaces;
+   Nexvyn's are the muted ink and the indigo accent).
+   ========================================================================== */
+
+:root {
+  --color-bg: var(--surface-1);
+  --color-surface: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-card: var(--surface-1);
+  --color-fg: var(--ink-primary);
+  --color-muted: var(--ink-secondary);
+  --color-subtle: var(--ink-muted);
+  --color-border: var(--hairline);
+  --color-border-strong: var(--axis);
+  /* Accent appears only on focus, selection and the active nav item. */
+  --color-accent: var(--series-1);
+  --color-error: var(--status-critical);
+  --color-destructive: var(--status-critical);
+  --color-success: var(--status-good);
+
+  --motion-dur-instant: 50ms;
+  --motion-dur-fast: 120ms;
+  --motion-dur-base: 200ms;
+  --motion-dur-slow: 320ms;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.squircle {
+  border-radius: 9999px;
+  corner-shape: squircle;
+}
+.squircle-corners {
+  corner-shape: squircle;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent) 28%, transparent);
+  color: var(--ink-primary);
 }

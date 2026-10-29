@@ -1,4 +1,6 @@
 import { chromium } from "playwright";
+// Point at another port with BASE_URL=http://localhost:3001 when 3000 is taken.
+const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 import { mkdirSync } from "node:fs";
 
 const OUT = "/tmp/shots";
@@ -18,7 +20,7 @@ for (const theme of ["light", "dark"]) {
   page.on("pageerror", (e) => errors.push(`[${theme}] pageerror: ${e.message}`));
 
   for (const route of ["items", "fuel"]) {
-    await page.goto(`http://localhost:3000/${route}`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE}/${route}`, { waitUntil: "networkidle" });
     // Let the staged entrance finish before capturing.
     await page.waitForTimeout(1200);
     await page.screenshot({ path: `${OUT}/${route}-${theme}.png`, fullPage: true });
@@ -30,7 +32,7 @@ for (const theme of ["light", "dark"]) {
 // Mobile check on the default theme.
 const m = await browser.newContext({ viewport: { width: 390, height: 900 }, deviceScaleFactor: 2 });
 const mp = await m.newPage();
-await mp.goto("http://localhost:3000/items", { waitUntil: "networkidle" });
+await mp.goto(`${BASE}/items`, { waitUntil: "networkidle" });
 await mp.waitForTimeout(1200);
 // The page body must never scroll horizontally.
 const overflow = await mp.evaluate(() => ({

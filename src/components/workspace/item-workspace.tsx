@@ -17,7 +17,7 @@ import {
 } from "@/lib/format";
 import { FilterBar, useFilters } from "./filters";
 import { SkuPlanTable } from "./sku-plan-table";
-import { AccuracyPanel, AnomalyFeed, DriverCard, SectionHeading, WorkspaceHeader } from "./shared";
+import { AccuracyPanel, AnomalyFeed, DriverCard, NoDataState, SectionHeading, WorkspaceHeader } from "./shared";
 import { ExternalFactorsPanel } from "./external-factors";
 import { cn } from "@/lib/utils";
 
@@ -32,14 +32,12 @@ export function ItemWorkspace() {
 
   const units = (n: number) => thousands(Math.round(n));
 
+  // Nothing on file yet: point at the upload instead of a skeleton that never fills.
+  if (meta && meta.stores.length === 0) return <NoDataState title="Item Demand Forecasting" />;
+
   const header = (
     <WorkspaceHeader
       title="Item Demand Forecasting"
-      description={
-        w
-          ? `${w.scopeLabel} · ${w.skuCount} SKUs · forecast horizon ${filters.horizon} days`
-          : `Forecast horizon ${filters.horizon} days`
-      }
       filters={
         <FilterBar
           busy={loading && !!w}
@@ -91,7 +89,7 @@ export function ItemWorkspace() {
       <div className={cn("flex flex-col gap-4", (pending || loading) && "is-refetching")}>
         {/* --- Chunk 2: hero + KPIs -------------------------------------- */}
         {/* --- Chunk 2: hero + KPIs -------------------------------------- */}
-        <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 lg:grid-cols-4">
+        <section className="chunk-in chunk-in-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="surface-card rounded-card p-5 lg:col-span-1">
             <HeroFigure
               label={`Forecast demand · next ${filters.horizon} days`}

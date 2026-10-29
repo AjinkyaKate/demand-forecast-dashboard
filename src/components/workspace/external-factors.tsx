@@ -8,9 +8,9 @@
  */
 
 import { useEffect, useState } from "react";
+import { ActionButton } from "@/components/ui/action-button";
 import { useExternalStatus, type ExternalSource } from "@/lib/hooks/use-workspace";
 import { SectionHeading, StatusBadge, type StatusTone } from "./shared";
-import { cn } from "@/lib/utils";
 
 function timeUntil(iso: string): string {
   const mins = Math.round((new Date(iso).getTime() - Date.now()) / 60000);
@@ -45,13 +45,14 @@ function SourceRow({
 }: {
   s: ExternalSource;
   busy: boolean;
-  onSync: (s: ExternalSource) => void;
+  /** Resolves when the sync lands and rejects when it fails. */
+  onSync: (s: ExternalSource) => Promise<void>;
 }) {
   const syncing = busy || s.running;
   const st = syncing ? { tone: "neutral" as const, label: "Syncing…" } : (STATE[s.status] ?? STATE.never);
   const detail =
     s.status === "needs-key"
-      ? "Add PREDICTHQ_API_TOKEN to .env.local and restart the server — it then syncs automatically."
+      ? "Add PREDICTHQ_API_TOKEN to .env.local and restart the server. It then syncs automatically."
       : s.status === "ok"
         ? `${s.rows.toLocaleString("en-US")} rows · ${s.dateFrom} → ${s.dateTo} · synced ${s.lastSync ? timeSince(s.lastSync) : ""}`
         : s.status === "error"
@@ -65,25 +66,33 @@ function SourceRow({
   return (
     <li className="border-hairline flex flex-wrap items-center gap-x-4 gap-y-2 border-b py-3 last:border-0">
       <div className="min-w-0 flex-1">
-        <p className="text-ink-primary flex flex-wrap items-center gap-2 text-[13px] font-medium">
+        <p className="text-ink-primary flex flex-wrap items-center gap-2 text-[13px]">
           {s.label}
           <StatusBadge tone={st.tone}>{st.label}</StatusBadge>
         </p>
         <p className="text-ink-muted mt-0.5 text-xs">{detail}</p>
         {schedule ? <p className="text-ink-muted mt-0.5 text-[11px]">{schedule}</p> : null}
       </div>
-      <button
-        type="button"
-        disabled={!s.configured || syncing}
-        onClick={() => onSync(s)}
-        className={cn(
-          "press rounded-control bg-surface-2 text-ink-primary shrink-0 px-3 py-1.5 text-xs font-medium",
-          "focus-visible:ring-ring transition-colors hover:bg-surface-3 focus-visible:ring-2 focus-visible:outline-none",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-        )}
-      >
-        {syncing ? "Syncing…" : "Sync now"}
-      </button>
+      {/* The button walks idle → pending → synced / failed on its own,
+          tracking the request's promise, and settles back after a moment. */}
+      <ActionButton
+        variant="outline"
+        size="sm"
+        disabled={!s.configured || s.running}
+        idleLabel="Sync now"
+        pendingLabel="Syncing…"
+        successLabel="Synced"
+        errorLabel="Sync failed"
+        minPendingMs={600}
+        resetDelayMs={2500}
+        announcements={{
+          pending: `Syncing ${s.label}`,
+          success: `${s.label} synced`,
+          error: `${s.label} sync failed`,
+        }}
+        onAction={() => onSync(s)}
+        className="shrink-0 text-xs"
+      />
     </li>
   );
 }
@@ -107,13 +116,13 @@ export function ExternalFactorsPanel() {
     try {
       const res = await fetch(s.endpoint, { method: "POST" });
       const json = (await res.json()) as { ok: boolean; rows?: number; message?: string };
+      if (!json.ok) throw new Error(json.message ?? "sync failed");
       setMessage(
-        json.ok
-          ? `${s.label}: synced ${json.rows?.toLocaleString("en-US")} rows. Forecasts refit on the next load.`
-          : `${s.label}: ${json.message ?? "sync failed"}`,
+        `${s.label}: synced ${json.rows?.toLocaleString("en-US")} rows. Forecasts refit on the next load.`,
       );
     } catch (err) {
-      setMessage(`${s.label}: ${String(err)}`);
+      setMessage(`${s.label}: ${err instanceof Error ? err.message : String(err)}`);
+      throw err;
     } finally {
       setSyncing(null);
       setNonce((n) => n + 1);
@@ -124,12 +133,15 @@ export function ExternalFactorsPanel() {
   const connected = sources.filter((s) => s.status === "ok").length;
 
   return (
-    <section className="surface-card rounded-card flex flex-col gap-3 p-5 sm:p-6">
+    <section
+      id="data-sources"
+      className="surface-card rounded-card flex scroll-mt-6 flex-col gap-3 p-5 sm:p-6"
+    >
       <SectionHeading
         title="External data sources"
         description={
           data?.autoSync === false
-            ? "APIs whose data the forecast learns from. Automatic sync is off (AUTO_SYNC=off) — use Sync now."
+            ? "APIs whose data the forecast learns from. Automatic sync is off (AUTO_SYNC=off), so use Sync now."
             : "APIs whose data the forecast learns from. Each refreshes automatically; the forecast refits on its own when new data lands."
         }
         aside={

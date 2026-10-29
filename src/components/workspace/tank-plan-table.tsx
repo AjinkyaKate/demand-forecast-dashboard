@@ -36,28 +36,28 @@ export function TankPlanTable({
         </caption>
         <thead>
           <tr className="bg-surface-2">
-            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left font-medium">
+            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left">
               Grade
             </th>
-            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left font-medium whitespace-nowrap">
+            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left whitespace-nowrap">
               Tank level
             </th>
-            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right font-medium whitespace-nowrap">
+            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right whitespace-nowrap">
               Daily draw
             </th>
-            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right font-medium whitespace-nowrap">
+            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right whitespace-nowrap">
               Days to reserve
             </th>
-            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left font-medium whitespace-nowrap">
+            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left whitespace-nowrap">
               Deliver by
             </th>
-            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right font-medium whitespace-nowrap">
+            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right whitespace-nowrap">
               Load
             </th>
-            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right font-medium whitespace-nowrap">
+            <th scope="col" data-numeric className="text-ink-secondary border-b px-3 py-2 text-right whitespace-nowrap">
               Margin {horizon}d
             </th>
-            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left font-medium">
+            <th scope="col" className="text-ink-secondary border-b px-3 py-2 text-left">
               Status
             </th>
           </tr>
@@ -68,7 +68,7 @@ export function TankPlanTable({
             return (
               <tr key={r.grade.id} className="row-hover border-b last:border-0">
                 <td className="px-3 py-2.5">
-                  <p className="text-ink-primary font-medium">{r.grade.short}</p>
+                  <p className="text-ink-primary">{r.grade.short}</p>
                   <p className="text-ink-muted text-[11px]">
                     {r.grade.octane === "—" ? "Diesel" : `${r.grade.octane} octane`} ·{" "}
                     {thousands(r.capacity)} gal tank · {currency(r.currentPrice, 2)}/gal
@@ -94,7 +94,7 @@ export function TankPlanTable({
                 </td>
                 <td data-numeric className="px-3 py-2.5 text-right">
                   <span
-                    className="font-semibold"
+                    className=""
                     style={{
                       color:
                         r.status === "order-now"
@@ -113,7 +113,7 @@ export function TankPlanTable({
                 <td data-numeric className="px-3 py-2.5 text-right">
                   {r.recommendedLoad > 0 ? (
                     <>
-                      <span className="text-ink-primary font-semibold">
+                      <span className="text-ink-primary">
                         {thousands(r.recommendedLoad)}
                       </span>
                       <span className="text-ink-muted"> gal</span>
