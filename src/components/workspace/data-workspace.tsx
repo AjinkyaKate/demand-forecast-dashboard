@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { ActionButton } from "@/components/ui/action-button";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { TabsSubtle, TabsSubtleItem } from "@/components/ui/tabs-subtle";
 import { useMeta } from "@/components/shell/meta";
 import type {
   Assessment,
@@ -22,6 +23,7 @@ import type {
   SalesMapping,
 } from "@/lib/import/types";
 import { SALES_FIELDS } from "@/lib/import/types";
+import { SAMPLE_MONTHS, type SampleMonths } from "@/lib/import/sample";
 import { longDate, shortDate, thousands } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Field } from "./filters";
@@ -156,6 +158,8 @@ function Importer({ summary, onImported }: { summary: DataSummary | null; onImpo
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [sampleMonths, setSampleMonths] = useState<SampleMonths>(6);
+  const [sampleReplace, setSampleReplace] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const read = async (f: File) => {
@@ -227,6 +231,25 @@ function Importer({ summary, onImported }: { summary: DataSummary | null; onImpo
     onImported();
   };
 
+  // The sample goes through the same importer as a file, so the result and
+  // the done state are the same shape.
+  const loadSample = async () => {
+    setError(null);
+    const res = await fetch("/api/import/sample", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ months: sampleMonths, mode: sampleReplace ? "replace" : "merge" }),
+    });
+    const json = (await res.json()) as ImportResult & { error?: string };
+    if (!res.ok) {
+      setError(json.error ?? res.statusText);
+      throw new Error(json.error ?? res.statusText);
+    }
+    setResult(json);
+    setStep("done");
+    onImported();
+  };
+
   const reset = () => {
     setStep("pick");
     setFile(null);
@@ -287,6 +310,61 @@ function Importer({ summary, onImported }: { summary: DataSummary | null; onImpo
             Needs a date, an item code and units sold. Store, category, price and promo columns help.
           </span>
         </label>
+      ) : null}
+
+      {step === "pick" ? (
+        <div className="border-hairline flex flex-col gap-4 border-t pt-5">
+          <div className="flex flex-col gap-1">
+            <span className="text-ink-primary text-[13px]">No file handy? Try it with sample data</span>
+            <span className="text-ink-muted text-[11px] leading-snug">
+              Two convenience stores, 16 items across 8 categories, with weekends, summer, holidays
+              and promo windows built in. It ends yesterday, so the forecast starts today, and it
+              loads through the same importer as a file.
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <span className="text-ink-secondary text-xs">History</span>
+            <TabsSubtle
+              value={String(sampleMonths)}
+              onValueChange={(v) => setSampleMonths(Number(v) as SampleMonths)}
+              aria-label="Months of sample history"
+              className="p-1"
+            >
+              {SAMPLE_MONTHS.map((m) => (
+                <TabsSubtleItem key={m} value={String(m)} label={`${m} months`} className="py-0.5" />
+              ))}
+            </TabsSubtle>
+          </div>
+          {summary && summary.stores.length > 0 && !summary.isDemo ? (
+            <div className="flex flex-col gap-1.5">
+              <Switch
+                checked={sampleReplace}
+                onCheckedChange={setSampleReplace}
+                label="Replace your data with the sample"
+                labelClassName="text-[13px]"
+              />
+              <p className="text-ink-muted text-[11px] leading-snug">
+                {sampleReplace
+                  ? "Your stores, items, sales and stock counts are removed first. Import your file again to get them back."
+                  : "The two sample stores are added next to yours. Your rows are not changed."}
+              </p>
+            </div>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <ActionButton
+              idleLabel={`Load ${sampleMonths} months of sample data`}
+              pendingLabel="Generating…"
+              successLabel="Loaded"
+              errorLabel="Could not load"
+              minPendingMs={600}
+              onAction={loadSample}
+              announcements={{ pending: "Generating sample data", success: "Sample data loaded", error: "Sample data failed" }}
+            />
+            <Button asChild variant="ghost" size="sm">
+              <a href={`/api/import/sample?months=${sampleMonths}`} download>Download it as a CSV instead</a>
+            </Button>
+          </div>
+        </div>
       ) : null}
 
       {step === "map" && preview && mapping ? (

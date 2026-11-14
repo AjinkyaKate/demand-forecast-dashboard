@@ -66,6 +66,15 @@ negative units count as zero. "Replace" wipes the demo data first; "Merge"
 upserts by store, item and day. `public/sample-sales.csv` is a worked example
 (2 stores, 6 items, 120 days, US dates, a promo window).
 
+**No file handy?** The same page has a *Try it with sample data* option: pick
+6, 7, 8 or 10 months of history and it generates two convenience stores (16
+items, weekends, summer, holidays, promo windows) ending yesterday and loads
+them through the same importer, so the forecasting pages fill in straight
+away. The sample is deterministic for a given span. `GET
+/api/import/sample?months=6` downloads it as a CSV; `POST /api/import/sample`
+with `{ "months": 6, "mode": "replace" | "merge" }` loads it. The generator is
+`src/lib/import/sample.ts`; `npx tsx scripts/sample-check.ts` dry-runs every span.
+
 The app ships empty: with nothing on file, `/` lands on `/data` and the
 forecasting pages show an "add sales history" state until a file is
 imported. `npm run reset` empties the database again; `npm run seed` loads the
