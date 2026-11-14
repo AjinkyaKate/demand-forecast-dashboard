@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withDb } from "@/lib/db";
 import { importSales, type SalesMapping } from "@/lib/import/sales";
-import { buildSampleCsv, isSampleMonths, SAMPLE_MAPPING, SAMPLE_MONTHS } from "@/lib/import/sample";
+import { buildSampleCsv, isSampleMonths, SAMPLE_MAPPING, SAMPLE_MONTHS, type SampleMonths } from "@/lib/import/sample";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function monthsFrom(raw: unknown): number | null {
+function monthsFrom(raw: unknown): SampleMonths | null {
   const n = typeof raw === "string" ? Number(raw) : raw;
   return isSampleMonths(n) ? n : null;
 }
